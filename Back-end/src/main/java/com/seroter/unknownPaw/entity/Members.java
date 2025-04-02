@@ -1,11 +1,13 @@
 package com.seroter.unknownPaw.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
+// 충돌 해결본
 @Entity
 @Getter
 @Builder
