@@ -1,10 +1,21 @@
 package com.seroter.unknownPaw.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
+
+
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+
+// 충돌 해결본
 
 @Entity
 @Getter
@@ -12,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+
 @Table(name = "m_members")
 public class Members extends BaseEntity {
   @Id
@@ -37,4 +49,34 @@ public class Members extends BaseEntity {
 //}
 //
 //
+
+@Table(name = "un_members")
+public class Members {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long mid;
+
+  private String email;
+  private String name;
+  private String nickname;
+  private String mobile;
+  private int birthday;
+  private Boolean gender;
+  private String address;
+  private Float pawRate;
+
+  private LocalDateTime regDate;
+  private LocalDateTime modDate;
+
+  @ManyToOne
+  private Long petNo;
+  @ManyToOne
+  private Long imgNo;
+  @ManyToOne
+  private Long pno;
+  @ManyToOne
+  private Long cmo;
+
+
+
 }
