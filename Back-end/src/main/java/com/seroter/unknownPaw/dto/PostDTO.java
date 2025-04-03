@@ -21,6 +21,6 @@ public class PostDTO {
     private LocalDateTime regDate; // 등록일
     private LocalDateTime modDate; // 수정일
     private String writerEmail; // 작성자 이메일 (Members 엔티티 참조)
-    private List<PhotosDTO> photos; // 업로드된 이미지 리스트
+    private List<ImagesDTO> photos; // 업로드된 이미지 리스트
     private boolean isPetSitterPost; // true: PetSi 게시글, false: PetOn 게시글
 }

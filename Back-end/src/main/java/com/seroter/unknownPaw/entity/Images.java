@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @ToString(exclude = {"member", "pets", "petOn", "petSi"})
 @Table(name = "photos")
-public class Photos {
+public class Images {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,10 +36,10 @@ public class Photos {
     // 펫오너 포스트 참조
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_owner_id")
-    private PetOn petOn;
+    private PetOwner petOwner;
 
     // 펫시터 포스트 참조
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_sitter_id")
-    private PetSi petSi;
+    private PetSitter petSitter;
 }
