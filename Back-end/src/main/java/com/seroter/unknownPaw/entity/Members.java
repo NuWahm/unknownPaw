@@ -13,18 +13,18 @@ import lombok.*;
 
 @Table(name = "m_members")
 public class Members extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long mid;
 
-  private String email;
-  private String name;
-  private String nickname;
-  private String phonenumber;
-  private int birthday;
-  private Boolean gender;
-  private String adress;
-  private float pawRate;
+    private String email;
+    private String name;
+    private String nickname;
+    private String phonenumber;
+    private int birthday;
+    private Boolean gender;
+    private String adress;
+    private float pawRate;
 }
 
 

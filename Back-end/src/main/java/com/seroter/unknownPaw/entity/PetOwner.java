@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "pet_on") // 테이블 이름 설정
+@Table(name = "pet_owner") // 테이블 이름 설정
 public class PetOwner {
 
     @Id
