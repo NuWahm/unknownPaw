@@ -1,4 +1,4 @@
-package com.example.apiserver.entity;
+package com.seroter.unknownPaw.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
