@@ -15,7 +15,9 @@ import lombok.*;
 public class Members extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long mid;
+
 
     private String email;
     private String name;
