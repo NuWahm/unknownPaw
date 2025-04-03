@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"petOn", "petSi"})
+@ToString(exclude = {"petOwner", "petSitter"})
 public class DateAppoint extends BaseEntity {
 
   @Id
@@ -32,7 +32,10 @@ public class DateAppoint extends BaseEntity {
   private LocalDateTime confirmationDate; // 예약 확정 날짜
 
   @Column(nullable = false)
+
+
   private LocalDateTime futureDate; // 예약 실행 날짜
+
 
   // 예약실행 남은시간 표시 메서드
   public long getRemainingMinutes() {
