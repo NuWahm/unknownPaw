@@ -1,4 +1,4 @@
 package com.seroter.unknownPaw.entity;
 
-public class Photos {
+public class Images {
 }
