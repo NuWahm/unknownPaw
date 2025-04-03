@@ -1,4 +1,5 @@
 package com.seroter.unknownPaw.entity;
 
-public class ServiceCategory {
+public enum ServiceCategory {
+        Walk,Hotel,Care
 }
