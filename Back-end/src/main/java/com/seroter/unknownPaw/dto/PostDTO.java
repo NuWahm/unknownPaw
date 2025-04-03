@@ -12,7 +12,7 @@ public class PostDTO {
     private Long postId; // 글번호 (고유 키)
     private String title; // 글제목
     private String content; // 글내용
-    private String category; // 서비스 카테고리 (산책, 호텔링, 돌봄)
+    private String category; // 서비스 카테고리 (산책 , 호텔링 , 돌봄)
     private int hourlyRate; // 시급 (PetOn = 시급, PetSi = 희망 시급)
     private int likes; // 관심(좋아요 수)
     private int chatCount; // 채팅 수

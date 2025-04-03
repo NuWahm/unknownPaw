@@ -14,7 +14,7 @@ public class ImagesDTO {
     private String profileImg; // 프로필 사진
     private String uuid; // UUID
     private String path; // 파일 경로
-    private int role; // 역할 (1-멤버, 2-펫, 3-포스트)
+    private int role; // 역할 (1- 멤버, 2- 펫, 3- 포스트)
 
     private Long memberId; // 회원 ID
     private Long petId; // 반려동물 ID
