@@ -49,8 +49,6 @@ public class PetOn {
     @OneToMany(mappedBy = "pno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Photos> photos = new ArrayList<>(); // 사진번호(참조 키)
 
-    @OneToMany(mappedBy = "mid", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comments> comments = new ArrayList<>(); // 댓글번호(참조 키)
 
     public void changeTitle() {
         this.changeTitle = title;

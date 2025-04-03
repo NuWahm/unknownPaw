@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"petOwner", "petSitter"})
+@ToString(exclude = {"PetOn", "PetSi"})
 public class DateAppoint extends BaseEntity {
 
   @Id
@@ -31,7 +31,7 @@ public class DateAppoint extends BaseEntity {
   @Column(nullable = false)
   private LocalDateTime regDate;
 
-  @Column(nullable = false) gi
+  @Column(nullable = false)
   private LocalDateTime futureDate;
 
   // 남은 시간(분)을 계산하는 메서드
