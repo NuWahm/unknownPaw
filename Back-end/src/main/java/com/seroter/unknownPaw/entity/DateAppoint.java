@@ -12,37 +12,43 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"petOwner", "petSitter"})
+@ToString(exclude = {"petOn", "petSi"})
 public class DateAppoint extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long rno;
+  private long rno; // 예약번호
 
 
-  private int chat;
-  private int decideHourRate;
-  private boolean readTheOriginalText;
-  private boolean reservationStatus;
+  private int decideHourRate; // 확정시급
+  private boolean readTheOriginalText;  // 원글보기
+  private boolean reservationStatus; // 예약상태
+  private String chat; //채팅
+  private String defaultLocation; // 기본 위치
+  private String flexibleLocation; // 유동적인 위치
 
-  @Enumerated(EnumType.STRING)
-  private ServiceCategory serviceCategory;
 
   @Column(nullable = false)
-  private LocalDateTime regDate;
+  private LocalDateTime confirmationDate; // 예약 확정 날짜
 
-  @Column(nullable = false) gi
-  private LocalDateTime futureDate;
+  @Column(nullable = false)
+  private LocalDateTime futureDate; // 예약 실행 날짜
 
-  // 남은 시간(분)을 계산하는 메서드
+  // 예약실행 남은시간 표시 메서드
   public long getRemainingMinutes() {
-    if (futureDate != null && regDate != null) {
-      Duration duration = Duration.between(regDate, futureDate);
+    if (futureDate != null && confirmationDate != null) {
+      Duration duration = Duration.between(confirmationDate, futureDate);
       return duration.toMinutes(); // 남은 시간을 분 단위로 반환
     }
     return 0;
   }
 
+  @Enumerated(EnumType.STRING)
+  private ServiceCategory serviceCategory; // 서비스 카테고리(산책, 돌봄, 호텔)
+
+
+  @ManyToOne
+  private Long mid;
 
   @ManyToOne
   private Long pid;
@@ -51,14 +57,10 @@ public class DateAppoint extends BaseEntity {
   private Long imgNo;
 
   @ManyToOne
-  private Long mno;
-
-  @ManyToOne
   private Long petOwnerId;
 
   @ManyToOne
   private Long petSitterId;
-
 
 
 }
