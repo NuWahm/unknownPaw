@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
-public class ImagesDTO {
+public class ImageDTO {
 
     private Long imgId; // 이미지 ID
     private String profileImg; // 프로필 사진

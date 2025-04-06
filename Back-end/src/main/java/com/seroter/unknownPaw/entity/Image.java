@@ -9,8 +9,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"member", "pets", "petOn", "petSi"})
-@Table(name = "photos")
-public class Images {
+@Table(name = "images")
+public class Image {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
