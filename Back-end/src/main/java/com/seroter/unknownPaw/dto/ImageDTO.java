@@ -10,6 +10,7 @@ import lombok.*;
 @ToString
 public class ImageDTO {
 
+
     private Long imgId; // 이미지 ID
     private String profileImg; // 프로필 사진
     private String uuid; //  UUID
@@ -21,3 +22,4 @@ public class ImageDTO {
     private Long petOwnerId; // 펫오너 게시글 ID
     private Long petSitterId; // 펫시터 게시글 ID
 }
+

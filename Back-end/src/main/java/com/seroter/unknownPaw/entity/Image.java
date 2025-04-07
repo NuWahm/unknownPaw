@@ -8,8 +8,10 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"member", "pets", "petOn", "petSi"})
-@Table(name = "images")
+
+@ToString(exclude = {"member", "pet", "petOwner", "petSitter"})
+@Table(name = "image")
+
 public class Image {
 
   @Id
@@ -26,12 +28,16 @@ public class Image {
   // 회원정보 참조 (멤버)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-  private Members member;
+
+  private Member member;
+
 
   // 반려동물 정보 참조
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "pet_id")
-  private Pets pets;
+
+  private Pet pet;
+
 
   // 펫오너 포스트 참조
   @ManyToOne(fetch = FetchType.LAZY)
