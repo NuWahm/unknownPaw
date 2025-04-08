@@ -12,20 +12,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "m_members")
-public class Pets extends BaseEntity {
+
+@Table(name = "pet")
+public class Pet extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long petId;
+  private Long petId; // 펫 고유 번호(PK)
 
-  private String petName;
-  private String breed;
-  private int petBirth;
-  private boolean petGender;
-  private double weight;
+  private String petName; // 펫 이름
+  private String breed; // 견종
+  private int petBirth; // 펫 출생 연도(예: 2025/01)
+  private boolean petGender; // 성별 true = 수컷, false = 암컷
+  private double weight; // 무게
   private String petMbti; // 강아지 성격
-  private boolean neutering;
-  private String petIntroduce;
+  private boolean neutering; // 중성화 여부
+  private String petIntroduce; // 펫 소개
 
 
   private LocalDateTime regDate;
@@ -33,7 +34,9 @@ public class Pets extends BaseEntity {
 
 
   @ManyToOne
-  private Members members;
+  private Member member;
+
+
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Long imgId;
