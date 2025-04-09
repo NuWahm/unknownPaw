@@ -27,20 +27,21 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
   // 펫 수정은 save()로 가능 (단, 엔티티를 조회해서 수정 후 save 호출 필요)
 
   // 특정 회원의 펫 목록 조회
-  @Query("SELECT p FROM Pet p WHERE p.member.mid = :mid")
+  @Query("SELECT p.name, m.name FROM Pet p WHERE p.member.mid = :mid")
   Page<Pet> getPetsByMemberId(@Param("mid") Long mid, Pageable pageable);
 
   // 펫 이름으로 검색
   @Query("SELECT p FROM Pet p WHERE p.petName LIKE %:petName%")
   List<Pet> searchByPetName(@Param("petName") String petName);
 
-  // 펫 상세 조회
+  // 펫 아이디 검색
   @Query("SELECT p FROM Pet p WHERE p.petId = :petId")
   Optional<Pet> getPetDetail(@Param("petId") Long petId);
 
   // 펫 + 멤버 함께 조회
   @Query("SELECT p, m FROM Pet p LEFT JOIN p.member m WHERE p.petId = :petId")
   Object[] getPetWithMember(@Param("petId") Long petId);
+
 
   // 펫 + 이미지 ID 함께 조회
   @Query("SELECT p.petId, p.petName, p.imgId FROM Pet p WHERE p.member.mid = :mid")
