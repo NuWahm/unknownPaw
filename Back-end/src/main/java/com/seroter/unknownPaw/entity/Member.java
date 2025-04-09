@@ -1,6 +1,7 @@
 package com.seroter.unknownPaw.entity;
 
-import com.seroter.unknownPaw.common.BaseEntity;
+
+import com.seroter.unknownPaw.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @ToString
-@Table(name = "members")
+
+@Table(name = "member")
 public class Member extends BaseEntity {
 
     @Id
@@ -77,4 +79,5 @@ public class Member extends BaseEntity {
     public enum MemberStatus {
         ACTIVE, INACTIVE, BANNED, DELETED
     }
+
 }
