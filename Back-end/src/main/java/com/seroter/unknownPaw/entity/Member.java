@@ -16,7 +16,7 @@ public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 회원 고유 번호(PK)
+    private Long mid; // 회원 고유 번호(PK)
 
     // 🔐 로그인 정보
     @Column(nullable = false, unique = true, length = 100)
