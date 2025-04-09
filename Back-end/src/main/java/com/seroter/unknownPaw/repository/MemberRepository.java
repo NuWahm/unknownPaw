@@ -65,7 +65,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Query("SELECT m.pawRate FROM Member m WHERE m.mid = :mid")
   Float findPawRateByMemberId(@Param("mid") Long mid);
 
-  // 모든 회원의 mid, email, pawRate 조회,  관리자 페이지, 추천 알고리즘, 대시보드 등에서 사용 가능
+  // 모든 회원의 mid, email, pawRate 조회, 추천 알고리즘, 대시보드 등에서 사용 가능 (관리자 페이지)
   @Query("SELECT m.mid, m.email, m.pawRate FROM Member m")
   List<Object[]> findAllMemberPawRates();
 
