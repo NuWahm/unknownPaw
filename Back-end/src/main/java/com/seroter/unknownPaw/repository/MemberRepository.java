@@ -1,5 +1,7 @@
 package com.seroter.unknownPaw.repository;
 
+
+import com.seroter.unknownPaw.entity.Image;
 import com.seroter.unknownPaw.entity.Member;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,6 +45,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   List<Object[]> findMemberWithAllData(@Param("mid") Long mid);
 
 
+
   // 📌 [6] 마이페이지용 활동 내역 조회
   // 댕댕이 글 수, 오댕이 글 수, 약속 수 같은 것들을 한 번에 조회
   @Query("""
@@ -58,7 +61,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     GROUP BY m.mid
 """)
   Object[] findMyActivityStats(@Param("mid") Long mid);
-
 
   //  📌 [7] 평점
   // 특정 회원의 pawRate 조회 ,  마이페이지 또는 상대방 프로필에서 해당 회원의 평점 조회
