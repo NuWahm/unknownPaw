@@ -14,12 +14,6 @@ import lombok.*;
 @NoArgsConstructor
 public class PetOwner extends Post {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long petOwnerId; // 글번호 (고유 키)
-
-
-
 //    public void changeTitle() {
 //        this.changeTitle = title;
 //    }
