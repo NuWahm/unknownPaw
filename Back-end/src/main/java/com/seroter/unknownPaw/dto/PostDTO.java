@@ -9,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostDTO {
+
   private Long postId; // 글번호 (고유 키)
 
   private String title; // 글제목
@@ -25,3 +26,4 @@ public class PostDTO {
   private List<ImageDTO> image; // 업로드된 이미지 리스트
   private boolean isPetSitterPost; // true: PetSitter 게시글, false: PetOwner 게시글
 }
+

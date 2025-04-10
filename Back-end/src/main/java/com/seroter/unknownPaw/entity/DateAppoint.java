@@ -54,10 +54,12 @@ public class DateAppoint extends BaseEntity {
   private Long mid;
 
   @ManyToOne
+
   private Long petId;
 
   @ManyToOne
   private Long imgId;
+
 
   @ManyToOne
   private Long petOwnerId;

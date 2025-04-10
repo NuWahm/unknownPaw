@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+
 @Table(name = "pet")
 public class Pet extends BaseEntity {
   @Id
@@ -34,6 +35,8 @@ public class Pet extends BaseEntity {
 
   @ManyToOne
   private Member member;
+
+
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Long imgId;
