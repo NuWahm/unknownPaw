@@ -33,6 +33,7 @@ ext {
 }
 
 dependencies {
+	implementation "com.querydsl:querydsl-core"
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -66,27 +67,27 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-gson:0.12.6'
 }
 
-// Querydsl Q클래스 생성 경로 설정
-def querydslDir = file("src/main/generated")
-
-sourceSets {
-	main {
-		java {
-			srcDirs += querydslDir
-		}
-	}
-}
-
-tasks.named('compileJava') {
-	options.annotationProcessorGeneratedSourcesDirectory = querydslDir
-}
-
-
-// clean 시 Q클래스 디렉터리 삭제
-clean {
-	delete querydslDir
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
-}
+//// Querydsl Q클래스 생성 경로 설정
+//def querydslDir = file("src/main/generated")
+//
+//sourceSets {
+//	main {
+//		java {
+//			srcDirs += querydslDir
+//		}
+//	}
+//}
+//
+//tasks.named('compileJava') {
+//	options.annotationProcessorGeneratedSourcesDirectory = querydslDir
+//}
+//
+//
+//// clean 시 Q클래스 디렉터리 삭제
+//clean {
+//	delete querydslDir
+//}
+//
+//tasks.named('test') {
+//	useJUnitPlatform()
+//}

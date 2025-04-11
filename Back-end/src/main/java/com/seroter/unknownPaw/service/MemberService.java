@@ -3,8 +3,9 @@ package com.seroter.unknownPaw.service;
 import com.seroter.unknownPaw.dto.MemberRequestDTO;
 import com.seroter.unknownPaw.dto.MemberResponseDTO;
 import com.seroter.unknownPaw.entity.Member;
-import com.seroter.unknownPaw.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import com.seroter.unknownPaw.repository.MemberRepository;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

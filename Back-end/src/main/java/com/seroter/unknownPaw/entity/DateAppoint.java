@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"petOwner", "petSitter"})
 public class DateAppoint extends BaseEntity {
 
   @Id
