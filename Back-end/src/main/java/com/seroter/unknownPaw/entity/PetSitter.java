@@ -1,9 +1,9 @@
 package com.seroter.unknownPaw.entity;
 
-import com.seroter.unknownPaw.entity.Member;
-import com.seroter.unknownPaw.entity.Post;
-import com.seroter.unknownPaw.entity.ServiceCategory;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.*;
 
 @Entity
