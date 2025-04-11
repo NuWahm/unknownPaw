@@ -14,8 +14,6 @@ import lombok.*;
 @NoArgsConstructor
 public class PetSitter extends Post {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long petSitterId;
 
 }
+
