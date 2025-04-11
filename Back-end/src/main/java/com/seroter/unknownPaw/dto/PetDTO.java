@@ -13,15 +13,15 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PetsDTO {
-  private String petName;
+public class PetDTO {
+  private String petName; // 펫 이름
   private String breed; // 견종
-  private int petBirth;
-  private boolean petGender;
-  private double weight;
-  private String petMbti; // 강아지 성격
+  private int petBirth; // 펫 출생 연도(예: 2025)
+  private boolean petGender; // 펫 성별
+  private double weight; // 무게
+  private String petMbti; // 펫 성격
   private boolean neutering; // 중성화 여부
-  private String petIntroduce;
+  private String petIntroduce; // 펫 소개
 
   @Builder.Default
   private Set<String> roleSet = new HashSet<>();

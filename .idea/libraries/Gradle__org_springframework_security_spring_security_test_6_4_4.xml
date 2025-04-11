@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework.security:spring-security-test:6.4.4" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="org.springframework.security" artifactId="spring-security-test" version="6.4.4" baseVersion="6.4.4" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-test/6.4.4/33f679d83e8f345417327c65e0f22d2b9155c23d/spring-security-test-6.4.4.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-test/6.4.4/90a065189ace690c4e9146a76dab4b9e4f794fe8/spring-security-test-6.4.4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-test/6.4.4/738f73768560ae78158d9c063fe54e8bf903f922/spring-security-test-6.4.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

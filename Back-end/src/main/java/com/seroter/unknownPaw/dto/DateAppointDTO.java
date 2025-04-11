@@ -26,4 +26,7 @@ public class DateAppointDTO {
   private LocalDateTime confirmationDate; // 예약 확정 날짜
   private LocalDateTime futureDate; // 예약 실행 날짜
   private ServiceCategory serviceCategory; // 돌봄, 산책 ,호텔
+
+
 }
+

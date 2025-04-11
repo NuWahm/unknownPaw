@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.querydsl:querydsl-jpa:jakarta:5.1.0" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="com.querydsl" artifactId="querydsl-jpa" version="5.1.0" baseVersion="5.1.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.querydsl/querydsl-jpa/5.1.0/f44ee79a324cf92d6821eca736b2028e69542050/querydsl-jpa-5.1.0-jakarta.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.querydsl/querydsl-jpa/5.1.0/77b9b292901ed8981d2e234e563dfb9f8eb0f2eb/querydsl-jpa-5.1.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.querydsl/querydsl-jpa/5.1.0/ea9be1bf7a5571a063306e2119ae1c50ce5277bd/querydsl-jpa-5.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
