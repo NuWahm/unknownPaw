@@ -1,3 +1,7 @@
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
@@ -30,18 +34,14 @@ public class PostController {
   // post 상세 조회
   @GetMapping("/{role}/read/{postId}")
   public ResponseEntity<?> read(@PathVariable String role, @PathVariable Long postId) {
-    PostDTO postDTO = "petOwner".equals(role)
-        ? petOwnerService.get(postId)
-        : petSitterService.get(postId);
+    PostDTO postDTO = "petOwner".equals(role) ? petOwnerService.get(postId) : petSitterService.get(postId);
     return ResponseEntity.ok(postDTO);
   }
 
   // post 등록
   @PostMapping("/{role}/register")
   public ResponseEntity<?> register(@PathVariable String role, @RequestBody PostDTO postDTO) {
-    Long newId = "petOwner".equals(role)
-        ? petOwnerService.register(postDTO)
-        : petSitterService.register(postDTO);
+    Long newId = "petOwner".equals(role) ? petOwnerService.register(postDTO) : petSitterService.register(postDTO);
     return ResponseEntity.ok(Map.of("postId", newId));
   }
 
@@ -67,6 +67,8 @@ public class PostController {
     }
     return ResponseEntity.ok(Map.of("msg", "삭제 완료", "postId", postId));
   }
+
+
   // post 이미지 저장
   @PostMapping("/upload/{role}")
   public ResponseEntity<?> upload(@PathVariable String role, @RequestParam("file") MultipartFile file) {
