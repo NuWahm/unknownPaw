@@ -1,3 +1,14 @@
+import com.seroter.unknownPaw.dto.PostDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.util.Map;
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
@@ -79,6 +90,7 @@ public class PostController {
       String saveName = UUID.randomUUID() + "_" + originalName;
 
       File roleDir = new File(uploadPath, role);
+
       if (!roleDir.exists()) {
         roleDir.mkdirs(); // 디렉토리 없으면 생성
       }
