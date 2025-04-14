@@ -45,10 +45,8 @@ public class PetService {
         .petName(dto.getPetName())
         .breed(dto.getBreed())
         .petBirth(dto.getPetBirth())
-        .petGender(dto.getPetGender())
         .weight(dto.getWeight())
         .petMbti(dto.getPetMbti())
-        .neutering(dto.getNeutering())
         .petIntroduce(dto.getPetIntroduce())
         .build();
   }
@@ -60,10 +58,8 @@ public class PetService {
         .petName(pet.getPetName())
         .breed(pet.getBreed())
         .petBirth(pet.getPetBirth())
-        .petGender(pet.getPetGender())
         .weight(pet.getWeight())
         .petMbti(pet.getPetMbti())
-        .neutering(pet.getNeutering())
         .petIntroduce(pet.getPetIntroduce())
         .build();
   }
