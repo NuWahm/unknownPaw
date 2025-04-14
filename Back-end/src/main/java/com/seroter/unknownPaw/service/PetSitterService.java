@@ -2,8 +2,10 @@ package com.seroter.unknownPaw.service;
 
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Member;
+import com.seroter.unknownPaw.entity.PetOwner;
 import com.seroter.unknownPaw.entity.PetSitter;
 import com.seroter.unknownPaw.entity.ServiceCategory;
+import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetSitterRepository;
 import com.seroter.unknownPaw.repository.search.SearchPetSitterRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,17 +17,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PetSitterService {
 
+    private final MemberRepository memberRepository;
     private final PetSitterRepository petSitterRepository;
     private final SearchPetSitterRepository searchPetSitterRepository;
 
     // 등록
-    public Long register(PostDTO dto, Member member) {
+    public Long register(PostDTO dto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
         PetSitter entity = dtoToEntity(dto);
-        entity.setMember(member); // 작성자 정보 설정
+        entity.setMember(member);
         petSitterRepository.save(entity);
+
         return entity.getPostId();
     }
-
     // 조회
     public PostDTO get(Long postId) {
         return petSitterRepository.findById(postId)

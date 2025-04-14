@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MemberRequestDTO {
+  private Long mid;                   // 회원 ID
   private String email;           // 이메일
   private String password;        // 비밀번호 (일반 로그인일 경우)
   private String name;            // 이름
