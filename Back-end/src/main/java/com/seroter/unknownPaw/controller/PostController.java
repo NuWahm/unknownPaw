@@ -2,7 +2,6 @@ package com.seroter.unknownPaw.controller;
 
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.dto.ModifyRequestDTO;
-import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.service.PetOwnerService;
 import com.seroter.unknownPaw.service.PetSitterService;
 import lombok.RequiredArgsConstructor;
