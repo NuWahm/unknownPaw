@@ -1,7 +1,6 @@
 package com.seroter.unknownPaw.repository;
 
 
-import com.seroter.unknownPaw.entity.Image;
 import com.seroter.unknownPaw.entity.Member;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
