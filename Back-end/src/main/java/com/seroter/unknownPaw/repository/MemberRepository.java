@@ -12,6 +12,9 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+  // 📌 [0] 회원 Id로 조회
+  Optional<Member> findByMid(Long mid);
+
   // 📌 [1] 소셜 여부와 이메일로 회원 조회 (로그인 시 사용)
   @EntityGraph(attributePaths = {"role"}, type = EntityGraph.EntityGraphType.LOAD)
   @Query("SELECT m FROM Member m WHERE m.email = :email AND m.fromSocial = :fromSocial")
@@ -31,6 +34,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @EntityGraph(attributePaths = {"role", "status"}, type = EntityGraph.EntityGraphType.LOAD)
   @Query("SELECT m FROM Member m LEFT JOIN FETCH PetSitter ps ON ps.member = m WHERE m.mid = :mid")
   Optional<Member> findMemberWithPetSitters(@Param("mid") Long mid);
+
+
 
   // 📌 [5] 회원 + PetOwner + PetSitter + DateAppoint 통합 조회 (대시보드 용)
   @Query("""

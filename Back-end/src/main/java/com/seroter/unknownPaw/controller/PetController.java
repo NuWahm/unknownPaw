@@ -27,7 +27,7 @@ public class PetController {
   // 조회
   @GetMapping(value = "/get/{petId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PetDTO> read(@PathVariable("petId") Long petId) {
-    return new ResponseEntity<>(petService.getPetId(petId, HttpStatus.OK);
+    return new ResponseEntity<>(petService.getPet(petId), HttpStatus.OK);
   }
   // 수정
   @PutMapping("/update")
