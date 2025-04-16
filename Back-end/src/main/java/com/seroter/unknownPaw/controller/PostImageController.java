@@ -18,6 +18,9 @@ public class PostImageController {
 
   private final ImageService imageService;
 
+  private String role;
+  String targetType = role;
+ 
 
   // 게시판 이미지 등록
 
@@ -30,7 +33,7 @@ public class PostImageController {
         return ResponseEntity.badRequest().body("올바르지 않은 역할입니다.");
       }
 
-      String fileName = imageService.saveImage(file, role, role, targetId);
+      String fileName = imageService.saveImage(file, role, targetType, targetId);
       return ResponseEntity.ok(Map.of("fileName", fileName, "role", role));
     } catch (Exception e) {
       log.error("이미지 업로드 실패", e);
@@ -47,7 +50,7 @@ public class PostImageController {
                                         @RequestParam("file") MultipartFile newFile,
                                         @RequestParam("targetId") Long targetId) {
     try {
-      String newFileName = imageService.replaceImage(newFile, role, oldFileName, role, targetId);
+      String newFileName = imageService.replaceImage(newFile, role, oldFileName, targetType, targetId);
       return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "교체 성공"));
     } catch (Exception e) {
       log.error("이미지 교체 실패", e);
