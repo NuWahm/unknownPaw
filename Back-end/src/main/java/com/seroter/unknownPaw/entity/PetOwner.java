@@ -5,11 +5,12 @@ import com.seroter.unknownPaw.entity.Post;
 import com.seroter.unknownPaw.entity.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetOwner extends Post {
