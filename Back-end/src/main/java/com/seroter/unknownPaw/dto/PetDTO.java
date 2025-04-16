@@ -14,6 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetDTO {
+  private Long petId; // 펫 고유 번호(PK)
   private String petName; // 펫 이름
   private String breed; // 견종
   private int petBirth; // 펫 출생 연도(예: 2025)
