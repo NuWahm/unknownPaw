@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetOwner extends Post {
