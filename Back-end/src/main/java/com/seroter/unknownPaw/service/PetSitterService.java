@@ -68,7 +68,7 @@ public class PetSitterService {
     // DTO → Entity 변환
     public PetSitter dtoToEntity(PostDTO dto) {
         return PetSitter.builder()
-                .titgitle(dto.getTitle())
+                .title(dto.getTitle())
                 .content(dto.getContent())
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
                 .desiredHourlyRate(dto.getHourlyRate())

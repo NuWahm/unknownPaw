@@ -5,6 +5,7 @@ import com.seroter.unknownPaw.entity.Post;
 import com.seroter.unknownPaw.entity.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
