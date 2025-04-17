@@ -20,7 +20,7 @@ public class ImageService {
 
   private final ImageRepository imageRepository;
 
-  @Value("${com.example.upload.path}")
+  @Value("${com.seroter.upload.path}")
   private String uploadPath;
 
   // ✅ 이미지 업로드 및 DB 저장
