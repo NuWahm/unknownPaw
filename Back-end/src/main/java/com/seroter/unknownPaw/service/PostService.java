@@ -70,9 +70,11 @@ public class PostService {
     }
 
     // 게시글 동적 검색 메서드
-    public Page<? extends Post> searchPosts(String role, String keyword, String location, String category, Pageable pageable) {
-        return searchPostRepository.searchDynamic(role, keyword, location, category, pageable); // 검색 조건에 맞는 게시글 반환
-    }
+//    public PageResultDTO<PostDTO, ? extends Post> search(String role, String keyword, String location, String category, Pageable pageable) {
+//        Page<? extends Post> result = searchPostRepository.searchDynamic(role, keyword, location, category, pageable);
+//        return new PageResultDTO<>(result, post -> entityToDto(post, isSitter(role)));
+//    }
+
 
     // 특정 멤버의 게시글 조회 메서드
     public List<PostDTO> getPostsByMember(String role, Long memberId) {
