@@ -5,6 +5,9 @@ import com.seroter.unknownPaw.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -78,6 +81,21 @@ public class Member extends BaseEntity {
 
     public enum MemberStatus {
         ACTIVE, INACTIVE, BANNED, DELETED
+    }
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "member_roles",
+            joinColumns = @JoinColumn(name = "member_id")
+    )
+    @Column(name = "role")
+    @Builder.Default
+    private Set<Role> roleSet = new HashSet<>();
+
+    public void addRole(Role role) {
+        roleSet.add(role);
+    }
+    public void addMemberRole(Role role) {
+        this.roleSet.add(role);
     }
 
 }
