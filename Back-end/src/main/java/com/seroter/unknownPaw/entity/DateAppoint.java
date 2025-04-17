@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"petOwner", "petSitter"})
 public class DateAppoint extends BaseEntity {
 
   @Id
@@ -32,8 +31,6 @@ public class DateAppoint extends BaseEntity {
   private LocalDateTime confirmationDate; // 예약 확정 날짜
 
   @Column(nullable = false)
-
-
   private LocalDateTime futureDate; // 예약 실행 날짜
 
 
@@ -51,21 +48,22 @@ public class DateAppoint extends BaseEntity {
 
 
   @ManyToOne
-  private Long mid;
+  @JoinColumn(name = "memberId")
+  private Member mid;
 
   @ManyToOne
-
-  private Long petId;
-
-  @ManyToOne
-  private Long imgId;
-
+  @JoinColumn(name = "pet_id")
+  private Pet petId;
 
   @ManyToOne
-  private Long petOwnerId;
+  @JoinColumn(name = "img_id")
+  private Image imgId;
 
   @ManyToOne
-  private Long petSitterId;
+  @JoinColumn(name = "owner_post_id")
+  private PetOwner petOwnerPost;
 
-
+  @ManyToOne
+  @JoinColumn(name = "sitter_post_id")
+  private PetSitter petSitterPost;
 }

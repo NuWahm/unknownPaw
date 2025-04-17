@@ -39,9 +39,9 @@ public class Pet extends BaseEntity {
 
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Long imgId;
+  private Image imgId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Long petOwnerId;
+  private PetOwner petOwnerId;
 
 }

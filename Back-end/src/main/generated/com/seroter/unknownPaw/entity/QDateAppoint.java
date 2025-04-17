@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -15,59 +16,74 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QDateAppoint extends EntityPathBase<DateAppoint> {
 
-    private static final long serialVersionUID = -2066909487L;
+  private static final long serialVersionUID = -2066909487L;
 
-    public static final QDateAppoint dateAppoint = new QDateAppoint("dateAppoint");
+  private static final PathInits INITS = PathInits.DIRECT2;
 
-    public final QBaseEntity _super = new QBaseEntity(this);
+  public static final QDateAppoint dateAppoint = new QDateAppoint("dateAppoint");
 
-    public final StringPath chat = createString("chat");
+  public final QBaseEntity _super = new QBaseEntity(this);
 
-    public final DateTimePath<java.time.LocalDateTime> confirmationDate = createDateTime("confirmationDate", java.time.LocalDateTime.class);
+  public final StringPath chat = createString("chat");
 
-    public final NumberPath<Integer> decideHourRate = createNumber("decideHourRate", Integer.class);
+  public final DateTimePath<java.time.LocalDateTime> confirmationDate = createDateTime("confirmationDate", java.time.LocalDateTime.class);
 
-    public final StringPath defaultLocation = createString("defaultLocation");
+  public final NumberPath<Integer> decideHourRate = createNumber("decideHourRate", Integer.class);
 
-    public final StringPath flexibleLocation = createString("flexibleLocation");
+  public final StringPath defaultLocation = createString("defaultLocation");
 
-    public final DateTimePath<java.time.LocalDateTime> futureDate = createDateTime("futureDate", java.time.LocalDateTime.class);
+  public final StringPath flexibleLocation = createString("flexibleLocation");
 
-    public final NumberPath<Long> imgId = createNumber("imgId", Long.class);
+  public final DateTimePath<java.time.LocalDateTime> futureDate = createDateTime("futureDate", java.time.LocalDateTime.class);
 
-    public final NumberPath<Long> mid = createNumber("mid", Long.class);
+  public final QImage imgId;
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> modDate = _super.modDate;
+  public final QMember mid;
 
-    public final NumberPath<Long> petId = createNumber("petId", Long.class);
+  //inherited
+  public final DateTimePath<java.time.LocalDateTime> modDate = _super.modDate;
 
-    public final NumberPath<Long> petOwnerId = createNumber("petOwnerId", Long.class);
+  public final QPet petId;
 
-    public final NumberPath<Long> petSitterId = createNumber("petSitterId", Long.class);
+  public final QPetOwner petOwnerPost;
 
-    public final BooleanPath readTheOriginalText = createBoolean("readTheOriginalText");
+  public final QPetSitter petSitterPost;
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> regDate = _super.regDate;
+  public final BooleanPath readTheOriginalText = createBoolean("readTheOriginalText");
 
-    public final BooleanPath reservationStatus = createBoolean("reservationStatus");
+  //inherited
+  public final DateTimePath<java.time.LocalDateTime> regDate = _super.regDate;
 
-    public final NumberPath<Long> rno = createNumber("rno", Long.class);
+  public final BooleanPath reservationStatus = createBoolean("reservationStatus");
 
-    public final EnumPath<ServiceCategory> serviceCategory = createEnum("serviceCategory", ServiceCategory.class);
+  public final NumberPath<Long> rno = createNumber("rno", Long.class);
 
-    public QDateAppoint(String variable) {
-        super(DateAppoint.class, forVariable(variable));
-    }
+  public final EnumPath<ServiceCategory> serviceCategory = createEnum("serviceCategory", ServiceCategory.class);
 
-    public QDateAppoint(Path<? extends DateAppoint> path) {
-        super(path.getType(), path.getMetadata());
-    }
+  public QDateAppoint(String variable) {
+    this(DateAppoint.class, forVariable(variable), INITS);
+  }
 
-    public QDateAppoint(PathMetadata metadata) {
-        super(DateAppoint.class, metadata);
-    }
+  public QDateAppoint(Path<? extends DateAppoint> path) {
+    this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+  }
+
+  public QDateAppoint(PathMetadata metadata) {
+    this(metadata, PathInits.getFor(metadata, INITS));
+  }
+
+  public QDateAppoint(PathMetadata metadata, PathInits inits) {
+    this(DateAppoint.class, metadata, inits);
+  }
+
+  public QDateAppoint(Class<? extends DateAppoint> type, PathMetadata metadata, PathInits inits) {
+    super(type, metadata, inits);
+    this.imgId = inits.isInitialized("imgId") ? new QImage(forProperty("imgId"), inits.get("imgId")) : null;
+    this.mid = inits.isInitialized("mid") ? new QMember(forProperty("mid")) : null;
+    this.petId = inits.isInitialized("petId") ? new QPet(forProperty("petId"), inits.get("petId")) : null;
+    this.petOwnerPost = inits.isInitialized("petOwnerPost") ? new QPetOwner(forProperty("petOwnerPost"), inits.get("petOwnerPost")) : null;
+    this.petSitterPost = inits.isInitialized("petSitterPost") ? new QPetSitter(forProperty("petSitterPost"), inits.get("petSitterPost")) : null;
+  }
 
 }
 

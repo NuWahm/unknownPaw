@@ -16,13 +16,13 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder passwordEncoder;
 
     public MemberResponseDTO register(MemberRequestDTO dto) {
         Member member = Member.builder()
                 .mid(dto.getMid())
                 .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
+//                .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
                 .nickname(dto.getNickname())
                 .phoneNumber(dto.getPhoneNumber())
