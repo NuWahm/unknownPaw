@@ -2,15 +2,15 @@ package com.seroter.unknownPaw.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"member", "petOwner", "petSitter"})
-@Table(name = "pet")
-public class Pet extends BaseEntity {
+public class Pet extends BaseEntity {  // BaseEntity 상속
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,11 +37,6 @@ public class Pet extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private PetSitter petSitter; // 펫 시터
 
-  protected Pet(BaseEntityBuilder<?, ?> b) {
-    super(b);
-  }
-
-  // 펫의 소유 여부에 따라 오너/시터 설정
   public void setOwnerOrSitter() {
     if (this.petOwner != null) {
       this.petSitter = null;  // 오너가 있으면 시터는 null
@@ -49,4 +44,8 @@ public class Pet extends BaseEntity {
       this.petOwner = null;  // 시터가 있으면 오너는 null
     }
   }
+  public void setImgId(Image image) {
+    this.imgId = image;
+  }
+
 }

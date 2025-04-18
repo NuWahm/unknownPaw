@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.seroter.unknownPaw.iml" filepath="$PROJECT_DIR$/.idea/modules/com.seroter.unknownPaw.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.seroter.unknownPaw.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.seroter.unknownPaw.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.seroter.unknownPaw.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.seroter.unknownPaw.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/unknownPaw.iml" filepath="$PROJECT_DIR$/.idea/modules/unknownPaw.iml" />

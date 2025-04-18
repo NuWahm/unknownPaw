@@ -1,7 +1,10 @@
 package com.seroter.unknownPaw.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -9,18 +12,16 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-
 @ToString(exclude = {"member", "pet", "petOwner", "petSitter"})
 @Table(name = "image")
-
 public class Image {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long imgId; // 고유 키
 
-  private String profileImg; // 프로필 사진
-  private String uuid; // UUID
+  private String profileImg; // 프로필 사진 파일명
+  private String uuid; // 파일 UUID
   private String path; // 파일 경로
 
   @Column(nullable = false)
@@ -29,16 +30,12 @@ public class Image {
   // 회원정보 참조 (멤버)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-
   private Member member;
-
 
   // 반려동물 정보 참조
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "pet_id")
-
   private Pet pet;
-
 
   // 펫오너 포스트 참조
   @ManyToOne(fetch = FetchType.LAZY)
