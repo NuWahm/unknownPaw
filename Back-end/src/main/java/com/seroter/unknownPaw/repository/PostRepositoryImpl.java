@@ -63,4 +63,18 @@ public class PostRepositoryImpl implements PostRepository<Post> {
                 .setParameter("postId", postId) // postId 파라미터 설정
                 .getResultList(); // 결과 반환
     }
+
+    // 🖱️ 무한 스크롤 = 커서 방식 내용 추가
+    @Override
+    public List<Post> findNextPosts(Long lastPostId, int size) {
+        String jpql = "SELECT p FROM Post p " +
+            "WHERE (:lastPostId IS NULL OR p.postId < :lastPostId) " +
+            "ORDER BY p.postId DESC";
+
+        return em.createQuery(jpql, Post.class)
+            .setParameter("lastPostId", lastPostId)
+            .setMaxResults(size)
+            .getResultList();
+    }
+
 }

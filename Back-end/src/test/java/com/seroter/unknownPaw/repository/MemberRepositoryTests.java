@@ -24,21 +24,21 @@ class MemberRepositoryTests {
             boolean gender = random.nextBoolean(); // true = 남자, false = 여자
 
             Member member = Member.builder()
-                    .email("Odeng" + i + "@mogae.com")
-                    .password("1") // 필요 시 인코딩 주석 해제
-                    .name("Owner" + i)
-                    .nickname("MungMung" + i)
-                    .phoneNumber("010-1111-" + String.format("%04d", i))
-                    .pawRate(0.5f)
-                    .gender(gender)
-                    .birthday(1990 + (i % 10)) // 예시로 1990~1999 사이
-                    .address("부산시 테스트구")
-                    .emailVerified(true)
-                    .fromSocial(false)
-                    .role(Role.USER)
-                    .status(MemberStatus.ACTIVE)
-                    .signupChannel("test")
-                    .build();
+                .email("Odeng" + i + "@mogae.com")
+                .password("1") // 필요 시 인코딩 주석 해제
+                .name("Owner" + i)
+                .nickname("MungMung" + i)
+                .phoneNumber("010-1111-" + String.format("%04d", i))
+                .pawRate(0.5f)
+                .gender(gender)
+                .birthday(1990 + (i % 10)) // 예시로 1990~1999 사이
+                .address("부산시 테스트구")
+                .emailVerified(true)
+                .fromSocial(false)
+                .role(Role.USER)
+                .status(MemberStatus.ACTIVE)
+                .signupChannel("test")
+                .build();
 
             member.addRole(Role.USER);
 

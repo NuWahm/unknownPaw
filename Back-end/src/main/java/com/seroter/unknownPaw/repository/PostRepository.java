@@ -32,4 +32,8 @@ public interface PostRepository<T extends Post> extends Repository<T, Long> {
             "join fetch p.member " + // 멤버 정보를 함께 조회
             "where p.postId = :postId") // postId로 게시글 조회
     List<Object[]> getPostWithAll(@Param("postId") Long postId);
+
+    // 🖱️ 무한스크롤 메서드
+    List<Post> findNextPosts(Long lastPostId, int size);
+
 }

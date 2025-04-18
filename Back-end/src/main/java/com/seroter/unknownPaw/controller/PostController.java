@@ -1,9 +1,7 @@
 //package com.seroter.unknownPaw.controller;
 //
 //
-//import com.seroter.unknownPaw.dto.PostDTO;
-//import com.seroter.unknownPaw.dto.ModifyRequestDTO;
-//import com.seroter.unknownPaw.dto.PageRequestDTO;
+//import com.seroter.unknownPaw.dto.*;
 //import com.seroter.unknownPaw.entity.Post;
 //import com.seroter.unknownPaw.service.PetOwnerService;
 //import com.seroter.unknownPaw.service.PetSitterService;
@@ -83,4 +81,11 @@
 //    postService.remove(role, postId);
 //    return ResponseEntity.ok(Map.of("msg", "삭제 완료", "postId", postId));
 //  }
+
+//  // 📌 🖱️ 커서 관련 코드 추가
+//@GetMapping("/posts")
+//public ResponseEntity<CursorResultDTO<PostDTO>> getPosts(CursorRequestDTO cursorRequest) {
+//  CursorResultDTO<PostDTO> result = postService.getPostList(cursorRequest);
+//  return ResponseEntity.ok(result);
+//}
 //}
