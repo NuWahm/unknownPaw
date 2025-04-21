@@ -58,8 +58,8 @@ public class PostRepositoryImplTests {
                     .desiredHourlyRate(10000 + random.nextInt(5000))
                     .likes(random.nextInt(50))
                     .chatCount(random.nextInt(10))
-                    .defaultLocation("서울시 송파구")
-                    .flexibleLocation("서울시 강동구")
+                    .defaultLocation("부산시 부산진구")
+                    .flexibleLocation("부산시 기장군")
                     .member(owner)
                     .build();
             petOwnerRepository.save(petOwner);
@@ -104,7 +104,7 @@ public class PostRepositoryImplTests {
                     .build();
             imageRepository.save(petImage);
 
-// 7. Pet에 이미지 연결
+// 7. Pet에 이미지 연결 아니 이거 왜 커밋이 안돼는건데
             pet.setImgId(petImage); // setter가 있어야 해
             petRepository.save(pet);
         }
