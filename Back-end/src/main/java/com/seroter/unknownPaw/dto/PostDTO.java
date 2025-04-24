@@ -8,7 +8,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDTO {
+public class PostDTO implements  Identifiable{
 
   private Long postId; // 글번호 (고유 키)
 
@@ -25,5 +25,11 @@ public class PostDTO {
   private String email; // 작성자 이메일 (Members 엔티티 참조)
   private List<ImageDTO> image; // 업로드된 이미지 리스트
   private boolean isPetSitterPost; // true: PetSitter 게시글, false: PetOwner 게시글
+
+  // 🖱️ 무한 스크롤
+  @Override
+  public Long getId() {
+    return this.postId;
+  }
 }
 

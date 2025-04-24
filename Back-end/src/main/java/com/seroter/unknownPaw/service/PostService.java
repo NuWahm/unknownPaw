@@ -1,5 +1,7 @@
 package com.seroter.unknownPaw.service;
 
+import com.seroter.unknownPaw.dto.CursorRequestDTO;
+import com.seroter.unknownPaw.dto.CursorResultDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.repository.MemberRepository;
@@ -197,4 +199,12 @@ public class PostService {
     private boolean isSitter(String role) {
         return "petSitter".equals(role); // 역할이 펫시터이면 true 반환
     }
+
+
+    // 🖱️ 무한 스크롤
+//    public CursorResultDTO<PostDTO> getPostList(CursorRequestDTO request) {
+//        List<Post> posts = postRepository.findNextPosts(request.getLastPostId(), request.getSize());
+//        return new CursorResultDTO<>(posts, request.getSize(), PostDTO::fromEntity);
+//    }
+
 }
