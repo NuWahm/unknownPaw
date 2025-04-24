@@ -1,9 +1,7 @@
 package com.seroter.unknownPaw.controller;
 
-import com.seroter.unknownPaw.dto.EntryDTO;
 import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PageResultDTO;
-import com.seroter.unknownPaw.service.EntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;

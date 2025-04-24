@@ -32,4 +32,18 @@ public interface PostRepository<T extends Post> extends Repository<T, Long> {
             "join fetch p.member " + // 멤버 정보를 함께 조회
             "where p.postId = :postId") // postId로 게시글 조회
     List<Object[]> getPostWithAll(@Param("postId") Long postId);
+
+   // 📌 무한스크롤 및 페이지네이션 처리를 위한 쿼리 메서드
+    @Query("SELECT p FROM Post p WHERE (:keyword IS NULL OR p.title LIKE %:keyword%) " +
+            "AND (:location IS NULL OR p.defaultLocation LIKE %:location%) " +
+            "AND (:category IS NULL OR p.serviceCategory = :category) " +
+            "ORDER BY p.regDate DESC")
+
+    // 키워드, 지역, 카테고리 기반 무한스크롤/페이지 처리
+    Page<Post> scrollSearch(@Param("keyword") String keyword,
+                            @Param("location") String location,
+                            @Param("category") String category,
+                            Pageable pageable);
+
+
 }

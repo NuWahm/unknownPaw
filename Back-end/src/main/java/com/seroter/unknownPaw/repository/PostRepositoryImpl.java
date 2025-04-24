@@ -63,4 +63,62 @@ public class PostRepositoryImpl implements PostRepository<Post> {
                 .setParameter("postId", postId) // postId 파라미터 설정
                 .getResultList(); // 결과 반환
     }
+
+    @Override
+    public Page<Post> scrollSearch(String keyword, String location, String category, Pageable pageable) {
+        StringBuilder jpql = new StringBuilder("select p from Post p where 1=1 ");
+
+        if (keyword != null && !keyword.isBlank()) {
+            jpql.append("and p.title like :keyword ");
+        }
+        if (location != null && !location.isBlank()) {
+            jpql.append("and p.defaultLocation like :location ");
+        }
+        if (category != null && !category.isBlank()) {
+            jpql.append("and p.serviceCategory = :category ");
+        }
+
+        jpql.append("order by p.regDate desc");
+
+        var query = em.createQuery(jpql.toString(), Post.class);
+
+        if (keyword != null && !keyword.isBlank()) {
+            query.setParameter("keyword", "%" + keyword + "%");
+        }
+        if (location != null && !location.isBlank()) {
+            query.setParameter("location", "%" + location + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            query.setParameter("category", category);
+        }
+
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        List<Post> resultList = query.getResultList();
+
+        StringBuilder countJpql = new StringBuilder("select count(p) from Post p where 1=1 ");
+        if (keyword != null && !keyword.isBlank()) {
+            countJpql.append("and p.title like :keyword ");
+        }
+        if (location != null && !location.isBlank()) {
+            countJpql.append("and p.defaultLocation like :location ");
+        }
+        if (category != null && !category.isBlank()) {
+            countJpql.append("and p.serviceCategory = :category ");
+        }
+
+        var countQuery = em.createQuery(countJpql.toString(), Long.class);
+        if (keyword != null && !keyword.isBlank()) {
+            countQuery.setParameter("keyword", "%" + keyword + "%");
+        }
+        if (location != null && !location.isBlank()) {
+            countQuery.setParameter("location", "%" + location + "%");
+        }
+        if (category != null && !category.isBlank()) {
+            countQuery.setParameter("category", category);
+        }
+
+        Long totalCount = countQuery.getSingleResult();
+        return new PageImpl<>(resultList, pageable, totalCount);
+    }
 }

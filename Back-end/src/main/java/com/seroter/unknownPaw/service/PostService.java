@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.service;
 
+import com.seroter.unknownPaw.dto.PageResultDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.repository.MemberRepository;
@@ -191,10 +192,69 @@ public class PostService {
         } else {
             throw new IllegalArgumentException("잘못된 역할입니다."); // 잘못된 역할 처리
         }
+
+    }
+
+
+
+    // 무한 스크롤을 위한 메서드 (앱용)
+    public PageResultDTO<PostDTO, Post> getPostsByMemberWithScroll(String role, Long memberId, Pageable pageable) {
+        Page<? extends Post> result = findPostsByRole(role, memberId, pageable);
+        return new PageResultDTO<>(result, this::entityToDto); // entityToDto 변환
+    }
+
+    // 페이지네이션을 위한 메서드 (웹용)
+    public PageResultDTO<PostDTO, Post> getPostsByMemberWithPagination(String role, Long memberId, Pageable pageable) {
+        Page<? extends Post> result = findPostsByRole(role, memberId, pageable);
+        return new PageResultDTO<>(result, this::entityToDto);
+    }
+
+    // 역할에 맞는 게시글 조회 (페이징 처리)
+    private Page<? extends Post> findPostsByRole(String role, Long memberId, Pageable pageable) {
+        if ("petOwner".equals(role)) {
+            return petOwnerRepository.findByMember_Mid(memberId, pageable);
+        } else if ("petSitter".equals(role)) {
+            return petSitterRepository.findByMember_Mid(memberId, pageable);
+        } else {
+            throw new IllegalArgumentException("잘못된 역할입니다.");
+        }
+    }
+    // 📌 무한스크롤 방식으로 게시글 조회 (앱용)
+    public Page<PostDTO> scrollPosts(String role, String keyword, String location, String category, Pageable pageable) {
+        Page<Post> result = postRepository.scrollSearch(keyword, location, category, pageable);
+        return result.map(this::convertToDTO);
+    }
+
+    // 📌 페이지네이션 방식으로 게시글 조회 (웹용)
+    public Page<PostDTO> searchPosts(String role, String keyword, String location, String category, Pageable pageable) {
+        Page<Post> result = postRepository.scrollSearch(keyword, location, category, pageable);
+        return result.map(this::convertToDTO);
+    }
+
+    // 📌 DTO로 변환하는 메서드
+    private PostDTO convertToDTO(Post post) {
+        return PostDTO.builder()
+                .postId(post.getPostId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .serviceCategory(post.getServiceCategory().toString())
+                .hourlyRate(post.getDesiredHourlyRate())
+                .likes(post.getLikes())
+                .chatCount(post.getChatCount())
+                .defaultLocation(post.getDefaultLocation())
+                .flexibleLocation(post.getFlexibleLocation())
+                .regDate(post.getRegDate())
+                .modDate(post.getModDate())
+                .email(post.getMember().getEmail())
+                .image(null)  // ImageDTO는 별도로 처리하시면 됩니다
+                .isPetSitterPost(post instanceof PetSitter)
+                .build();
     }
 
     // 펫시터 여부를 확인하는 메서드
     private boolean isSitter(String role) {
         return "petSitter".equals(role); // 역할이 펫시터이면 true 반환
     }
+
 }
+

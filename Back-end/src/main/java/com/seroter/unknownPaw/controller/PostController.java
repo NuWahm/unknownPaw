@@ -2,12 +2,15 @@ package com.seroter.unknownPaw.controller;
 
 
 import com.seroter.unknownPaw.dto.ModifyRequestDTO;
+import com.seroter.unknownPaw.dto.PageRequestDTO;
+import com.seroter.unknownPaw.dto.PageResultDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
 import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.jaxb.SpringDataJaxb;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,19 +26,16 @@ public class PostController {
   private final PostService postService;
 
 
-  // 📌 게시글 목록 조회
-
-  @GetMapping("/{role}/list")
-  public ResponseEntity<?> list(
+  // 📌 무한스크롤 방식으로 게시글 조회 (앱용)
+  @GetMapping("/{role}/scroll")
+  public ResponseEntity<?> scroll(
           @PathVariable String role,
           SpringDataJaxb.PageRequestDto pageRequestDTO,
           @RequestParam(required = false) String keyword,
           @RequestParam(required = false) String location,
           @RequestParam(required = false) String category
   ) {
-    Page<? extends Post> result = postService.searchPosts(
-            role, keyword, location, category, pageRequestDTO.getPageable()
-    );
+    Page<PostDTO> result = postService.scrollPosts(role, keyword, location, category, pageRequestDTO.getPageable());
     return ResponseEntity.ok(result);
   }
 
@@ -50,7 +50,7 @@ public class PostController {
   @PostMapping("/{role}/register")
   public ResponseEntity<?> register(@PathVariable String role,
                                     @RequestBody PostDTO postDTO,
-                                    @RequestParam Long memberId) {
+                                    @RequestParam Long mid) {
 
     Long newId = switch (role) {
       case "petOwner" -> postService.register(postDTO, memberId);
@@ -79,5 +79,22 @@ public class PostController {
   public ResponseEntity<?> delete(@PathVariable String role, @PathVariable Long postId) {
     postService.remove(role, postId);
     return ResponseEntity.ok(Map.of("msg", "삭제 완료", "postId", postId));
+  }
+
+  @GetMapping("/member/{memberId}/scroll")
+  public ResponseEntity<PageResultDTO<PostDTO, Post>> getPostsByMemberWithScroll(
+          @RequestParam("role") String role,
+          @PathVariable Long memberId,
+          Pageable pageable) {
+    return ResponseEntity.ok(postService.getPostsByMemberWithScroll(role, memberId, pageable));
+  }
+
+  // 페이지네이션 (웹용)
+  @GetMapping("/member/{memberId}/pagination")
+  public ResponseEntity<PageResultDTO<PostDTO, Post>> getPostsByMemberWithPagination(
+          @RequestParam("role") String role,
+          @PathVariable Long memberId,
+          Pageable pageable) {
+    return ResponseEntity.ok(postService.getPostsByMemberWithPagination(role, memberId, pageable));
   }
 }
