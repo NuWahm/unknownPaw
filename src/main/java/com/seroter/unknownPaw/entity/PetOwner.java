@@ -13,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class PetOwner extends Post {
+    public void addPet(Pet pet) {
+    }
 
 //    public void changeTitle() {
 //        this.changeTitle = title;
