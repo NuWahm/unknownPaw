@@ -7,6 +7,9 @@
       <sourceFolder url="file://$MODULE_DIR$/../../Back-end/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../Back-end/src/main/resources" type="java-resource" />
     </content>
+    <content url="file://$MODULE_DIR$/../../Back-end/src/main/generated">
+      <sourceFolder url="file://$MODULE_DIR$/../../Back-end/src/main/generated" isTestSource="false" generated="true" />
+    </content>
     <orderEntry type="jdk" jdkName="17" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: org.projectlombok:lombok:1.18.38" level="project" />
