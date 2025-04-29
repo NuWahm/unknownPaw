@@ -18,7 +18,7 @@ public class Dispute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 분쟁 ID
+    private Long Disputeid; // 분쟁 ID
 
     @Column(nullable = false)
     private Long escrowPaymentId; // 관련 에스크로 결제 ID

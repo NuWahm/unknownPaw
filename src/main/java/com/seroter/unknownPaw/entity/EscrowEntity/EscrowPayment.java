@@ -1,5 +1,4 @@
 package com.seroter.unknownPaw.entity.EscrowEntity;
-import com.seroter.unknownPaw.entity.ServiceProof;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +15,7 @@ import java.util.List;
 public class EscrowPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 결제 고유 번호 (PK)
+    private Long Paymentid; // 결제 고유 번호 (PK)
 
     @Column(nullable = false)
     private Long postId; // 해당 결제와 관련된 게시글 ID (Post)

@@ -13,4 +13,7 @@ public interface EscrowPaymentRepository extends JpaRepository<EscrowPayment, Lo
 
     // 특정 상태(WAITING, PROOF_SUBMITTED 등)에 해당하는 결제 리스트 조회
     List<EscrowPayment> findByStatus(EscrowStatus status);
+
+
+
 }

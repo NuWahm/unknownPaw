@@ -1,13 +1,12 @@
 package com.seroter.unknownPaw.controller.EscrowPaymentController;
 
-import com.seroter.unknownPaw.dto.EscrowDTO.escrowCreateRequestDTO;
+import com.seroter.unknownPaw.dto.EscrowDTO.EscrowApprovalRequestDTO;
+import com.seroter.unknownPaw.dto.EscrowDTO.EscrowCreateRequestDTO;
+import com.seroter.unknownPaw.dto.EscrowDTO.EscrowPaymentDTO;
 import com.seroter.unknownPaw.service.EscrowPayment.EscrowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,33 +16,53 @@ public class EscrowController {
     private final EscrowService escrowService;
 
     /**
-     * 에스크로 결제 생성 API
-     * 오너가 결제할 때 호출
+     * 예약 확정 API (CREAT 상태)
+     * 오너와 시터가 약속을 확정할 때 호출
      */
-    @PostMapping("/create")
-    public ResponseEntity<escrowCreateRequestDTO> createEscrow(@RequestBody escrowCreateRequestDTO request) {
-        // 결제 생성 요청
-        escrowCreateRequestDTO response = escrowService.createEscrow(request);
-        return ResponseEntity.ok(response);  // 생성된 결제 정보를 반환
+    @PostMapping("/reserve")
+    public ResponseEntity<EscrowPaymentDTO> reserveEscrow(@RequestBody EscrowCreateRequestDTO request) {
+        EscrowPaymentDTO response = escrowService.createEscrowReservation(request);
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * 서비스 증거를 승인하는 API
-     * 오너가 증거를 보고 승인할 때 호출
+     * 결제 진행 API (WAITING 상태)
+     * 오너가 실제 결제를 진행할 때 호출
+     */
+    @PostMapping("/pay")
+    public ResponseEntity<EscrowPaymentDTO> payEscrow(
+            @RequestParam("escrowId") Long escrowId,
+            @RequestParam("amount") Long amount
+    ) {
+        EscrowPaymentDTO response = escrowService.makePayment(escrowId, amount);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 시터가 서비스 증거를 제출했음을 표시 (PROOF_SUBMITTED 상태로 변경)
+     */
+    @PostMapping("/submit-proof")
+    public ResponseEntity<String> submitProof(@RequestParam("escrowId") Long escrowId) {
+        escrowService.updateEscrowStatusToProofSubmitted(escrowId);
+        return ResponseEntity.ok("증거가 성공적으로 제출되었습니다.");
+    }
+
+    /**
+     * 오너가 증거를 승인할 때 호출 (APPROVED 상태로 변경)
      */
     @PostMapping("/approve")
-    public ResponseEntity<String> approveProof(@RequestBody escrowApprovalRequest request) {
-        escrowService.approveProof(request);  // 승인 처리
-        return ResponseEntity.ok("승인이 완료되어 자금이 해제되었습니다.");
+    public ResponseEntity<String> approveProof(@RequestBody EscrowApprovalRequestDTO request) {
+        escrowService.approveProof(request);
+        return ResponseEntity.ok("승인이 완료되었습니다.");
     }
 
     /**
-     * 결제 완료 후 에스크로 해제 API
-     * 오너가 결제를 승인하고 자금을 해제하는 API
+     * 자금 해제 (RELEASED 상태)
+     * 결제 최종 승인 후 시터에게 자금 전달
      */
     @PostMapping("/release")
-    public ResponseEntity<String> releaseEscrow(@RequestBody Long escrowId) {
-        escrowService.releaseEscrow(escrowId);  // 결제 해제 처리
+    public ResponseEntity<String> releaseEscrow(@RequestParam("escrowId") Long escrowId) {
+        escrowService.releaseEscrow(escrowId);
         return ResponseEntity.ok("자금이 성공적으로 해제되었습니다.");
     }
 }
