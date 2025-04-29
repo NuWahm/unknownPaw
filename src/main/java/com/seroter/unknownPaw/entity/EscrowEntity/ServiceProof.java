@@ -19,10 +19,11 @@ public class ServiceProof {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "proof_id")
+    private Long proofId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "escrow_payment_id", nullable = false)
+    @JoinColumn(name = "escrow_payment_id", nullable = false) // 이 부분 수정 필요없음
     private EscrowPayment escrowPayment; // 해당 결제와 연결된 증거
 
     private String photoPath; // 증거 이미지 경로 (사진)
@@ -37,6 +38,7 @@ public class ServiceProof {
         this.submittedAt = LocalDateTime.now();
     }
 }
+
 
 /*
 🧩 이런 식으로도 활용 가능해

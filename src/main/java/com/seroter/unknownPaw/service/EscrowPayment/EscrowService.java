@@ -34,7 +34,7 @@ public class EscrowService {
         escrowPayment = escrowPaymentRepository.save(escrowPayment);
 
         return new EscrowPaymentDTO(
-                escrowPayment.getPaymentid(),
+                escrowPayment.getPaymentId(),
                 escrowPayment.getPostId(),
                 escrowPayment.getSitterMid(),
                 escrowPayment.getOwnerMid(),
@@ -61,7 +61,7 @@ public class EscrowService {
         escrowPayment = escrowPaymentRepository.save(escrowPayment);
 
         return new EscrowPaymentDTO(
-                escrowPayment.getPaymentid(),
+                escrowPayment.getPaymentId(),
                 escrowPayment.getPostId(),
                 escrowPayment.getSitterMid(),
                 escrowPayment.getOwnerMid(),

@@ -8,5 +8,5 @@ import java.util.List;
 public interface ServiceProofRepository extends JpaRepository<ServiceProof, Long> {
 
     // 특정 에스크로 결제에 해당하는 모든 서비스 증거 조회
-    List<ServiceProof> findByEscrowPaymentId(Long escrowPaymentId);
+    List<ServiceProof> findByEscrowPayment_PaymentId(Long paymentId);
 }

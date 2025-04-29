@@ -1,10 +1,16 @@
 package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.entity.EscrowEntity.EscrowPayment;
+import com.seroter.unknownPaw.entity.EscrowEntity.EscrowStatus;
+import com.seroter.unknownPaw.entity.EscrowEntity.ServiceProof;
+import com.seroter.unknownPaw.repository.EscrowRepository.EscrowPaymentRepository;
+import com.seroter.unknownPaw.repository.EscrowRepository.ServiceProofRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.UUID;  // UUID 생성 관련 import 추가
 import java.util.Random;
 
@@ -25,6 +31,13 @@ public class PostRepositoryImplTests {
 
     @Autowired
     ImageRepository imageRepository;
+
+    @Autowired
+    EscrowPaymentRepository escrowPaymentRepository;
+
+    @Autowired
+    ServiceProofRepository serviceProofRepository;
+
 
     @Test
     public void createPostWithOwnerAndSitter() {
@@ -64,6 +77,9 @@ public class PostRepositoryImplTests {
                     .build();
             petOwnerRepository.save(petOwner);
 
+
+
+
             // 3. PetSitter 생성 (시터 게시글)
             PetSitter petSitter = PetSitter.builder()
                     .title("강아지 산책 시켜드려요! #" + i)
@@ -77,6 +93,31 @@ public class PostRepositoryImplTests {
                     .member(owner)  // 동일한 owner가 시터 역할을 할 수 있습니다.
                     .build();
             petSitterRepository.save(petSitter);
+
+            // Escrow 더미 생성
+            EscrowStatus[] statuses = EscrowStatus.values();
+            EscrowStatus randomStatus = statuses[random.nextInt(statuses.length)];
+            EscrowPayment escrow = EscrowPayment.builder()
+                    .postId(petOwner.getPostId())
+                    .amount(15000L + random.nextInt(10000))
+                    .sitterMid(petSitter.getMember().getMid())
+                    .ownerMid(petOwner.getMember().getMid())
+                    .status(randomStatus)
+                    .paidAt(LocalDateTime.now())
+                    .build();
+            escrowPaymentRepository.save(escrow);
+
+            // ServiceProof 더미 생성 (EscrowPayment 상태가 PROOF_SUBMITTED일 때)
+            if (escrow.getStatus() == EscrowStatus.PROOF_SUBMITTED) {
+                ServiceProof proof = ServiceProof.builder()
+                        .escrowPayment(escrow)  // 연결된 에스크로
+                        .photoPath("/images/proof_" + i + ".jpg")  // 예시 이미지 경로
+                        .latitude(37.5665 + random.nextDouble() * 0.01)  // 예시 위도 (서울 근처)
+                        .longitude(126.978 + random.nextDouble() * 0.01)  // 예시 경도 (서울 근처)
+                        .submittedAt(LocalDateTime.now())
+                        .build();
+                serviceProofRepository.save(proof);
+            }
 
 
 //  5. Pet 생성 (펫 정보)
@@ -104,8 +145,8 @@ public class PostRepositoryImplTests {
                     .build();
             imageRepository.save(petImage);
 
-// 7. Pet에 이미지 연결 아니 이거 왜 커밋이 안돼는건데
-            pet.setImgId(petImage); // setter가 있어야 해
+// 7. Pet에 이미지
+            pet.setImgId(petImage);
             petRepository.save(pet);
         }
     }
