@@ -32,16 +32,16 @@ public class Pet extends BaseEntity {  // BaseEntity 상속
   private Image imgId; // 이미지
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private PetOwner petOwner; // 펫 오너
+  private PetOwner petOwnerId; // 펫 오너
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private PetSitter petSitter; // 펫 시터
+  private PetSitter petSitterId; // 펫 시터
 
   public void setOwnerOrSitter() {
-    if (this.petOwner != null) {
-      this.petSitter = null;  // 오너가 있으면 시터는 null
-    } else if (this.petSitter != null) {
-      this.petOwner = null;  // 시터가 있으면 오너는 null
+    if (this.petOwnerId != null) {
+      this.petSitterId = null;  // 오너가 있으면 시터는 null
+    } else if (this.petSitterId != null) {
+      this.petOwnerId = null;  // 시터가 있으면 오너는 null
     }
   }
   public void setImgId(Image image) {

@@ -70,10 +70,9 @@ public class PostService {
     }
 
     // 게시글 동적 검색 메서드
-//    public PageResultDTO<PostDTO, ? extends Post> search(String role, String keyword, String location, String category, Pageable pageable) {
-//        Page<? extends Post> result = searchPostRepository.searchDynamic(role, keyword, location, category, pageable);
-//        return new PageResultDTO<>(result, post -> entityToDto(post, isSitter(role)));
-//    }
+    public Page<? extends Post> searchPosts(String role, String keyword, String location, String category, Pageable pageable) {
+        return searchPostRepository.searchDynamic(role, keyword, location, category, pageable);
+    }
 
 
     // 특정 멤버의 게시글 조회 메서드
@@ -197,4 +196,12 @@ public class PostService {
     private boolean isSitter(String role) {
         return "petSitter".equals(role); // 역할이 펫시터이면 true 반환
     }
+
+
+    // 🖱️ 무한 스크롤
+//    public CursorResultDTO<PostDTO> getPostList(CursorRequestDTO request) {
+//        List<Post> posts = postRepository.findNextPosts(request.getLastPostId(), request.getSize());
+//        return new CursorResultDTO<>(posts, request.getSize(), PostDTO::fromEntity);
+//    }
+
 }

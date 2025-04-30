@@ -131,7 +131,7 @@ public class PostRepositoryImplTests {
                     .neutering(true)
                     .petIntroduce("사람 좋아하고 순해요")
                     .member(owner)
-                    .petOwner(petOwner)  // 펫 오너와 연결
+                    .petOwnerId(petOwner)  // 펫 오너와 연결
                     .build();
             petRepository.save(pet);
 
