@@ -1,7 +1,5 @@
 package com.seroter.unknownPaw.service;
 
-import com.seroter.unknownPaw.dto.CursorRequestDTO;
-import com.seroter.unknownPaw.dto.CursorResultDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.repository.MemberRepository;
@@ -72,10 +70,9 @@ public class PostService {
     }
 
     // 게시글 동적 검색 메서드
-//    public PageResultDTO<PostDTO, ? extends Post> search(String role, String keyword, String location, String category, Pageable pageable) {
-//        Page<? extends Post> result = searchPostRepository.searchDynamic(role, keyword, location, category, pageable);
-//        return new PageResultDTO<>(result, post -> entityToDto(post, isSitter(role)));
-//    }
+    public Page<? extends Post> searchPosts(String role, String keyword, String location, String category, Pageable pageable) {
+        return searchPostRepository.searchDynamic(role, keyword, location, category, pageable);
+    }
 
 
     // 특정 멤버의 게시글 조회 메서드
