@@ -77,9 +77,6 @@ public class PostRepositoryImplTests {
                     .build();
             petOwnerRepository.save(petOwner);
 
-
-
-
             // 3. PetSitter 생성 (시터 게시글)
             PetSitter petSitter = PetSitter.builder()
                     .title("강아지 산책 시켜드려요! #" + i)
@@ -94,9 +91,15 @@ public class PostRepositoryImplTests {
                     .build();
             petSitterRepository.save(petSitter);
 
-            // Escrow 더미 생성
+            // Escrow 더미 생성 (20% 확률로 DISPUTE 상태 포함)
             EscrowStatus[] statuses = EscrowStatus.values();
-            EscrowStatus randomStatus = statuses[random.nextInt(statuses.length)];
+            EscrowStatus randomStatus;
+            if (random.nextDouble() < 0.2) {  // 20% 확률로 DISPUTE 상태
+                randomStatus = EscrowStatus.DISPUTE;
+            } else {
+                randomStatus = statuses[random.nextInt(statuses.length)];
+            }
+
             EscrowPayment escrow = EscrowPayment.builder()
                     .postId(petOwner.getPostId())
                     .amount(15000L + random.nextInt(10000))
@@ -119,8 +122,7 @@ public class PostRepositoryImplTests {
                 serviceProofRepository.save(proof);
             }
 
-
-//  5. Pet 생성 (펫 정보)
+            // Pet 생성 (펫 정보)
             Pet pet = Pet.builder()
                     .petName("몽실이" + i)
                     .breed("푸들")
@@ -135,7 +137,7 @@ public class PostRepositoryImplTests {
                     .build();
             petRepository.save(pet);
 
-// 6. 이미지 생성 (pet 저장 후 pet 참조)
+            // 이미지 생성 (pet 저장 후 pet 참조)
             Image petImage = Image.builder()
                     .profileImg("pet_image_" + i + ".jpg") // 파일명
                     .uuid(UUID.randomUUID().toString())    // UUID 생성
@@ -145,11 +147,9 @@ public class PostRepositoryImplTests {
                     .build();
             imageRepository.save(petImage);
 
-// 7. Pet에 이미지
+            // Pet에 이미지 연결
             pet.setImgId(petImage);
             petRepository.save(pet);
         }
     }
 }
-
-

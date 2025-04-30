@@ -32,10 +32,16 @@ public class ServiceProof {
     private Double longitude; // 위치 정보 (경도)
 
     private LocalDateTime submittedAt; // 증거 제출 시간
+    private ProofStatus proofStatus;
 
     @PrePersist
     protected void onCreate() {
         this.submittedAt = LocalDateTime.now();
+    }
+
+
+    public void setProofStatus(ProofStatus proofStatus) {
+        this.proofStatus = proofStatus;
     }
 }
 
