@@ -21,6 +21,7 @@ public class DisputeService {
      */
     @Transactional
     public Long createDispute(DisputeCreateRequestDTO request) {
+        // Dispute 엔티티 생성
         Dispute dispute = Dispute.builder()
                 .escrowPaymentId(request.getEscrowPaymentId())
                 .ownerMid(request.getOwnerMid())
@@ -28,7 +29,19 @@ public class DisputeService {
                 .reason(request.getReason())
                 .build();
 
+        // 분쟁 저장
         dispute = disputeRepository.save(dispute);
-        return dispute.getDisputeid();
+
+        // 저장된 분쟁 ID 반환
+        return dispute.getDisputeId();
+    }
+
+    /**
+     * 분쟁 조회 (예시: 필요 시 분쟁 조회 메서드 추가 가능)
+     */
+    @Transactional(readOnly = true)
+    public Dispute getDisputeById(Long disputeId) {
+        return disputeRepository.findById(disputeId)
+                .orElseThrow(() -> new RuntimeException("Dispute not found with id: " + disputeId));
     }
 }

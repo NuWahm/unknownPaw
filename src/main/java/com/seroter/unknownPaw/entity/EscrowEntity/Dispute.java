@@ -18,7 +18,7 @@ public class Dispute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Disputeid; // 분쟁 ID
+    private Long disputeId; // 분쟁 ID (변경)
 
     @Column(nullable = false)
     private Long escrowPaymentId; // 관련 에스크로 결제 ID
@@ -36,6 +36,8 @@ public class Dispute {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 }
