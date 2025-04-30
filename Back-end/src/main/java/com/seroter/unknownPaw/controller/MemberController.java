@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.controller;
 
+import com.seroter.unknownPaw.dto.LoginRequestDTO;
 import com.seroter.unknownPaw.dto.MemberRequestDTO;
 import com.seroter.unknownPaw.dto.MemberResponseDTO;
 import com.seroter.unknownPaw.entity.Member;
@@ -7,6 +8,7 @@ import com.seroter.unknownPaw.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -18,12 +20,29 @@ import java.util.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final PasswordEncoder passwordEncoder;
 
-    // ✅ 1. 회원가입
+    // ✅ 0. 회원가입
     @PostMapping("/register")
     public ResponseEntity<MemberResponseDTO> register(@RequestBody MemberRequestDTO memberRequestDTO) {
         log.info("register.....................");
         return ResponseEntity.ok(memberService.register(memberRequestDTO));
+    }
+
+    // ✅ 1. 회원가입
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+        Optional<Member> result = memberService.findByEmail(loginRequestDTO.getEmail());
+        if (result.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("존재하지 않는 계정입니다.");
+        }
+
+        Member member = result.get();
+        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), member.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+        }
+
+        return ResponseEntity.ok(new MemberResponseDTO(member));
     }
 
     // ✅ 2. 회원 기본 정보 조회 (mid)
