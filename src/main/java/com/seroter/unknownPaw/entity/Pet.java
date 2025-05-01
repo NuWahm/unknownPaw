@@ -2,50 +2,46 @@ package com.seroter.unknownPaw.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import org.hibernate.mapping.UniqueKey;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"member", "petOwner", "petSitter"})
-public class Pet extends BaseEntity {  // BaseEntity 상속
+@ToString
 
+@Table(name = "pet")
+public class Pet extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long petId;
+  private Long petId; // 펫 고유 번호(PK)
 
   private String petName; // 펫 이름
   private String breed; // 견종
-  private int petBirth; // 펫 출생 연도
-  private boolean petGender; // 성별
+  private int petBirth; // 펫 출생 연도(예: 2025/01)
+  private boolean petGender; // 성별 true = 수컷, false = 암컷
   private double weight; // 무게
   private String petMbti; // 강아지 성격
   private boolean neutering; // 중성화 여부
   private String petIntroduce; // 펫 소개
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Member member; // 유저 정보 (펫 소유자 또는 시터)
+
+  private LocalDateTime regDate;
+  private LocalDateTime modDate;
+
+
+  @ManyToOne
+  private Member member;
+
+
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Image imgId; // 이미지
+  private Image imgId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private PetOwner petOwnerId; // 펫 오너
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  private PetSitter petSitterId; // 펫 시터
-
-  public void setOwnerOrSitter() {
-    if (this.petOwnerId != null) {
-      this.petSitterId = null;  // 오너가 있으면 시터는 null
-    } else if (this.petSitterId != null) {
-      this.petOwnerId = null;  // 시터가 있으면 오너는 null
-    }
-  }
-  public void setImgId(Image image) {
-    this.imgId = image;
-  }
+  private PetOwner petOwnerId;
 
 }

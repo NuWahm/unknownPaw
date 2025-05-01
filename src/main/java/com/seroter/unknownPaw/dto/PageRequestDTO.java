@@ -12,17 +12,17 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor
 @Data
 public class PageRequestDTO {
-  private int page; // 요청한 페이지 번호
-  private int size; // 한페이지당 갯수
-  private String type;
-  private String keyword;
+    private int page; // 요청한 페이지 번호
+    private int size; // 한페이지당 갯수
+    private String type;
+    private String keyword;
 
-  public PageRequestDTO() {
-    this.page = 1;
-    this.size = 10;
-  }
+    public PageRequestDTO() {
+        this.page = 1;
+        this.size = 10;
+    }
 
-  public Pageable getPageable() {
-    return PageRequest.of(page - 1, size, Sort.by("postId").descending());
-  }
+    public Pageable getPageable() {
+        return PageRequest.of(page - 1, size, Sort.by("postId").descending());
+    }
 }

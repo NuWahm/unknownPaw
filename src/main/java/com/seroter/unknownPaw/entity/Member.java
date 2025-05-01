@@ -4,10 +4,6 @@ package com.seroter.unknownPaw.entity;
 import com.seroter.unknownPaw.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 @ToString
 
 @Table(name = "member")

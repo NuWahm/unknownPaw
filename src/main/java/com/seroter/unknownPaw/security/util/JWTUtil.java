@@ -19,12 +19,16 @@ public class JWTUtil {
 
   // JWT 생성
   public String generateToken(String content) throws Exception {
-    return Jwts.builder()
-        .issuedAt(new Date())
-        .expiration(Date.from(ZonedDateTime.now().plusMinutes(expire).toInstant()))
-        .claim("sub", content)
-        .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
-        .compact();
+    try {
+      return Jwts.builder()
+              .issuedAt(new Date())
+              .expiration(Date.from(ZonedDateTime.now().plusMinutes(expire).toInstant()))
+              .claim("sub", content)
+              .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+              .compact();
+    } catch (Exception e) {
+      throw new RuntimeException("토큰 생성 실패", e);
+    }
   }
 
   // JWT 검증 및 email축출

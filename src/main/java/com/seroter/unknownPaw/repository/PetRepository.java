@@ -49,4 +49,3 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
           """)
   List<Object[]> getPetAndImageByMemberId(@Param("mid") Long mid);
 }
-

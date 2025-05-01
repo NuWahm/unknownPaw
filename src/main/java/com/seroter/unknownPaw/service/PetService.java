@@ -34,34 +34,33 @@ public class PetService {
   //  펫 조회
   public PetDTO getPet(Long petId) {
     Pet pet = petRepository.findById(petId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 펫입니다."));
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 펫입니다."));
     return entityToDTO(pet);
   }
 
   //  DTO → Entity 변환
   private Pet dtoToEntity(PetDTO dto) {
     return Pet.builder()
-            .petId(dto.getPetId())
-            .petName(dto.getPetName())
-            .breed(dto.getBreed())
-            .petBirth(dto.getPetBirth())
-            .weight(dto.getWeight())
-            .petMbti(dto.getPetMbti())
-            .petIntroduce(dto.getPetIntroduce())
-            .build();
+        .petId(dto.getPetId())
+        .petName(dto.getPetName())
+        .breed(dto.getBreed())
+        .petBirth(dto.getPetBirth())
+        .weight(dto.getWeight())
+        .petMbti(dto.getPetMbti())
+        .petIntroduce(dto.getPetIntroduce())
+        .build();
   }
 
   //  Entity → DTO 변환
   private PetDTO entityToDTO(Pet pet) {
     return PetDTO.builder()
-            .petId(pet.getPetId())
-            .petName(pet.getPetName())
-            .breed(pet.getBreed())
-            .petBirth(pet.getPetBirth())
-            .weight(pet.getWeight())
-            .petMbti(pet.getPetMbti())
-            .petIntroduce(pet.getPetIntroduce())
-            .build();
+        .petId(pet.getPetId())
+        .petName(pet.getPetName())
+        .breed(pet.getBreed())
+        .petBirth(pet.getPetBirth())
+        .weight(pet.getWeight())
+        .petMbti(pet.getPetMbti())
+        .petIntroduce(pet.getPetIntroduce())
+        .build();
   }
 }
-

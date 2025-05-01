@@ -1,5 +1,8 @@
 package com.seroter.unknownPaw.service;
 
+import com.seroter.unknownPaw.dto.CursorRequestDTO;
+import com.seroter.unknownPaw.dto.CursorResultDTO;
+import com.seroter.unknownPaw.dto.PageResultDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.repository.MemberRepository;

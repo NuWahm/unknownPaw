@@ -68,13 +68,13 @@ public class PostRepositoryImpl implements PostRepository<Post> {
     @Override
     public List<Post> findNextPosts(Long lastPostId, int size) {
         String jpql = "SELECT p FROM Post p " +
-                "WHERE (:lastPostId IS NULL OR p.postId < :lastPostId) " +
-                "ORDER BY p.postId DESC";
+            "WHERE (:lastPostId IS NULL OR p.postId < :lastPostId) " +
+            "ORDER BY p.postId DESC";
 
         return em.createQuery(jpql, Post.class)
-                .setParameter("lastPostId", lastPostId)
-                .setMaxResults(size)
-                .getResultList();
+            .setParameter("lastPostId", lastPostId)
+            .setMaxResults(size)
+            .getResultList();
     }
 
 }

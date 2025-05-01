@@ -31,6 +31,7 @@ public abstract class Post {
 
   private int likes; // 관심(좋아요 수)
 
+
   private int chatCount; // 채팅 개수
 
   private String defaultLocation; // 기본 위치
@@ -45,6 +46,7 @@ public abstract class Post {
   protected void onCreate() {
     this.regDate = LocalDateTime.now();
     this.modDate = LocalDateTime.now();
+
   }
 
   @PreUpdate
