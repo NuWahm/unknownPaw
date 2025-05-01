@@ -32,6 +32,10 @@ public class MemberService {
                 .fromSocial(dto.isFromSocial())
                 .pawRate(0.0f)
                 .profileImagePath(null)
+                .emailVerified(false)
+                .signupChannel(dto.getSignupChannel())
+                .role(Member.Role.USER)
+                .status(Member.MemberStatus.ACTIVE)
                 .build();
         memberRepository.save(member);
         return MemberResponseDTO.builder()

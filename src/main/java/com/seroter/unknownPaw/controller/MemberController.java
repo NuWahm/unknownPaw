@@ -4,6 +4,7 @@ import com.seroter.unknownPaw.dto.LoginRequestDTO;
 import com.seroter.unknownPaw.dto.MemberRequestDTO;
 import com.seroter.unknownPaw.dto.MemberResponseDTO;
 import com.seroter.unknownPaw.entity.Member;
+import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final PasswordEncoder passwordEncoder;
+    private final JWTUtil jwtUtil;
 
     // ✅ 0. 회원가입
     @PostMapping("/register")
@@ -42,11 +44,20 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
 
-        return ResponseEntity.ok(new MemberResponseDTO(member));
-    }
+        try {
+            String token = jwtUtil.generateToken(member.getEmail());
 
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("member", new MemberResponseDTO(member));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("토큰 생성 실패");
+        }
+    }
     // ✅ 2. 회원 기본 정보 조회 (mid)
-    @GetMapping("/{mid}")
+    @GetMapping("/id/{mid}")
     public ResponseEntity<MemberResponseDTO> getMember(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getMember(mid));
     }

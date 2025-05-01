@@ -6,6 +6,7 @@ import com.seroter.unknownPaw.entity.Member.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -14,7 +15,10 @@ import java.util.stream.IntStream;
 class MemberRepositoryTests {
 
     @Autowired
-    MemberRepository memberRepository;
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     public void insertMember() {
@@ -25,7 +29,7 @@ class MemberRepositoryTests {
 
             Member member = Member.builder()
                 .email("Odeng" + i + "@mogae.com")
-                .password("1") // 필요 시 인코딩 주석 해제
+                .password(passwordEncoder.encode("1")) // 필요 시 인코딩 주석 해제
                 .name("Owner" + i)
                 .nickname("MungMung" + i)
                 .phoneNumber("010-1111-" + String.format("%04d", i))
