@@ -31,7 +31,7 @@ public class MemberController {
         return ResponseEntity.ok(memberService.register(memberRequestDTO));
     }
 
-    // ✅ 1. 회원가입
+    // ✅ 1. 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         Optional<Member> result = memberService.findByEmail(loginRequestDTO.getEmail());
