@@ -37,6 +37,7 @@ public class PostController {
             location,
             category,
             pageRequestDTO.getPageable()
+
     );
     Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
     return ResponseEntity.ok(dtoPage);

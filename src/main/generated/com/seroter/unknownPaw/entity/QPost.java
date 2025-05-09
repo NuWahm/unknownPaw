@@ -40,6 +40,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public final NumberPath<Long> postId = createNumber("postId", Long.class);
 
+    public final EnumPath<PostType> postType = createEnum("postType", PostType.class);
+
     public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);
 
     public final EnumPath<ServiceCategory> serviceCategory = createEnum("serviceCategory", ServiceCategory.class);

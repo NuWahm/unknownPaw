@@ -54,6 +54,9 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     public final NumberPath<Long> postId;
 
     //inherited
+    public final EnumPath<PostType> postType;
+
+    //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
@@ -90,6 +93,7 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.postId = _super.postId;
+        this.postType = _super.postType;
         this.regDate = _super.regDate;
         this.serviceCategory = _super.serviceCategory;
         this.title = _super.title;

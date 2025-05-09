@@ -59,4 +59,8 @@ public abstract class Post {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
   private Member member; // 회원번호(참조 키) (펫오너)
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private PostType postType;
 }

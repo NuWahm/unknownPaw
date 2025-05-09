@@ -16,7 +16,7 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 public class PetOwner extends Post {
-
+    @Builder.Default
     @OneToMany(mappedBy = "petOwner",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
