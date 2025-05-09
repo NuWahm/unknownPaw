@@ -55,6 +55,9 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
+    public final EnumPath<PostRole> role;
+
+    //inherited
     public final EnumPath<ServiceCategory> serviceCategory;
 
     //inherited
@@ -89,6 +92,7 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.modDate = _super.modDate;
         this.postId = _super.postId;
         this.regDate = _super.regDate;
+        this.role = _super.role;
         this.serviceCategory = _super.serviceCategory;
         this.title = _super.title;
     }

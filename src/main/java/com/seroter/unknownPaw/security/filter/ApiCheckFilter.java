@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import net.minidev.json.JSONObject;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,6 +20,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
   private String[] pattern;
   private AntPathMatcher antPathMatcher;
   private JWTUtil jwtUtil;
+  private UserDetailsService userDetailsService;
 
   public ApiCheckFilter(String[] pattern, JWTUtil jwtUtil) {
     this.pattern = pattern;
@@ -30,7 +32,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     // client요청 주소와 패턴이 같은지 비교후 같으면 header에 Authorization에 값이 있는지 확인하는 메서드
     log.info("ApiCheckFilter................................");
-    log.info("REQUEST URI: " + request.getRequestURI());
+    log.info("ApiCheckFilter processing request for URI: {}", request.getRequestURI());
 
     boolean check = false;
     for (int i = 0; i < pattern.length; i++) {

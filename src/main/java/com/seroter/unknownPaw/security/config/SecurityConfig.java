@@ -19,53 +19,56 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final MembersUserDetailsService userDetailsService;
-    private final MembersOAuth2UserDetailsService oAuth2UserService;
-    private final JWTUtil jwtUtil;
-    private final ApiLoginFailHandler apiLoginFailHandler;
-    private final ApplicationContext applicationContext;
+  private final MembersOAuth2UserDetailsService oAuth2UserService;
+  private final JWTUtil jwtUtil;
+  private final ApiLoginFailHandler apiLoginFailHandler;
+  private final ApplicationContext applicationContext;
 
 
-    // 인증 관리자 등록
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        return builder.build();
+  // 인증 관리자 등록
+  @Bean
+  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+    return builder.build();
+  }
+
+
+  // 시큐리티 필터 체인 설정 (최신 문법)
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    ApiCheckFilter apiCheckFilter = new ApiCheckFilter(
+        new String[]{"/api/posts/**", "/api/member/mypage"}, jwtUtil
+    );
+
+    http
+        .csrf(csrf -> csrf.disable())
+        .formLogin(form -> form.disable())
+        .httpBasic(httpBasic -> httpBasic.disable())
+        .authorizeHttpRequests(auth -> auth
+
+            .requestMatchers(new AntPathRequestMatcher("/ ")).permitAll()
+            .requestMatchers("/api/member/login", "/api/member/register").permitAll()
+//            .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
+            .requestMatchers("/api/posts/**", "/api/member/mypage", "/api/petowner/**" ).permitAll()
+            .anyRequest().permitAll()
+        )
+        .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);
+
+    if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {
+      http.oauth2Login(oauth -> oauth
+          .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+      );
     }
 
-
-    // 시큐리티 필터 체인 설정 (최신 문법)
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        ApiCheckFilter apiCheckFilter = new ApiCheckFilter(
-                new String[]{"/api/posts/**", "/api/member/mypage"}, jwtUtil
-        );
-
-        http
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/member/login", "/api/member/register").permitAll()
-                        .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);
-
-        if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {
-            http.oauth2Login(oauth -> oauth
-                    .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
-            );
-        }
-
-        return http.build();
-    }
+    return http.build();
+  }
 
 }

@@ -29,14 +29,14 @@ public class PostController {
 
   @GetMapping("/{role}/list")
   public ResponseEntity<?> list(
-          @PathVariable String role,
-          PageRequestDTO pageRequestDTO,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) String location,
-          @RequestParam(required = false) String category
+      @PathVariable String role,
+      PageRequestDTO pageRequestDTO,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) String location,
+      @RequestParam(required = false) String category
   ) {
     Page<? extends Post> result = postService.searchPosts(
-            role, keyword, location, category, pageRequestDTO.getPageable()
+        role, keyword, location, category, pageRequestDTO.getPageable()
     );
     return ResponseEntity.ok(result);
   }
@@ -53,8 +53,8 @@ public class PostController {
   public ResponseEntity<?> register(@PathVariable String role,
                                     @RequestBody PostDTO postDTO,
                                     @RequestParam Long memberId) {
-      Long newId = postService.register(role, postDTO, memberId);
-      return ResponseEntity.ok(Map.of("postId", newId));
+    Long newId = postService.register(role, postDTO, memberId);
+    return ResponseEntity.ok(Map.of("postId", newId));
   }
 
   // 📌 게시글 수정
@@ -64,7 +64,7 @@ public class PostController {
     PostDTO dto = modifyRequestDTO.getPostDTO();
     postService.modify(role, dto);
 
-      return ResponseEntity.ok(Map.of("msg", "수정 완료", "postId", dto.getPostId()));
+    return ResponseEntity.ok(Map.of("msg", "수정 완료", "postId", dto.getPostId()));
   }
 
   // 📌 게시글 삭제
@@ -74,4 +74,3 @@ public class PostController {
     return ResponseEntity.ok(Map.of("msg", "삭제 완료", "postId", postId));
   }
 }
-

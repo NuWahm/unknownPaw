@@ -11,6 +11,7 @@ import com.seroter.unknownPaw.repository.PetSitterRepository;
 import com.seroter.unknownPaw.repository.search.SearchPostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class PostService {
 
     private final MemberRepository memberRepository; // 회원 정보 조회
@@ -43,10 +45,23 @@ public class PostService {
 
     // 게시글 조회 메서드
     public PostDTO get(String role, Long postId) {
+        log.info("PostService.get called for role={}, postId={}", role, postId);
         // 역할에 맞는 게시글 조회
-        return findPostByRole(role, postId)
-                .map(entity -> entityToDto(entity, isSitter(role))) // 게시글을 DTO로 변환
-                .orElseThrow(() -> new EntityNotFoundException(role + " 게시글을 찾을 수 없습니다.")); // 없으면 예외 발생
+        Optional<Post> result = findPostByRole(role, postId);
+        if (result.isPresent()) {
+            log.info(">>>> Repository FOUND post for postId {} role {}. postId = {}", postId, role, result.get().getPostId());
+        } else {
+            log.warn(">>>> Repository NOT FOUND post for postId {} role {}. Returning Optional.empty().", postId, role);
+        }
+        return result
+            .map(entity -> entityToDto(entity,isSitter(role)))
+            .orElseThrow(()-> {
+                log.error("EntityNotFoundException thrown for postId {} role {}", postId, role); // 예외 발생 직전 로그
+                return new EntityNotFoundException(role + " 게시글을 찾을 수 없습니다."); // 없으면 예외 발생
+            });
+//        return findPostByRole(role, postId)
+//                .map(entity -> entityToDto(entity, isSitter(role))) // 게시글을 DTO로 변환
+//                .orElseThrow(() -> new EntityNotFoundException(role + " 게시글을 찾을 수 없습니다.")); // 없으면 예외 발생
     }
 
     // 게시글 수정 메서드
@@ -171,13 +186,14 @@ public class PostService {
 
     // 역할에 맞는 게시글을 조회하는 메서드
     private Optional<Post> findPostByRole(String role, Long postId) {
-        if ("petOwner".equals(role)) {
+        if ("petOwner".equalsIgnoreCase(role)) {
             // 펫오너 게시글 조회
             return petOwnerRepository.findById(postId).map(post -> (Post) post);
-        } else if ("petSitter".equals(role)) {
+        } else if ("petSitter".equalsIgnoreCase(role)) {
             // 펫시터 게시글 조회
             return petSitterRepository.findById(postId).map(post -> (Post) post);
         } else {
+            log.error("Invalid role provided: {}", role); // 잘못된 역할 로그
             throw new IllegalArgumentException("잘못된 역할입니다."); // 잘못된 역할 처리
         }
     }

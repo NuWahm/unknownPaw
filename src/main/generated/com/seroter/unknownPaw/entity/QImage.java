@@ -60,8 +60,8 @@ public class QImage extends EntityPathBase<Image> {
         super(type, metadata, inits);
         this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
         this.pet = inits.isInitialized("pet") ? new QPet(forProperty("pet"), inits.get("pet")) : null;
-        this.petOwner = inits.isInitialized("petOwner") ? new QPetOwner(forProperty("petOwner")) : null;
-        this.petSitter = inits.isInitialized("petSitter") ? new QPetSitter(forProperty("petSitter")) : null;
+        this.petOwner = inits.isInitialized("petOwner") ? new QPetOwner(forProperty("petOwner"), inits.get("petOwner")) : null;
+        this.petSitter = inits.isInitialized("petSitter") ? new QPetSitter(forProperty("petSitter"), inits.get("petSitter")) : null;
     }
 
 }

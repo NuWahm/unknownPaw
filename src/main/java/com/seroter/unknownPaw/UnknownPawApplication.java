@@ -8,6 +8,7 @@ public class UnknownPawApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(UnknownPawApplication.class, args);
+		System.out.println("Started....");
 	}
 
 }
