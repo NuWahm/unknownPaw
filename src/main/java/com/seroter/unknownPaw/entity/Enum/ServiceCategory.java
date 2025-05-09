@@ -1,4 +1,4 @@
-package com.seroter.unknownPaw.entity;
+package com.seroter.unknownPaw.entity.Enum;
 
 public enum ServiceCategory {
     WALK, // 산책

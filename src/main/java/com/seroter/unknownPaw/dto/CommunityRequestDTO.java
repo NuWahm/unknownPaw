@@ -23,4 +23,6 @@ public class CommunityRequestDTO {
 
     private MultipartFile thumbnailImage;     // 썸네일 이미지
     private List<MultipartFile> detailImages; // 상세 이미지 리스트
+
+    private String communityCategory;         // 커뮤니티 카테고리 (Enum 문자열)
 }

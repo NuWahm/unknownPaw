@@ -18,7 +18,7 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long commentId;  // 댓글 ID (필드명 수정)
 
     // 댓글 내용
     @Column(columnDefinition = "TEXT")
@@ -39,5 +39,10 @@ public class Comment {
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    // 댓글 내용을 수정하는 메서드
+    public void setContent(String content) {
+        this.content = content;
     }
 }
