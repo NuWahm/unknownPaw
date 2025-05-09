@@ -10,5 +10,4 @@ public class UnknownPawApplication {
 		SpringApplication.run(UnknownPawApplication.class, args);
 		System.out.println("Started....");
 	}
-
 }
