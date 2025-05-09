@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(exclude = "member")
+
 public abstract class Post {
 
   @Id

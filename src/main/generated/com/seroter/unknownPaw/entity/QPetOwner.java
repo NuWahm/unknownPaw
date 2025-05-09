@@ -39,6 +39,8 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     //inherited
     public final StringPath flexibleLocation;
 
+    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+
     //inherited
     public final NumberPath<Integer> likes;
 

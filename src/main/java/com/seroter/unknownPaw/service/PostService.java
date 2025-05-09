@@ -28,44 +28,44 @@ public class PostService {
     private final SearchPostRepository searchPostRepository; // 동적 게시글 검색 기능
 
     // 게시글 등록 메서드
-    public Long register(String role, PostDTO dto, Long memberId) {
+    public Long register(String postType, PostDTO dto, Long memberId) {
         // 멤버 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다.")); // 회원이 없으면 예외 발생
 
         // DTO를 엔티티로 변환
-        Post entity = dtoToEntity(dto, role);
+        Post entity = dtoToEntity(dto, postType);
         entity.setMember(member); // 게시글에 멤버 연결
 
         // 역할에 맞게 게시글 저장 후 ID 반환
-        return savePostByRole(role, entity);
+        return savePostbyPostType(postType, entity);
     }
 
     // 게시글 조회 메서드
-    public PostDTO get(String role, Long postId) {
+    public PostDTO get(String postType, Long postId) {
         // 역할에 맞는 게시글 조회
-        return findPostByRole(role, postId)
-                .map(entity -> entityToDto(entity, isSitter(role))) // 게시글을 DTO로 변환
-                .orElseThrow(() -> new EntityNotFoundException(role + " 게시글을 찾을 수 없습니다.")); // 없으면 예외 발생
+        return findPostbyPostType(postType, postId)
+                .map(entity -> entityToDto(entity, isSitter(postType))) // 게시글을 DTO로 변환
+                .orElseThrow(() -> new EntityNotFoundException(postType + " 게시글을 찾을 수 없습니다.")); // 없으면 예외 발생
     }
 
     // 게시글 수정 메서드
-    public void modify(String role, PostDTO dto) {
+    public void modify(String postType, PostDTO dto) {
         // 게시글 조회
-        Post entity = findPostByRole(role, dto.getPostId())
-                .orElseThrow(() -> new EntityNotFoundException(role + " 게시글을 찾을 수 없습니다.")); // 없으면 예외 발생
+        Post entity = findPostbyPostType(postType, dto.getPostId())
+                .orElseThrow(() -> new EntityNotFoundException(postType + " 게시글을 찾을 수 없습니다.")); // 없으면 예외 발생
 
         // 게시글 수정
         updateCommonFields(entity, dto);
-        savePostByRole(role, entity); // 수정된 게시글 저장
+        savePostbyPostType(postType, entity); // 수정된 게시글 저장
     }
 
     // 게시글 삭제 메서드
-    public void remove(String role, Long postId) {
+    public void remove(String postType, Long postId) {
         // 역할에 따라 게시글 삭제
-        if ("petOwner".equals(role)) {
+        if ("petOwner".equals(postType)) {
             petOwnerRepository.deleteById(postId); // 펫오너 게시글 삭제
-        } else if ("petSitter".equals(role)) {
+        } else if ("petSitter".equals(postType)) {
             petSitterRepository.deleteById(postId); // 펫시터 게시글 삭제
         } else {
             throw new IllegalArgumentException("잘못된 역할입니다."); // 잘못된 역할 처리
@@ -73,20 +73,20 @@ public class PostService {
     }
 
     // 게시글 동적 검색 메서드
-    public Page<? extends Post> searchPosts(String role, String keyword, String location, String category, Pageable pageable) {
-        return searchPostRepository.searchDynamic(role, keyword, location, category, pageable);
+    public Page<? extends Post> searchPosts(String postType, String keyword, String location, String category, Pageable pageable) {
+        return searchPostRepository.searchDynamic(postType, keyword, location, category, pageable);
     }
 
 
     // 특정 멤버의 게시글 조회 메서드
-    public List<PostDTO> getPostsByMember(String role, Long memberId) {
-        if ("petOwner".equals(role)) {
+    public List<PostDTO> getPostsByMember(String postType, Long memberId) {
+        if ("petOwner".equals(postType)) {
             // 펫오너 게시글 조회
             return petOwnerRepository.findByMember_Mid(memberId)
                     .stream()
                     .map(post -> entityToDto(post, false)) // DTO로 변환
                     .toList();
-        } else if ("petSitter".equals(role)) {
+        } else if ("petSitter".equals(postType)) {
             // 펫시터 게시글 조회
             return petSitterRepository.findByMember_Mid(memberId)
                     .stream()
@@ -107,9 +107,9 @@ public class PostService {
     }
 
     // DTO를 엔티티로 변환하는 메서드
-    private Post dtoToEntity(PostDTO dto, String role) {
+    private Post dtoToEntity(PostDTO dto, String postType) {
         // 역할에 맞는 엔티티 생성
-        return "petOwner".equals(role) ? createPetOwnerEntity(dto) : createPetSitterEntity(dto);
+        return "petOwner".equals(postType) ? createPetOwnerEntity(dto) : createPetSitterEntity(dto);
     }
 
     // 펫오너 게시글 엔티티 생성
@@ -170,11 +170,11 @@ public class PostService {
     }
 
     // 역할에 맞는 게시글을 조회하는 메서드
-    private Optional<Post> findPostByRole(String role, Long postId) {
-        if ("petOwner".equals(role)) {
+    private Optional<Post> findPostbyPostType(String postType, Long postId) {
+        if ("petOwner".equals(postType)) {
             // 펫오너 게시글 조회
             return petOwnerRepository.findById(postId).map(post -> (Post) post);
-        } else if ("petSitter".equals(role)) {
+        } else if ("petSitter".equals(postType)) {
             // 펫시터 게시글 조회
             return petSitterRepository.findById(postId).map(post -> (Post) post);
         } else {
@@ -183,11 +183,11 @@ public class PostService {
     }
 
     // 역할에 맞게 게시글을 저장하는 메서드
-    private Long savePostByRole(String role, Post entity) {
-        if ("petOwner".equals(role)) {
+    private Long savePostbyPostType(String postType, Post entity) {
+        if ("petOwner".equals(postType)) {
             // 펫오너 게시글 저장
             return petOwnerRepository.save((PetOwner) entity).getPostId();
-        } else if ("petSitter".equals(role)) {
+        } else if ("petSitter".equals(postType)) {
             // 펫시터 게시글 저장
             return petSitterRepository.save((PetSitter) entity).getPostId();
         } else {
@@ -196,8 +196,8 @@ public class PostService {
     }
 
     // 펫시터 여부를 확인하는 메서드
-    private boolean isSitter(String role) {
-        return "petSitter".equals(role); // 역할이 펫시터이면 true 반환
+    private boolean isSitter(String postType) {
+        return "petSitter".equals(postType); // 역할이 펫시터이면 true 반환
     }
 
 

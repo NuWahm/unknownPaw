@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"member", "petOwner", "petSitter"})
+@ToString(exclude = {"member", "petOwnerId", "petSitterId"})
 public class Pet extends BaseEntity {  // BaseEntity 상속
 
   @Id
