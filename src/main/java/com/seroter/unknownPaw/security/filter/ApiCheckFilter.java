@@ -53,7 +53,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
     /** ② Authorization 헤더 파싱 */
     String header = request.getHeader("Authorization");
-    log.info("Authorization header = {}", header);
+    log.info("❤Authorization header = {}", header);
     if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
       deny(response);
       return;
@@ -62,6 +62,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
     try {
       String token = header.substring(7);
 
+      log.debug("Extracted Token: {}", token);  //💫
       // sub(email)·role 추출
       String email = jwtUtil.validateAndExtract(token);
       String role  = jwtUtil.getClaims(token)
@@ -75,9 +76,12 @@ public class ApiCheckFilter extends OncePerRequestFilter {
               new UsernamePasswordAuthenticationToken(email, null, authList);
       SecurityContextHolder.getContext().setAuthentication(authToken);
 
+      log.info("❤Token validation successful for user: {} with role: {}", email, role); //💫 성공 시 로깅
+
       filterChain.doFilter(request, response);
 
     } catch (Exception ex) {
+      log.error("❤JWT Token validation failed: {}", ex.getMessage(), ex); // 💫 dPdi xkdlq
       ex.printStackTrace();
       deny(response);
     }
