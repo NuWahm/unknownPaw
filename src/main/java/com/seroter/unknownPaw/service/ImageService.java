@@ -25,7 +25,7 @@ public class ImageService {
 
   // ✅ 이미지 업로드 및 DB 저장
 
-  //  saveImage 매개변수로 있는 role= 이미지 연결하는 주체
+  //  saveImage 매개변수로 있는 imageType= 이미지 연결하는 주체
   //  ex(1=member, 2=pet, 3=post)
 
   //  saveImage 매개변수로 있는 targetType= 이미지를 어떤 Entity 에 연결할지 지정
@@ -36,13 +36,13 @@ public class ImageService {
 
 
 
-  public String saveImage(MultipartFile file, String role, String targetType, Long targetId) throws Exception {
+  public String saveImage(MultipartFile file, String imageType, String targetType, Long targetId) throws Exception {
 
     String originalName = file.getOriginalFilename();
     String uuid = UUID.randomUUID().toString();
     String saveName = uuid + "_" + originalName;
 
-    File dir = new File(uploadPath + "/" + role);
+    File dir = new File(uploadPath + "/" + imageType);
     if (!dir.exists()) dir.mkdirs();
 
     File saveFile = new File(dir, saveName);
@@ -51,7 +51,7 @@ public class ImageService {
 
     // switch expression 구문
     // 자바 14+부터 지원하는 **switch expression**을 활용하여 가독성 매우 좋음
-    // 중복되는 필드 (uuid, profileImg, path, role)는 통일되게 설정되고
+    // 중복되는 필드 (uuid, profileImg, path, imageType)는 통일되게 설정되고
     // 타입별로 연결해야 하는 연관 객체만 달라짐
 
 
@@ -72,32 +72,32 @@ public class ImageService {
       case "member" -> Image.builder()
           .uuid(uuid)
           .profileImg(originalName)
-          .path(role + "/" + saveName)
-          .role(Integer.parseInt(role))
+          .path(imageType + "/" + saveName)
+          .imageType(Integer.parseInt(imageType))
           .member(Member.builder().mid(targetId).build())
           .build();
 
       case "pet" -> Image.builder()
           .uuid(uuid)
           .profileImg(originalName)
-          .path(role + "/" + saveName)
-          .role(Integer.parseInt(role))
+          .path(imageType + "/" + saveName)
+          .imageType(Integer.parseInt(imageType))
           .pet(Pet.builder().petId(targetId).build())
           .build();
 
       case "petOwner" -> Image.builder()
           .uuid(uuid)
           .profileImg(originalName)
-          .path(role + "/" + saveName)
-          .role(Integer.parseInt(role))
+          .path(imageType + "/" + saveName)
+          .imageType(Integer.parseInt(imageType))
           .petOwner(PetOwner.builder().postId(targetId).build())
           .build();
 
       case "petSitter" -> Image.builder()
           .uuid(uuid)
           .profileImg(originalName)
-          .path(role + "/" + saveName)
-          .role(Integer.parseInt(role))
+          .path(imageType + "/" + saveName)
+          .imageType(Integer.parseInt(imageType))
           .petSitter(PetSitter.builder().postId(targetId).build())
           .build();
 
@@ -112,26 +112,26 @@ public class ImageService {
   // ✅ 이미지 교체 (파일+DB)
   // @Transactional 실패하면 모든 변경사항을 롤백할 수 있어 데이터 일관성을 지켜줌
   @Transactional
-  public String replaceImage(MultipartFile newFile, String role, String oldFileName, String targetType, Long targetId) throws Exception {
+  public String replaceImage(MultipartFile newFile, String imageType, String oldFileName, String targetType, Long targetId) throws Exception {
     // 1. 기존 파일 삭제
-    File oldFile = new File(uploadPath + "/" + role, oldFileName);
+    File oldFile = new File(uploadPath + "/" + imageType, oldFileName);
     if (oldFile.exists()) oldFile.delete();
 
     // 2. DB 삭제
-    imageRepository.deleteByPath(role + "/" + oldFileName);
+    imageRepository.deleteByPath(imageType + "/" + oldFileName);
 
     // 3. 새 이미지 저장
-    return saveImage(newFile, role, targetType, targetId);
+    return saveImage(newFile, imageType, targetType, targetId);
   }
 
   // ✅ 이미지 삭제 (파일+DB)
   @Transactional
-  public boolean deleteImage(String role, String fileName) {
+  public boolean deleteImage(String imageType, String fileName) {
     try {
-      File file = new File(uploadPath + "/" + role, fileName);
+      File file = new File(uploadPath + "/" + imageType, fileName);
       if (file.exists()) {
         file.delete();
-        imageRepository.deleteByPath(role + "/" + fileName);
+        imageRepository.deleteByPath(imageType + "/" + fileName);
         return true;
       }
     } catch (Exception e) {

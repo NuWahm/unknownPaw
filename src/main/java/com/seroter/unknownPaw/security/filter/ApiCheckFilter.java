@@ -7,71 +7,91 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import net.minidev.json.JSONObject;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;   // ★
+import org.springframework.security.core.authority.SimpleGrantedAuthority;            // ★
+import org.springframework.security.core.context.SecurityContextHolder;               // ★
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;                                                                // ★
 
 @Log4j2
 public class ApiCheckFilter extends OncePerRequestFilter {
-  private String[] pattern;
-  private AntPathMatcher antPathMatcher;
-  private JWTUtil jwtUtil;
+
+  private final String[] pattern;
+  private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+  private final JWTUtil jwtUtil;
 
   public ApiCheckFilter(String[] pattern, JWTUtil jwtUtil) {
     this.pattern = pattern;
     this.jwtUtil = jwtUtil;
-    antPathMatcher = new AntPathMatcher();
   }
 
+
+  // MAIN
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    // client요청 주소와 패턴이 같은지 비교후 같으면 header에 Authorization에 값이 있는지 확인하는 메서드
-    log.info("ApiCheckFilter................................");
-    log.info("REQUEST URI: " + request.getRequestURI());
+  protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain filterChain)
+          throws ServletException, IOException {
 
-    boolean check = false;
-    for (int i = 0; i < pattern.length; i++) {
-      if (antPathMatcher.match(request.getContextPath() + pattern[i], request.getRequestURI())) {
-        check = true;
-        break;
+    /** ① 보호 URL인지 확인 */
+    boolean needCheck = false;
+    for (String p : pattern) {
+      if (antPathMatcher.match(request.getContextPath() + p,
+              request.getRequestURI())) {
+        needCheck = true; break;
       }
     }
-    if (check) {  // 요청주소와 패턴이 일치한 경우
-      log.info("check:" + check);
-      if (checkAuthHeader(request)) { // header에 Authorization값이 있는 경우
-        filterChain.doFilter(request, response);
-        return;
-      } else {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType("application/json;charset=utf-8");
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("code", "403");
-        jsonObject.put("message", "Fail check API token");
-        PrintWriter printWriter = response.getWriter();
-        printWriter.println(jsonObject);
-        return;
-      }
+    if (!needCheck) {                     // 보호 URL 아님 → 그대로 진행
+      filterChain.doFilter(request, response);
+      return;
     }
-    filterChain.doFilter(request, response);
+
+    /** ② Authorization 헤더 파싱 */
+    String header = request.getHeader("Authorization");
+    log.info("Authorization header = {}", header);
+    if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+      deny(response);
+      return;
+    }
+
+    try {
+      String token = header.substring(7);
+
+      // sub(email)·role 추출
+      String email = jwtUtil.validateAndExtract(token);
+      String role  = jwtUtil.getClaims(token)
+              .get("role", String.class);
+
+      /** ③ SecurityContext에 Authentication 주입 */
+      var authList = List.of(
+              new SimpleGrantedAuthority("ROLE_" + role)
+      );
+      var authToken =
+              new UsernamePasswordAuthenticationToken(email, null, authList);
+      SecurityContextHolder.getContext().setAuthentication(authToken);
+
+      filterChain.doFilter(request, response);
+
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      deny(response);
+    }
   }
 
-  private boolean checkAuthHeader(HttpServletRequest request) {
-    boolean chkResult = false;
-    String authHeader = request.getHeader("Authorization");
-
-    // Authorization 헤더는 일반적으로 Basic으로 시작, JWT으로 시작할 경우 Bearer 사용
-    if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
-      log.info("Authorization exist: " + authHeader);
-      // if (authHeader.equals("12345678")) chkResult = true;
-      try {
-        String email = jwtUtil.validateAndExtract(authHeader.substring(7));
-        log.info("Validate result: " + email);
-        chkResult = email.length() > 0;
-      } catch (Exception e) {e.printStackTrace();}
+  /* ---------- 403 공통 응답 ---------- */
+  private void deny(HttpServletResponse res) throws IOException {
+    res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    res.setContentType("application/json;charset=utf-8");
+    try (PrintWriter out = res.getWriter()) {
+      JSONObject body = new JSONObject();
+      body.put("code", 403);
+      body.put("message", "Fail check API token");
+      out.println(body);
     }
-    return chkResult;
   }
 }

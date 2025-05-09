@@ -8,6 +8,8 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
+import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 
 
 /**
@@ -39,6 +41,8 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     //inherited
     public final StringPath flexibleLocation;
 
+    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+
     //inherited
     public final NumberPath<Integer> likes;
 
@@ -50,6 +54,9 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
 
     //inherited
     public final NumberPath<Long> postId;
+
+    //inherited
+    public final EnumPath<PostType> postType;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
@@ -88,6 +95,7 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.postId = _super.postId;
+        this.postType = _super.postType;
         this.regDate = _super.regDate;
         this.serviceCategory = _super.serviceCategory;
         this.title = _super.title;

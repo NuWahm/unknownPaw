@@ -22,6 +22,8 @@ public class QImage extends EntityPathBase<Image> {
 
     public static final QImage image = new QImage("image");
 
+    public final NumberPath<Integer> imageType = createNumber("imageType", Integer.class);
+
     public final NumberPath<Long> imgId = createNumber("imgId", Long.class);
 
     public final QMember member;
@@ -35,8 +37,6 @@ public class QImage extends EntityPathBase<Image> {
     public final QPetSitter petSitter;
 
     public final StringPath profileImg = createString("profileImg");
-
-    public final NumberPath<Integer> role = createNumber("role", Integer.class);
 
     public final StringPath uuid = createString("uuid");
 

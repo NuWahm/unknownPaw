@@ -23,7 +23,10 @@ public class Image {
   private String path; // 파일 경로
 
   @Column(nullable = false)
-  private int role; // 1-멤버, 2-펫, 3-포스트
+  public static final int TYPE_PROFILE = 1;
+  public static final int TYPE_PET     = 2;
+  public static final int TYPE_POST    = 3;
+  private int imageType; // 1-멤버, 2-펫, 3-포스트
 
   // 회원정보 참조 (멤버)
   @ManyToOne(fetch = FetchType.LAZY)

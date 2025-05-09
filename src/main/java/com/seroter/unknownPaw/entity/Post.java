@@ -1,5 +1,7 @@
 package com.seroter.unknownPaw.entity;
 
+import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(exclude = "member")
+
 public abstract class Post {
 
   @Id
@@ -58,4 +61,8 @@ public abstract class Post {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
   private Member member; // 회원번호(참조 키) (펫오너)
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private PostType postType;
 }

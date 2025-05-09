@@ -10,22 +10,22 @@ import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    List<Image> findByRole(int role);
+    List<Image> findByImageType(int imageType);
 
     // 특정 멤버 이미지 한개 가져오는 퀴리문
-    @Query("SELECT i FROM Image i WHERE i.member.mid = :mid AND i.role = 1")
+    @Query("SELECT i FROM Image i WHERE i.member.mid = :mid AND i.imageType = 1")
     Image findMemberProfileImage(@Param("mid") Long mid);
 
     // 여러개의 팻이미지 가져오는 쿼리문   List<Image>(여러장의 이미지)
-    @Query("SELECT i FROM Image i WHERE i.pet.petId = :petId AND i.role = 2")
+    @Query("SELECT i FROM Image i WHERE i.pet.petId = :petId AND i.imageType = 2")
     List<Image> findPetImages(@Param("petId") Long petId);
 
     // 오너 게시글의 여러장의 이미지를 가져오는 쿼리문
-    @Query("SELECT i FROM Image i WHERE i.petOwner.postId = :petOwnerId AND i.role = 3")
+    @Query("SELECT i FROM Image i WHERE i.petOwner.postId = :petOwnerId AND i.imageType = 3")
     List<Image> findPetOwnerPostImages(@Param("petOwnerId") Long petOwnerId);
 
     // 시터 게시글의 여러장의 이미지를 가져오는 쿼리문
-    @Query("SELECT i FROM Image i WHERE i.petSitter.postId = :petSitterId AND i.role = 3")
+    @Query("SELECT i FROM Image i WHERE i.petSitter.postId = :petSitterId AND i.imageType = 3")
     List<Image> findPetSitterPostImages(@Param("petSitterId") Long petSitterId);
 
     // 회원 이미지 전체 삭제

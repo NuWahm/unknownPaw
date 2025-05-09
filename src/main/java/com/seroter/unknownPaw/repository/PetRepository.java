@@ -44,7 +44,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
   @Query("""
               SELECT p.petId, p.petName, i.imgId
               FROM Pet p
-              LEFT JOIN Image i ON i.pet = p AND i.role = 2
+              LEFT JOIN Image i ON i.pet = p AND i.imageType = 2
               WHERE p.member.mid = :mid
           """)
   List<Object[]> getPetAndImageByMemberId(@Param("mid") Long mid);

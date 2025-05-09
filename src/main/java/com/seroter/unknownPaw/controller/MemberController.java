@@ -33,27 +33,37 @@ public class MemberController {
 
     // ✅ 1. 로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
-        Optional<Member> result = memberService.findByEmail(loginRequestDTO.getEmail());
-        if (result.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("존재하지 않는 계정입니다.");
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO dto) {
+
+        Member member = memberService.findByEmail(dto.getEmail())
+                .orElse(null);
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("존재하지 않는 계정입니다.");
         }
 
-        Member member = result.get();
-        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), member.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+        if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("비밀번호가 일치하지 않습니다.");
         }
 
         try {
-            String token = jwtUtil.generateToken(member.getEmail());
+            /* ---------- ① role 읽어서 ---------- */
+            String role  = member.getRole().name();  // enum 이라면 .name()
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
-            response.put("member", new MemberResponseDTO(member));
+            /* ---------- ② 토큰 생성 시 전달 ---------- */
+            String token = jwtUtil.generateToken(member.getEmail(), role);
 
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("토큰 생성 실패");
+            Map<String, Object> res = new HashMap<>();
+            res.put("token",   token);
+            res.put("member",  new MemberResponseDTO(member));
+
+            return ResponseEntity.ok(res);
+
+        } catch (Exception ex) {
+            log.error("토큰 생성 실패", ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("토큰 생성 실패");
         }
     }
     // ✅ 2. 회원 기본 정보 조회 (mid)
