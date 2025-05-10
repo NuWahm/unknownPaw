@@ -25,19 +25,24 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-      @PathVariable PostType postType,
+      @PathVariable String postType,
       PageRequestDTO pageRequestDTO,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String location,
       @RequestParam(required = false) String category
   ) {
+    PostType pType;
+    try {
+      pType = PostType.from(postType);
+    } catch (IllegalArgumentException e){
+      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
+    }
     Page<? extends Post> result = postService.searchPosts(
-        postType.name(),     // enum → String
+        postType,     // enum → String
         keyword,
         location,
         category,
         pageRequestDTO.getPageable()
-
     );
     Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
     return ResponseEntity.ok(dtoPage);
