@@ -9,6 +9,7 @@ import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,21 +32,23 @@ public class PostController {
       @RequestParam(required = false) String location,
       @RequestParam(required = false) String category
   ) {
-    PostType pType;
     try {
-      pType = PostType.from(postType);
-    } catch (IllegalArgumentException e){
-      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
+      PostType pType = PostType.from(postType);
+      System.out.println("pType list:" + postType);
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize());
+      Page<? extends Post> result = postService.searchPosts(
+          postType,     // enum → String
+          keyword,
+          location,
+          category,
+          pageRequestDTO.getPageable()
+
+      );
+      Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
+      return ResponseEntity.ok(dtoPage);
+    } catch (IllegalArgumentException e) {
+      return  ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
     }
-    Page<? extends Post> result = postService.searchPosts(
-        postType,     // enum → String
-        keyword,
-        location,
-        category,
-        pageRequestDTO.getPageable()
-    );
-    Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
-    return ResponseEntity.ok(dtoPage);
   }
 
   /* ---------------- 상세 ---------------- */

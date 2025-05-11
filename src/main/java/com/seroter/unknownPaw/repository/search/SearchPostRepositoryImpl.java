@@ -31,15 +31,15 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
   private EntityManager em;
 
   @Override
-  public Page<? extends Post> searchDynamic(String role, String keyword, String location, String category, Pageable pageable) {
-
+  public Page<? extends Post> searchDynamic(String role, String keyword, String defaultLocation, String category, Pageable pageable) {
     // 요청 파라미터 로깅 (INFO 레벨)
-    log.info("Starting searchDynamic with role: {}, keyword: {}, location: {}, category: {}, pageable: {}", role, keyword, location, category, pageable);
+    log.info("Starting searchDynamic with role: {}, keyword: {}, defaultLocation: {}, category: {}, pageable: {}", role, keyword, defaultLocation, category, pageable);
 
     // try-catch 블록으로 쿼리 실행 중 발생할 수 있는 예외를 잡습니다.
     try {
-      Class<? extends Post> postClass = "petOwner".equals(role) ? PetOwner.class : PetSitter.class;
+      Class<? extends Post> postClass = "petOwner".equalsIgnoreCase(role) ? PetOwner.class : PetSitter.class;
       String alias = "p";
+      System.out.println("searchpost role 롤:"+role);
 
       StringBuilder jpql = new StringBuilder("select ").append(alias).append(" from ")
           .append(postClass.getSimpleName()).append(" ").append(alias).append(" where 1=1 ");
@@ -49,12 +49,12 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         jpql.append(" and ").append(alias).append(".title like :keyword ");
       }
 
-      if (location != null && !location.isEmpty()) {
-        jpql.append(" and ").append(alias).append(".location = :location ");
+      if (defaultLocation != null && !defaultLocation.isEmpty()) {
+        jpql.append(" and ").append(alias).append(".defaultLocation = :defaultLocation ");
       }
 
       if (category != null && !category.isEmpty()) {
-        jpql.append(" and ").append(alias).append(".petType = :category ");
+        jpql.append(" and ").append(alias).append(".p.serviceCategory.name() = :category ");
       }
 
       // ====== 정렬 로직 추가 ======
@@ -97,10 +97,10 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         log.debug("Bound keyword parameter: {}", "%" + keyword + "%");
       }
 
-      if (location != null && !location.isEmpty()) {
-        query.setParameter("location", location);
-        countQuery.setParameter("location", location);
-        log.debug("Bound location parameter: {}", location);
+      if (defaultLocation != null && !defaultLocation.isEmpty()) {
+        query.setParameter("defaultLocation", defaultLocation);
+        countQuery.setParameter("defaultLocation", defaultLocation);
+        log.debug("Bound defaultLocation parameter: {}", defaultLocation);
       }
 
       if (category != null && !category.isEmpty()) {
@@ -127,7 +127,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
 
     } catch (Exception e) {
       // 예외 발생 시 ERROR 레벨로 상세 로깅하고, 예외를 다시 던져 상위(Controller)로 전달합니다.
-      log.error("Error occurred in searchDynamic method.", e);
+      log.error("Error occurred in searchDynamic method.", e.getMessage(),e);
       throw new RuntimeException("Error fetching posts", e); // 새로운 RuntimeException으로 감싸서 던질 수도 있습니다.
     }
   }
