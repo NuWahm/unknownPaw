@@ -8,6 +8,8 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
+import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 
 
 /**
@@ -39,6 +41,8 @@ public class QPost extends EntityPathBase<Post> {
     public final DateTimePath<java.time.LocalDateTime> modDate = createDateTime("modDate", java.time.LocalDateTime.class);
 
     public final NumberPath<Long> postId = createNumber("postId", Long.class);
+
+    public final EnumPath<PostType> postType = createEnum("postType", PostType.class);
 
     public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);
 
