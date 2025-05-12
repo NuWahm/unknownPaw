@@ -1,9 +1,6 @@
 package com.seroter.unknownPaw.service;
 
-import com.seroter.unknownPaw.dto.CursorRequestDTO;
-import com.seroter.unknownPaw.dto.CursorResultDTO;
-import com.seroter.unknownPaw.dto.PageResultDTO;
-import com.seroter.unknownPaw.dto.PostDTO;
+import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetOwnerRepository;
@@ -74,7 +71,12 @@ public class PostService {
 
   // 게시글 동적 검색 메서드
   public Page<? extends Post> searchPosts(String postType, String keyword, String location, String category, Pageable pageable) {
-    return searchPostRepository.searchDynamic(postType, keyword, location, category, pageable);
+    // Repository에서 LEFT JOIN FETCH로 멤버 정보까지 가져옴
+    Page<? extends Post> result = searchPostRepository.searchDynamic(postType, keyword, location, category, pageable);
+
+    // Controller의 list 메서드는 이 결과를 받아서 result.map(PostDTO::fromEntity) 호출
+    // 그러므로 PostDTO.fromEntity가 제대로 수정되어야 함
+    return result;
   }
 
 
@@ -143,7 +145,7 @@ public class PostService {
 
   // 엔티티를 DTO로 변환하는 메서드
   private PostDTO entityToDto(Post entity, boolean isSitter) {
-    return PostDTO.builder()
+    PostDTO.PostDTOBuilder builder = PostDTO.builder()
         .postId(entity.getPostId()) // 게시글 ID
         .title(entity.getTitle()) // 제목
         .content(entity.getContent()) // 내용
@@ -155,9 +157,36 @@ public class PostService {
         .flexibleLocation(entity.getFlexibleLocation()) // 유연한 위치
         .regDate(entity.getRegDate()) // 등록일
         .modDate(entity.getModDate()) // 수정일
-        .email(entity.getMember() != null ? entity.getMember().getEmail() : null) // 회원 이메일
-        .isPetSitterPost(isSitter) // 펫시터 게시글 여부
-        .build();
+        // email 필드는 필요하면 남겨두거나 제거
+        // .email(entity.getMember() != null ? entity.getMember().getEmail() : null)
+        // 이미지는 필요에 따라 여기서도 매핑 로직 추가 (현재는 fromEntity에만 있음)
+        .isPetSitterPost(isSitter); // 펫시터 게시글 여부
+
+    // ** 수정: 로딩된 멤버 정보가 있다면 MemberResponseDTO 객체를 생성하여 빌더에 설정 **
+    if (entity.getMember() != null) {
+      Member memberEntity = entity.getMember(); // 로딩된 Member 엔티티 가져오기
+
+      // 이미 존재하는 MemberResponseDTO 클래스의 builder 또는 fromEntity static 메서드 사용
+      // MemberResponseDTO에 fromEntity static 메서드를 만들었다면:
+      // MemberResponseDTO memberDTO = MemberResponseDTO.fromEntity(memberEntity);
+
+      // MemberResponseDTO에 fromEntity static 메서드가 없다면 builder 사용:
+      MemberResponseDTO memberDTO = MemberResponseDTO.builder()
+          .mid(memberEntity.getMid())
+          .email(memberEntity.getEmail()) // Member 엔티티에서 이메일 가져오기
+          .nickname(memberEntity.getNickname()) // Member 엔티티에서 닉네임 가져오기
+          // Member 엔티티에 profileImagePath 필드가 있다고 가정하고 가져오기
+          .profileImagePath(memberEntity.getProfileImagePath())
+          // 필요한 다른 멤버 정보 필드 추가
+          // .pawRate(memberEntity.getPawRate())
+          .build(); // MemberResponseDTO 객체 생성 완료
+
+      // ** PostDTO 빌더의 member 필드에 생성한 memberDTO 객체를 설정 **
+      builder.member(memberDTO);
+    }
+
+    // 빌더를 사용하여 최종 PostDTO 객체 생성 및 반환
+    return builder.build();
   }
 
   // 게시글의 공통 필드를 업데이트하는 메서드
