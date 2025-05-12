@@ -1,6 +1,7 @@
 package com.seroter.unknownPaw.entity;
 
 
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
 

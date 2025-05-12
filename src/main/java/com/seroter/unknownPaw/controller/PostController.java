@@ -4,7 +4,7 @@ import com.seroter.unknownPaw.dto.ModifyRequestDTO;
 import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
-import com.seroter.unknownPaw.entity.PostType;
+import com.seroter.unknownPaw.entity.Enum.PostType;
 import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
