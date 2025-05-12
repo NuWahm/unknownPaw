@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,41 +20,60 @@ import java.time.LocalDateTime;
 @Table(name = "community")
 public class Community {
 
+    // ========== [기본키: 커뮤니티 ID] ==========
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postId;  // 게시글 ID
+    private Long communityId; // 실제 컬럼명도 community_id로 생성됨
 
-    private String title; // 글 제목
-    private String content; // 글 내용
-    private String defaultLocation; // 기본 위치
-    private String flexibleLocation; // 유동적인 위치
+    // ========== [게시글 정보] ==========
+    private String title;                // 제목
+    private String content;              // 내용
 
-    private int desiredHourlyRate; // 희망 시급
-    private String serviceCategory; // 서비스 카테고리
-    private String postType; // 포스트 타입
+    // ========== [통계 정보] ==========
+    private int likes;                   // 좋아요 수
+    private int comment;               // 댓글 수
 
-    private int likes; // 좋아요 수
-    private int chatCount; // 채팅 수
-
+    // ========== [작성자 정보] ==========
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member; // 작성자
+    private Member member;               // 작성자 (회원 엔티티 참조)
 
+    // ========== [분류] ==========
     @Enumerated(EnumType.STRING)
-    private CommunityCategory communityCategory; // 커뮤니티 카테고리
+    private CommunityCategory communityCategory; // 커뮤니티 카테고리 (enum)
 
-    private LocalDateTime regDate; // 등록일
+    // ========== [등록일] ==========
+    private LocalDateTime regDate;
 
-    // 커뮤니티 게시글 수정 메서드
-    public void modify(CommunityRequestDTO dto) {
-        // 수정할 필드들을 새 값으로 갱신
-        this.title = dto.getTitle();
-        this.content = dto.getContent();
-        this.defaultLocation = dto.getDefaultLocation();
-        this.flexibleLocation = dto.getFlexibleLocation();
-        this.desiredHourlyRate = dto.getDesiredHourlyRate();
-        this.serviceCategory = dto.getServiceCategory();
-        this.postType = dto.getPostType();
-        // 기타 필요한 수정 사항을 추가할 수 있음
+    // ========== [등록일 자동 세팅] ==========
+    @PrePersist
+    public void prePersist() {
+        this.regDate = LocalDateTime.now();
     }
+
+    // ========== [게시글 수정 메서드] ==========
+    public void modify(CommunityRequestDTO communityRequestDTO) {
+        this.title = communityRequestDTO.getTitle();
+        this.content = communityRequestDTO.getContent();
+        this.communityCategory = communityRequestDTO.getCommunityCategory(); // ✅ 단순 대입
+    }
+
+
+    // ========== [커뮤니티 이미지 리스트] (양방향 매핑) ==========
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommunityImage> communityImages = new ArrayList<>();
+
+    // ========== [이미지 리스트 추가] ==========
+    public void addImage(CommunityImage image) {
+        communityImages.add(image);
+        image.setCommunity(this); // 양방향 관계 유지
+    }
+
+    // ========== [이미지 리스트 제거] ==========
+    public void removeImage(CommunityImage image) {
+        communityImages.remove(image);
+        image.setCommunity(null); // 양방향 관계 해제
+    }
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 }

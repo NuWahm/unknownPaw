@@ -150,7 +150,7 @@ public class PostRepositoryImplTests {
           .profileImg("pet_image_" + i + ".jpg") // 파일명
           .uuid(UUID.randomUUID().toString())    // UUID 생성
           .path("/images/pet/" + "pet_image_" + i + ".jpg") // 파일 경로
-          .role(2) // Pet 이미지로 설정
+          .imageType(2) // Pet 이미지로 설정
           .pet(pet) // 저장된 Pet 참조
           .build();
       imageRepository.save(petImage);
