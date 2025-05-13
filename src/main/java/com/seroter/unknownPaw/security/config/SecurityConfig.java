@@ -47,6 +47,8 @@ public class SecurityConfig {
                 new String[]{"/api/posts/**", "/api/member/mypage"}, jwtUtil
         );
 
+
+        //front main 작업과 매치되도록 수정 예정
         http
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
