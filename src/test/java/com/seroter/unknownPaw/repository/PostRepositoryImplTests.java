@@ -53,10 +53,10 @@ public class PostRepositoryImplTests {
     for (int i = 1; i <= 100; i++) {
       // 1. Member 생성 (Owner 및 Sitter 공통)
       Member owner = Member.builder()
-          .email("owner" + i + "@example.com")
+          .email("owner❤" + i + "@example.com")
           .password(passwordEncoder.encode("1")) // 필요 시 인코딩 주석 해제
           .name("Owner" + i)
-          .nickname("OwnerNick" + i)
+          .nickname("OwnerNick" + i+"test❤")
           .phoneNumber("010-1234-567" + i)
           .pawRate(0.5f)
           .gender(random.nextBoolean())

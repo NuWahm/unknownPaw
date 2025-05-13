@@ -24,8 +24,7 @@ public class PetDTO {
   private boolean neutering; // 중성화 여부
   private String petIntroduce; // 펫 소개
 
-  @Builder.Default
-  private Set<String> roleSet = new HashSet<>();
+
   private LocalDateTime regDate;
   private LocalDateTime modDate;
 }

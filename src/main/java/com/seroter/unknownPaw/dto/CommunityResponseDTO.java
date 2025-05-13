@@ -26,23 +26,6 @@ public class CommunityResponseDTO {
     private LocalDateTime regDate;
     private List<String> communityImages; // 커뮤니티 이미지 URL 목록
 
-    // 기본 생성자 추가
-    public CommunityResponseDTO(Long communityId, String title, String content, int likes, int commentCount,
-                                String authorName, String authorNickname, String authorProfileImage,
-                                CommunityCategory communityCategory, LocalDateTime regDate, List<String> communityImages) {
-        this.communityId = communityId;
-        this.title = title;
-        this.content = content;
-        this.likes = likes;
-        this.commentCount = commentCount;
-        this.authorName = authorName;
-        this.authorNickname = authorNickname;
-        this.authorProfileImage = authorProfileImage;
-        this.communityCategory = communityCategory;
-        this.regDate = regDate;
-        this.communityImages = communityImages;
-    }
-
     // Community -> CommunityResponseDTO 변환
     public static CommunityResponseDTO fromEntity(Community community) {
         List<String> images = community.getCommunityImages().stream()
