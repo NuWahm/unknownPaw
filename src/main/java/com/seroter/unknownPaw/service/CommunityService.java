@@ -67,10 +67,27 @@ public class CommunityService {
 
     // ========== [게시글 전체 조회] ==========
     public List<CommunityResponseDTO> getAllCommunityPosts() {
-        List<Community> communities = communityRepository.findAllByOrderByRegDateDesc();
-        return communities.stream()
-                .map(CommunityResponseDTO::fromEntity)  // fromEntity 메서드를 이용해 변환
-                .collect(Collectors.toList());
+        List<Community> communities = communityRepository.findAll();
+
+        return communities.stream().map(community -> {
+            return CommunityResponseDTO.builder()
+                    .communityId(community.getCommunityId())
+                    .title(community.getTitle())
+                    .content(community.getContent())
+                    .likes(community.getLikes())
+                    .commentCount(community.getComment())
+                    .authorName(community.getMember().getName())
+                    .authorNickname(community.getMember().getNickname())
+                    .authorProfileImage(community.getMember().getProfileImagePath()) // 프로필 URL
+                    .communityCategory(CommunityCategory.valueOf(community.getCommunityCategory().name()))
+                    .regDate(LocalDateTime.parse(community.getRegDate().toString()))
+                    .communityImages(
+                            community.getCommunityImages().stream()
+                                    .map(img -> img.getCommunityImageUrl()) // 이미지 URL만 추출
+                                    .toList()
+                    )
+                    .build();
+        }).toList();
     }
 
     // ========== [게시글 수정] ==========

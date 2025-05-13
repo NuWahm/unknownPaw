@@ -2,6 +2,7 @@
 package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.entity.Enum.PostType;
 import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import com.seroter.unknownPaw.entity.escrowEntity.EscrowPayment;
 import com.seroter.unknownPaw.entity.escrowEntity.EscrowStatus;
@@ -80,7 +81,7 @@ public class PostRepositoryImplTests {
           .defaultLocation("부산시 부산진구")
           .flexibleLocation("부산시 기장군")
           .member(owner)
-          .role(PostRole.PETOWNER) // role 추가
+          .postType(PostType.PET_OWNER) // role 추가
           .build();
       petOwnerRepository.save(petOwner);
 
@@ -95,7 +96,7 @@ public class PostRepositoryImplTests {
           .defaultLocation("서울시 강남구")
           .flexibleLocation("서울시 서초구")
           .member(owner)  // 동일한 owner가 시터 역할을 할 수 있습니다.
-          .role(PostRole.PETSITTER)
+          .postType(PostType.PET_SITTER)
           .build();
       petSitterRepository.save(petSitter);
 

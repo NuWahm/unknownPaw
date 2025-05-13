@@ -5,8 +5,6 @@ import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Table(name = "community_image")
 public class CommunityImage {

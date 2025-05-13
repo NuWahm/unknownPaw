@@ -8,7 +8,6 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
-import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 
 
 /**
@@ -59,7 +58,7 @@ public class QDateAppoint extends EntityPathBase<DateAppoint> {
 
     public final NumberPath<Long> rno = createNumber("rno", Long.class);
 
-    public final EnumPath<ServiceCategory> serviceCategory = createEnum("serviceCategory", ServiceCategory.class);
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory = createEnum("serviceCategory", com.seroter.unknownPaw.entity.Enum.ServiceCategory.class);
 
     public QDateAppoint(String variable) {
         this(DateAppoint.class, forVariable(variable), INITS);

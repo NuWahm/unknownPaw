@@ -8,8 +8,6 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
-import com.seroter.unknownPaw.entity.Enum.PostType;
-import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 
 
 /**
@@ -56,13 +54,13 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     public final NumberPath<Long> postId;
 
     //inherited
-    public final EnumPath<PostType> postType;
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.PostType> postType;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
-    public final EnumPath<ServiceCategory> serviceCategory;
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory;
 
     //inherited
     public final StringPath title;
