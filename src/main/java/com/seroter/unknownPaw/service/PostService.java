@@ -207,44 +207,7 @@ public class PostService {
 
 
 
-// 랜덤게시글 오너,시터,커뮤 하나씩 불러오기
-//    public PostDTO getRandomPostByType(String postType) {
-//        Post post = switch (postType.toLowerCase()) {
-//            case "petowner" -> petOwnerRepository.findRandomPetOwnerPosts(PostType.PETOWNER, PageRequest.of(0, 1))
-//                .stream().findFirst().orElse(null);
-//            case "petsitter" -> petSitterRepository.findRandomPetSitterPosts(PostType.PETSITTER, PageRequest.of(0, 1))
-//                .stream().findFirst().orElse(null);
-////            case "community" -> postRepository.findRandomByType(PostRole.COMMUNITY, PageRequest.of(0, 1))                 .stream().findFirst().orElse(null);
-////            default -> null;
-//        };
-//
-//        if (post == null) {
-//            return PostDTO.builder()
-//                .postId(-1L)
-//                .title("게시글이 없습니다")
-//                .content("작성된 게시글이 없습니다.")
-//                .build();
-//        }
-//
-//        return PostDTO.builder()
-//            .postId(post.getPostId())
-//            .title(post.getTitle())
-//            .content(post.getContent())
-//            .serviceCategory(post.getServiceCategory().name())
-//            .hourlyRate(post.getDesiredHourlyRate())
-//            .likes(post.getLikes())
-//            .chatCount(post.getChatCount())
-//            .defaultLocation(post.getDefaultLocation())
-//            .flexibleLocation(post.getFlexibleLocation())
-//            .regDate(post.getRegDate())
-//            .modDate(post.getModDate())
-//            .email(post.getMember() != null ? post.getMember().getEmail() : null)
-//            .isPetSitterPost(postType.equalsIgnoreCase("petsitter"))
-//            .build();
-//    }
-
-
-// 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
+    // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
 public List<PostDTO> getRandom6PetOwnerPosts() {
     return petOwnerRepository.findRecent7DaysRandom6Posts()
         .stream()

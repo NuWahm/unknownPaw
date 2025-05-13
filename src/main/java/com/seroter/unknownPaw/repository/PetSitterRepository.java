@@ -21,9 +21,6 @@ public interface PetSitterRepository extends JpaRepository<PetSitter, Long> {
     List<PetSitter> findRecent7DaysRandom6Posts();
 
 
-//    메인화면 랜덤하게 게시글 불러오기 (주석처리)
-//    @Query("SELECT p FROM PetSitter p WHERE p.postType = :petsitter ORDER BY function('RAND')")
-//    List<PetSitter> findRandomPetSitterPosts(@Param("petsitter") PostType petsitter, Pageable pageable);
 
 
 }

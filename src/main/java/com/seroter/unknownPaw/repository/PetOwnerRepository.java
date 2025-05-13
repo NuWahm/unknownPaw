@@ -23,9 +23,6 @@ public interface PetOwnerRepository extends JpaRepository<PetOwner, Long> {
   List<PetOwner> findRecent7DaysRandom6Posts();
 
 
-  //    메인화면 랜덤하게 게시글 불러오기 (주석처리)
-  //    @Query("SELECT p FROM PetOwner p WHERE p.postType = :petowner ORDER BY function('RAND')")
-  //    List<PetOwner> findRandomPetOwnerPosts(@Param("petowner") PostType petowner, Pageable pageable);
 
 
 }

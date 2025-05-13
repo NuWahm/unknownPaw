@@ -79,21 +79,6 @@ public class PostController {
   }
 
 
-
-//  Main random 게시판 글 불러오기 주석처리
-//  @GetMapping("/{type}/random")
-//  public ResponseEntity<?> getRandomPost(@PathVariable String type) {
-//    log.info(">>"+type+"random");
-//    PostDTO dto = postService.getRandomPostByType(type);
-//
-//    if (dto == null || dto.getPostId() == -1L) {
-//      return ResponseEntity.status(404).body(Map.of("message", "해당 역할에 대한 게시글이 없습니다."));
-//    }
-//
-//    return ResponseEntity.ok(dto);
-//  }
-
-
   // 최근 7일 이내 펫오너 게시글 랜덤 6개
   @GetMapping("/petowner/recent/random6")
   public List<PostDTO> getRecentRandomPetOwnerPosts() {
