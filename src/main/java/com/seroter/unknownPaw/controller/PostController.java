@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -109,4 +110,17 @@ public class PostController {
         "postId", postId
     ));
   }
+
+  // 최근 7일 이내 펫오너 게시글 랜덤 6개
+  @GetMapping("/petowner/recent/random6")
+  public List<PostDTO> getRecentRandomPetOwnerPosts() {
+    return postService.getRandom6PetOwnerPosts();
+  }
+
+  // 최근 7일 이내 펫시터 게시글 랜덤 6개
+  @GetMapping("/petsitter/recent/random6")
+  public List<PostDTO> getRecentRandomPetSitterPosts() {
+    return postService.getRandom6PetSitterPosts();
+  }
+
 }

@@ -242,6 +242,22 @@ public class PostService {
         return PostType.PET_SITTER.name().equals(postType); // 역할이 펫시터이면 true 반환
     }
 
+    // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
+    public List<PostDTO> getRandom6PetOwnerPosts() {
+        return petOwnerRepository.findRecent7DaysRandom6Posts()
+            .stream()
+            .map(post -> entityToDto(post, false))  // false = 오너
+            .toList();
+    }
+
+    // 최근 7일 이내 펫시터 게시물 랜덤 6개 가져오기
+    public List<PostDTO> getRandom6PetSitterPosts() {
+        return petSitterRepository.findRecent7DaysRandom6Posts()
+            .stream()
+            .map(post -> entityToDto(post, true))  // true = 시터
+            .toList();
+    }
+
 
     // 🖱️ 무한 스크롤
 //    public CursorResultDTO<PostDTO> getPostList(CursorRequestDTO request) {
