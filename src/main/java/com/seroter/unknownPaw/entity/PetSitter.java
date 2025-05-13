@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
-@Table(name = "pet_sitter_post")
 @NoArgsConstructor
 
 public class PetSitter extends Post {

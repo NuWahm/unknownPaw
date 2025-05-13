@@ -62,7 +62,7 @@ public class SecurityConfig {
                 //.requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
                 .anyRequest().permitAll()
             )
-            //.addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
+           //.addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);
 
         if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {

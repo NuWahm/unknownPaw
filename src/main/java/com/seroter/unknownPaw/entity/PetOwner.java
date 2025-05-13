@@ -11,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
-@Table(name = "pet_owner_post")
 @NoArgsConstructor
 public class PetOwner extends Post {
 

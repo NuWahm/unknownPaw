@@ -5,24 +5,27 @@ import com.seroter.unknownPaw.entity.PostType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PetOwnerRepository extends JpaRepository<PetOwner, Long> {
 
-    // 펫오너가 작성한 게시글 조회
-    List<PetOwner> findByMember_Mid(Long mid);
+  // 펫오너가 작성한 게시글 조회
+  List<PetOwner> findByMember_Mid(Long mid);
 
-    // 특정 펫오너 게시글 조회
-    Optional<PetOwner> findByPostId(Long postId);
+  // 특정 펫오너 게시글 조회
+  Optional<PetOwner> findByPostId(Long postId);
 
-    @Query(value = "SELECT * FROM pet_owner_post ORDER BY RAND() LIMIT 6", nativeQuery = true)
-    List<PetOwner> findRandom6Posts();
+  // 펫오너 랜덤게시물 6개 들고오기
+  @Query(value = "SELECT * FROM pet_owner WHERE reg_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY RAND() LIMIT 6", nativeQuery = true)
+  List<PetOwner> findRecent7DaysRandom6Posts();
 
-    @Query("SELECT p FROM PetOwner p ORDER BY function('RAND')")
-    List<PetOwner> findRandomPetOwnerPosts(PostType petowner, Pageable pageable);
 
+  //    메인화면 랜덤하게 게시글 불러오기 (주석처리)
+  //    @Query("SELECT p FROM PetOwner p WHERE p.postType = :petowner ORDER BY function('RAND')")
+  //    List<PetOwner> findRandomPetOwnerPosts(@Param("petowner") PostType petowner, Pageable pageable);
 
 
 }
