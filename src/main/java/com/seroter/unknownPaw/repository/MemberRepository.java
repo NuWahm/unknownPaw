@@ -73,7 +73,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Query("""
         SELECT m.mid, m.nickname, m.pawRate, i.path
         FROM Member m
-        LEFT JOIN Image i ON i.member = m AND i.role = 1
+        LEFT JOIN Image i ON i.member = m AND i.imageType = 1
         WHERE m.mid = :mid
         """)
   Optional<Object[]> findSimpleProfileInfo(@Param("mid") Long mid);

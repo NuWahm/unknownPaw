@@ -21,17 +21,17 @@ public class PostImageController {
 
   // 게시판 이미지 등록
 
-  @PostMapping("/upload/{role}")
-  public ResponseEntity<?> upload(@PathVariable String role,
+  @PostMapping("/upload/{postType}")
+  public ResponseEntity<?> upload(@PathVariable String postType,
                                   @RequestParam("file") MultipartFile file,
                                   @RequestParam("targetId") Long targetId) {
     try {
-      if (!role.equals("petOwner") && !role.equals("petSitter")) {
+      if (!postType.equals("petOwner") && !postType.equals("petSitter")) {
         return ResponseEntity.badRequest().body("올바르지 않은 역할입니다.");
       }
 
-      String fileName = imageService.saveImage(file, role, role, targetId);
-      return ResponseEntity.ok(Map.of("fileName", fileName, "role", role));
+      String fileName = imageService.saveImage(file, postType, postType, targetId);
+      return ResponseEntity.ok(Map.of("fileName", fileName, "role", postType));
     } catch (Exception e) {
       log.error("이미지 업로드 실패", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패");
@@ -41,13 +41,13 @@ public class PostImageController {
 
   // 게시판 이미지 수정
 
-  @PostMapping("/replace/{role}")
-  public ResponseEntity<?> replaceImage(@PathVariable String role,
+  @PostMapping("/replace/{postType}")
+  public ResponseEntity<?> replaceImage(@PathVariable String postType,
                                         @RequestParam("oldFileName") String oldFileName,
                                         @RequestParam("file") MultipartFile newFile,
                                         @RequestParam("targetId") Long targetId) {
     try {
-      String newFileName = imageService.replaceImage(newFile, role, oldFileName, role, targetId);
+      String newFileName = imageService.replaceImage(newFile, postType, oldFileName, postType, targetId);
       return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "교체 성공"));
     } catch (Exception e) {
       log.error("이미지 교체 실패", e);
@@ -58,10 +58,10 @@ public class PostImageController {
 
   // 게시판 이미지 삭제
 
-  @DeleteMapping("/{role}/{fileName}")
-  public ResponseEntity<?> deleteImage(@PathVariable String role, @PathVariable String fileName) {
+  @DeleteMapping("/{postType}/{fileName}")
+  public ResponseEntity<?> deleteImage(@PathVariable String postType, @PathVariable String fileName) {
     try {
-      boolean deleted = imageService.deleteImage(role, fileName);
+      boolean deleted = imageService.deleteImage(postType, fileName);
       return deleted
           ? ResponseEntity.ok("삭제 성공")
           : ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일 없음");

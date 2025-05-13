@@ -76,8 +76,8 @@ public class QPet extends EntityPathBase<Pet> {
         super(type, metadata, inits);
         this.imgId = inits.isInitialized("imgId") ? new QImage(forProperty("imgId"), inits.get("imgId")) : null;
         this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
-        this.petOwnerId = inits.isInitialized("petOwnerId") ? new QPetOwner(forProperty("petOwnerId")) : null;
-        this.petSitterId = inits.isInitialized("petSitterId") ? new QPetSitter(forProperty("petSitterId")) : null;
+        this.petOwnerId = inits.isInitialized("petOwnerId") ? new QPetOwner(forProperty("petOwnerId"), inits.get("petOwnerId")) : null;
+        this.petSitterId = inits.isInitialized("petSitterId") ? new QPetSitter(forProperty("petSitterId"), inits.get("petSitterId")) : null;
     }
 
 }

@@ -58,7 +58,7 @@ public class QDateAppoint extends EntityPathBase<DateAppoint> {
 
     public final NumberPath<Long> rno = createNumber("rno", Long.class);
 
-    public final EnumPath<ServiceCategory> serviceCategory = createEnum("serviceCategory", ServiceCategory.class);
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory = createEnum("serviceCategory", com.seroter.unknownPaw.entity.Enum.ServiceCategory.class);
 
     public QDateAppoint(String variable) {
         this(DateAppoint.class, forVariable(variable), INITS);
@@ -81,8 +81,8 @@ public class QDateAppoint extends EntityPathBase<DateAppoint> {
         this.imgId = inits.isInitialized("imgId") ? new QImage(forProperty("imgId"), inits.get("imgId")) : null;
         this.mid = inits.isInitialized("mid") ? new QMember(forProperty("mid")) : null;
         this.petId = inits.isInitialized("petId") ? new QPet(forProperty("petId"), inits.get("petId")) : null;
-        this.petOwnerPost = inits.isInitialized("petOwnerPost") ? new QPetOwner(forProperty("petOwnerPost")) : null;
-        this.petSitterPost = inits.isInitialized("petSitterPost") ? new QPetSitter(forProperty("petSitterPost")) : null;
+        this.petOwnerPost = inits.isInitialized("petOwnerPost") ? new QPetOwner(forProperty("petOwnerPost"), inits.get("petOwnerPost")) : null;
+        this.petSitterPost = inits.isInitialized("petSitterPost") ? new QPetSitter(forProperty("petSitterPost"), inits.get("petSitterPost")) : null;
     }
 
 }

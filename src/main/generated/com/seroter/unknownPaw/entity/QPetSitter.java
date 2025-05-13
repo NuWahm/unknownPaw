@@ -39,6 +39,8 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     //inherited
     public final StringPath flexibleLocation;
 
+    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+
     //inherited
     public final NumberPath<Integer> likes;
 
@@ -52,10 +54,13 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     public final NumberPath<Long> postId;
 
     //inherited
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.PostType> postType;
+
+    //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
-    public final EnumPath<ServiceCategory> serviceCategory;
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory;
 
     //inherited
     public final StringPath title;
@@ -88,6 +93,7 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.postId = _super.postId;
+        this.postType = _super.postType;
         this.regDate = _super.regDate;
         this.serviceCategory = _super.serviceCategory;
         this.title = _super.title;
