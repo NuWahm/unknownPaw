@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentDTO {
 
+
     private Long commentId;       // 댓글 ID (필드명을 명확하게 수정)
     private Long communityId;     // 소속 커뮤니티 게시글 ID
     private Long memberId;        // 작성자 ID

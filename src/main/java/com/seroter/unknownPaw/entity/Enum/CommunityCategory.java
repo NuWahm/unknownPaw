@@ -16,4 +16,5 @@ public enum CommunityCategory {
             return CommunityCategory.GENERAL; // 기본값 설정
         }
     }
+
 }

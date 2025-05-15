@@ -49,5 +49,6 @@ public class CommunityResponseDTO {
                 .regDate(community.getRegDate())
                 .communityImages(images)
                 .build();
+
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort; // Sort import 추가
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList; // Predicate 사용 시 필요 (Criteria API 예시 코드에서 왔을 수 있으나 남겨둠)
 import java.util.List;
 import java.util.Locale; // getDirection().name() 사용 시 필요
@@ -19,6 +18,7 @@ import java.util.Locale; // getDirection().name() 사용 시 필요
 // Log4j2 로거 인스턴스 생성
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 
 @Repository
 public class SearchPostRepositoryImpl implements SearchPostRepository {
@@ -30,6 +30,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
   private EntityManager em;
 
   @Override
+
   public Page<? extends Post> searchDynamic(String role, String keyword, String defaultLocation, String category, Pageable pageable) {
     log.info("Starting searchDynamic with role: {}, keyword: {}, defaultLocation: {}, category: {}, pageable: {}", role, keyword, defaultLocation, category, pageable);
 
@@ -75,11 +76,12 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             jpql.append(", ");
           }
           // 정렬 속성과 방향 추가 (방향은 소문자로 변환)
-          jpql.append(alias).append(".").append(order.getProperty()).append(" ").append(order.getDirection().name().toLowerCase(Locale.ROOT));
+          jpql.append(alias).append(".").append(order.getProperty()).append(" ").append(order.getDirection().name().toLowerCase(Locale.ROOT)); // 대소문자 구분 없이 toLowerCase() 사용
           first = false;
         }
       }
       // ====== 여기까지 정렬 로직 추가 ======
+
 
       log.debug("Constructed JPQL: {}", jpql.toString());
 
@@ -98,21 +100,25 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         countJpql = countJpql.substring(0, orderByPos);
       }
 
+
       log.debug("Constructed Count JPQL: {}", countJpql);
       TypedQuery<Long> countQuery = em.createQuery(countJpql, Long.class);
 
       // 파라미터 바인딩
       if (keyword != null && !keyword.isEmpty()) {
         // 키워드 검색 시 두 파라미터 모두 바인딩
+
         query.setParameter("keyword", "%" + keyword + "%");
         countQuery.setParameter("keyword", "%" + keyword + "%");
         log.debug("Bound keyword parameter: {}", "%" + keyword + "%");
       }
 
+
       if (defaultLocation != null && !defaultLocation.isEmpty()) {
         query.setParameter("defaultLocation", defaultLocation);
         countQuery.setParameter("defaultLocation", defaultLocation);
         log.debug("Bound defaultLocation parameter: {}", defaultLocation);
+
       }
 
       if (category != null && !category.isEmpty()) {
@@ -120,6 +126,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
         countQuery.setParameter("category", category);
         log.debug("Bound category parameter: {}", category);
       }
+
 
       // 페이지네이션 적용 (Offset 기반)
       query.setFirstResult((int) pageable.getOffset()); // 현재 페이지의 시작 행 인덱스
@@ -149,6 +156,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
       // 예외 발생 시 상세 로깅 후 RuntimeException으로 래핑하여 던짐
       log.error("Error occurred in searchDynamic method: {}", e.getMessage(), e);
       throw new RuntimeException("Error fetching posts", e); // 예외 스택 트레이스 포함하여 다시 던지기
+
     }
   }
 }

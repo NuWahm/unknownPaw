@@ -25,4 +25,5 @@ public enum PostType {
         return this.name().toLowerCase().replace("_", ""); // 예: PET_OWNER -> petowner
     }
 
+
 }

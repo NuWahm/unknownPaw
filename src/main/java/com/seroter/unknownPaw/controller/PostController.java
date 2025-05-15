@@ -27,6 +27,7 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
+
       @PathVariable String postType,
       PageRequestDTO pageRequestDTO,
       @RequestParam(required = false) String keyword,
@@ -55,6 +56,7 @@ public class PostController {
   /* ---------------- 상세 ---------------- */
   @GetMapping("/{postType}/read/{postId}")
   public ResponseEntity<?> read(
+
       @PathVariable String postType,
       @PathVariable Long postId
   ) {
@@ -77,6 +79,7 @@ public class PostController {
   /* ---------------- 등록 ---------------- */
   @PostMapping("/{postType}/register")
   public ResponseEntity<?> register(
+
       @PathVariable PostType postType,
       @RequestBody PostDTO postDTO,
       @RequestParam Long memberId
@@ -88,6 +91,7 @@ public class PostController {
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
+
       @PathVariable PostType postType,
       @RequestBody ModifyRequestDTO modifyRequestDTO
   ) {
@@ -124,3 +128,4 @@ public class PostController {
   }
 
 }
+
