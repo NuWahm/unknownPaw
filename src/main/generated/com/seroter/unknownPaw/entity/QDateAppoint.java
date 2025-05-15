@@ -59,7 +59,7 @@ public class QDateAppoint extends EntityPathBase<DateAppoint> {
 
     public final NumberPath<Long> rno = createNumber("rno", Long.class);
 
-    public final EnumPath<ServiceCategory> serviceCategory = createEnum("serviceCategory", ServiceCategory.class);
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory = createEnum("serviceCategory", com.seroter.unknownPaw.entity.Enum.ServiceCategory.class);
 
     public QDateAppoint(String variable) {
         this(DateAppoint.class, forVariable(variable), INITS);

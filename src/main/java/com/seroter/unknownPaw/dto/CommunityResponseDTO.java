@@ -1,38 +1,54 @@
 package com.seroter.unknownPaw.dto;
 
 import com.seroter.unknownPaw.entity.Community;
+import com.seroter.unknownPaw.entity.CommunityImage;
 import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CommunityResponseDTO {
 
-    private Long postId;                   // 게시글 ID
-    private String title;                  // 제목
-    private String content;                // 내용
-    private String defaultLocation;        // 기본 위치
-    private String flexibleLocation;       // 유동적인 위치
-    private int desiredHourlyRate;         // 희망 시급
-    private CommunityCategory communityCategory; // 커뮤니티 카테고리 (Enum)
-    private int likes;                     // 좋아요 수
-    private int chatCount;                 // 채팅 수
-    private String memberName;             // 작성자 이름
+    private Long communityId;
+    private String title;
+    private String content;
+    private int likes;
+    private int commentCount;
+    private String authorName;   // 작성자 이름
+    private String authorNickname;  // 작성자 닉네임
+    private String authorProfileImage;  // 작성자 프로필 이미지
+    private CommunityCategory communityCategory;
+    private LocalDateTime regDate;
+    private List<String> communityImages; // 커뮤니티 이미지 URL 목록
 
-    // Community 엔티티를 받아서 필요한 필드를 설정하는 생성자
-    public CommunityResponseDTO(Community community) {
-        this.postId = community.getPostId();
-        this.title = community.getTitle();
-        this.content = community.getContent();
-        this.defaultLocation = community.getDefaultLocation();
-        this.flexibleLocation = community.getFlexibleLocation();
-        this.desiredHourlyRate = community.getDesiredHourlyRate();
-        this.communityCategory = community.getCommunityCategory(); // Enum 필드
-        this.likes = community.getLikes();
-        this.chatCount = community.getChatCount();
-        this.memberName = community.getMember().getName(); // 작성자 정보는 member에서 가져옴
+    // Community -> CommunityResponseDTO 변환
+    public static CommunityResponseDTO fromEntity(Community community) {
+        List<String> images = community.getCommunityImages().stream()
+                .map(CommunityImage::getCommunityImageUrl)
+                .collect(Collectors.toList());
+
+        return CommunityResponseDTO.builder()
+                .communityId(community.getCommunityId())
+                .title(community.getTitle())
+                .content(community.getContent())
+                .likes(community.getLikes())
+                .commentCount(community.getComments().size())  // 댓글 수로 변경
+                .authorName(community.getMember().getName())
+                .authorNickname(community.getMember().getNickname())
+                .authorProfileImage(community.getMember().getProfileImagePath())
+                .communityCategory(community.getCommunityCategory())
+                .regDate(community.getRegDate())
+                .communityImages(images)
+                .build();
+
     }
 }

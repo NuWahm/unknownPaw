@@ -2,6 +2,7 @@
 package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.entity.Enum.PostType;
 import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import com.seroter.unknownPaw.entity.escrowEntity.EscrowPayment;
 import com.seroter.unknownPaw.entity.escrowEntity.EscrowStatus;
@@ -52,10 +53,10 @@ public class PostRepositoryImplTests {
     for (int i = 1; i <= 100; i++) {
       // 1. Member 생성 (Owner 및 Sitter 공통)
       Member owner = Member.builder()
-          .email("owner" + i + "@example.com")
+          .email("owner❤" + i + "@example.com")
           .password(passwordEncoder.encode("1")) // 필요 시 인코딩 주석 해제
           .name("Owner" + i)
-          .nickname("OwnerNick" + i)
+          .nickname("OwnerNick" + i+"test❤")
           .phoneNumber("010-1234-567" + i)
           .pawRate(0.5f)
           .gender(random.nextBoolean())
@@ -80,7 +81,7 @@ public class PostRepositoryImplTests {
           .defaultLocation("부산시 부산진구")
           .flexibleLocation("부산시 기장군")
           .member(owner)
-          .role(PostRole.PETOWNER) // role 추가
+          .postType(PostType.PET_OWNER) // role 추가
           .build();
       petOwnerRepository.save(petOwner);
 
@@ -95,7 +96,7 @@ public class PostRepositoryImplTests {
           .defaultLocation("서울시 강남구")
           .flexibleLocation("서울시 서초구")
           .member(owner)  // 동일한 owner가 시터 역할을 할 수 있습니다.
-          .role(PostRole.PETSITTER)
+          .postType(PostType.PET_SITTER)
           .build();
       petSitterRepository.save(petSitter);
 
@@ -150,7 +151,7 @@ public class PostRepositoryImplTests {
           .profileImg("pet_image_" + i + ".jpg") // 파일명
           .uuid(UUID.randomUUID().toString())    // UUID 생성
           .path("/images/pet/" + "pet_image_" + i + ".jpg") // 파일 경로
-          .role(2) // Pet 이미지로 설정
+          .imageType(2) // Pet 이미지로 설정
           .pet(pet) // 저장된 Pet 참조
           .build();
       imageRepository.save(petImage);

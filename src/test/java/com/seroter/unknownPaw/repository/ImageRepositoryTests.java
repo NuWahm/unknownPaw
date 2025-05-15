@@ -49,7 +49,7 @@ class ImageRepositoryTests {
 
     // 멤버 이미지 등록
     Image image = Image.builder()
-        .role(1)
+        .imageType(1)
         .member(member)
         .uuid(UUID.randomUUID().toString())
         .path("/member/image")
@@ -90,7 +90,7 @@ class ImageRepositoryTests {
     List<Image> images = new ArrayList<>();
     for (int i = 0; i < 5; i++) {
       images.add(Image.builder()
-          .role(2)
+          .imageType(2)
           .pet(pet)
           .uuid(UUID.randomUUID().toString())
           .profileImg("pet_" + i + ".jpg")
@@ -126,7 +126,7 @@ class ImageRepositoryTests {
 
     // 오너 게시판 이미지 등록
     Image image = Image.builder()
-        .role(3)
+        .imageType(3)
         .petOwner(post)
         .uuid(UUID.randomUUID().toString())
         .profileImg("post1.jpg")
@@ -162,7 +162,7 @@ class ImageRepositoryTests {
 
     // 시터 게시판 이미지 생성
     Image image = Image.builder()
-        .role(3)
+        .imageType(3)
         .petSitter(post)
         .uuid(UUID.randomUUID().toString())
         .profileImg("post1.jpg")
