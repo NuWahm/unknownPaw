@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/pet")
+@CrossOrigin(origins = "http://localhost:3000")
 public class PetController {
   private final PetService petService;
 

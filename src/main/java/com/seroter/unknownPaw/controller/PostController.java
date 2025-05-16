@@ -76,11 +76,17 @@ public class PostController {
   /* ---------------- 등록 ---------------- */
   @PostMapping("/{postType}/register")
   public ResponseEntity<?> register(
-      @PathVariable PostType postType,
-      @RequestBody PostDTO postDTO,
-      @RequestParam Long memberId
+          @PathVariable String postType,
+          @RequestBody PostDTO postDTO,
+          @RequestParam Long mid
   ) {
-    Long newId = postService.register(postType.name(), postDTO, memberId);
+    PostType enumPostType;
+    try {
+      enumPostType = PostType.valueOf(postType.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body("Invalid postType: " + postType);
+    }
+    Long newId = postService.register(enumPostType.name(), postDTO, mid);
     return ResponseEntity.ok(Map.of("postId", newId));
   }
 

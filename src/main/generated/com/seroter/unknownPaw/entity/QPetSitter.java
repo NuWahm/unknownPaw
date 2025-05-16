@@ -33,8 +33,7 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     //inherited
     public final StringPath defaultLocation;
 
-    //inherited
-    public final NumberPath<Integer> desiredHourlyRate;
+    public final NumberPath<Integer> desiredHourlyRate = createNumber("desiredHourlyRate", Integer.class);
 
     //inherited
     public final StringPath flexibleLocation;
@@ -87,7 +86,6 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.chatCount = _super.chatCount;
         this.content = _super.content;
         this.defaultLocation = _super.defaultLocation;
-        this.desiredHourlyRate = _super.desiredHourlyRate;
         this.flexibleLocation = _super.flexibleLocation;
         this.likes = _super.likes;
         this.member = _super.member;

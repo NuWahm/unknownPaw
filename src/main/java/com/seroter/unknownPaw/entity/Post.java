@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(exclude = "member")
-
 public abstract class Post {
 
   @Id
@@ -30,26 +29,20 @@ public abstract class Post {
   @Enumerated(EnumType.STRING)
   private ServiceCategory serviceCategory;
 
-  private int desiredHourlyRate;
-
   private int likes; // 관심(좋아요 수)
-
-
   private int chatCount; // 채팅 개수
 
   private String defaultLocation; // 기본 위치
-
   private String flexibleLocation; // 유동적인 위치
 
   private LocalDateTime regDate; // 등록일
-
   private LocalDateTime modDate; // 수정일
+
 
   @PrePersist
   protected void onCreate() {
     this.regDate = LocalDateTime.now();
     this.modDate = LocalDateTime.now();
-
   }
 
   @PreUpdate
@@ -60,9 +53,9 @@ public abstract class Post {
   // 관계 설정
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-  private Member member; // 회원번호(참조 키) (펫오너)
+  private Member member; // 회원번호(참조 키)
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private PostType postType;
+  private PostType postType; // 게시글 타입 (PetOwner / PetSitter)
 }

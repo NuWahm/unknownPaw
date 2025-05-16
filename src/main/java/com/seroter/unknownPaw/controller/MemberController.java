@@ -3,69 +3,69 @@ package com.seroter.unknownPaw.controller;
 import com.seroter.unknownPaw.dto.LoginRequestDTO;
 import com.seroter.unknownPaw.dto.MemberRequestDTO;
 import com.seroter.unknownPaw.dto.MemberResponseDTO;
+import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
+import com.seroter.unknownPaw.service.PetService;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 @Slf4j
+@ToString
 public class MemberController {
 
+    private final PetService petService;
     private final MemberService memberService;
-    private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
     // ✅ 0. 회원가입
     @PostMapping("/register")
     public ResponseEntity<MemberResponseDTO> register(@RequestBody MemberRequestDTO memberRequestDTO) {
-        log.info("register.....................");
-        return ResponseEntity.ok(memberService.register(memberRequestDTO));
+        log.info("회원가입 요청: {}", memberRequestDTO);
+        MemberResponseDTO memberResponseDTO = memberService.register(memberRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberResponseDTO);
     }
 
     // ✅ 1. 로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO dto) {
-
-        Member member = memberService.findByEmail(dto.getEmail())
-                .orElse(null);
-        if (member == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("존재하지 않는 계정입니다.");
-        }
-
-        if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("비밀번호가 일치하지 않습니다.");
-        }
-
-        try {
-            /* ---------- ① role 읽어서 ---------- */
-            String role  = member.getRole().name();  // enum 이라면 .name()
-
-            /* ---------- ② 토큰 생성 시 전달 ---------- */
-            String token = jwtUtil.generateToken(member.getEmail(), role);
-
-            Map<String, Object> res = new HashMap<>();
-            res.put("token",   token);
-            res.put("member",  new MemberResponseDTO(member));
-
-            return ResponseEntity.ok(res);
-
-        } catch (Exception ex) {
-            log.error("토큰 생성 실패", ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("토큰 생성 실패");
-        }
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDTO dto) {
+        return memberService.authenticate(dto)
+                .map(this::createLoginResponse)
+                .orElseGet(this::createErrorResponse);
     }
+
+    private ResponseEntity<Map<String, Object>> createLoginResponse(Member member) {
+        log.info("로그인 성공한 회원: {}", member);
+        log.info("이메일: {}, 역할: {}", member.getEmail(), member.getRole());
+
+
+        String token = jwtUtil.generateToken(member.getEmail(), member.getRole().name());
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("member", new MemberResponseDTO(member));
+        return ResponseEntity.ok(response);
+    }
+
+    private ResponseEntity<Map<String, Object>> createErrorResponse() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "존재하지 않거나 비밀번호가 일치하지 않는 계정입니다.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     // ✅ 2. 회원 기본 정보 조회 (mid)
     @GetMapping("/id/{mid}")
     public ResponseEntity<MemberResponseDTO> getMember(@PathVariable Long mid) {
@@ -75,7 +75,10 @@ public class MemberController {
     // ✅ 3. 회원 요약 정보 (프로필 등) 조회
     @GetMapping("/profile/simple/{mid}")
     public ResponseEntity<MemberResponseDTO> getSimpleProfile(@PathVariable Long mid) {
-        return ResponseEntity.ok(memberService.getSimpleProfileInfo(mid));
+        log.info("Requesting simple profile for mid: {}", mid);
+        MemberResponseDTO response = memberService.getSimpleProfile(mid); //🤩🤩
+        log.info("Returning response: {}", response);
+        return ResponseEntity.ok(response);
     }
 
     // ✅ 4. 이메일로 회원 조회 (테스트용)
@@ -123,5 +126,26 @@ public class MemberController {
     @GetMapping("/dashboard/{mid}")
     public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getDashboardData(mid));
+    }
+
+    // ✅ 11. 회원의 펫 목록 조회
+    @GetMapping(value = "/member/{mid}/pets", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<PetDTO>> readAllByMember(@PathVariable("mid") Long mid) {
+        List<PetDTO> petList = petService.getPetsByOwnerId(mid)
+                .stream()
+                .map(pet -> new PetDTO(
+                        pet.getPetId(),
+                        pet.getPetName(),
+                        pet.getBreed(),
+                        pet.getPetBirth(),
+                        pet.isPetGender(),
+                        pet.getWeight(),
+                        pet.getPetMbti(),
+                        pet.isNeutering(),
+                        pet.getPetIntroduce(),
+                        pet.getMember() != null ? pet.getMember().getMid() : null // 🔥 이거 꼭 넣어야 생성자 일치!
+                ))
+                .collect(Collectors.toList()); // ← 이제 제대로 작동합니다!
+        return ResponseEntity.ok(petList);
     }
 }

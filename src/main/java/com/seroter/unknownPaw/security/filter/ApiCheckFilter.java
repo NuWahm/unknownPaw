@@ -37,6 +37,9 @@ public class ApiCheckFilter extends OncePerRequestFilter {
                                   HttpServletResponse response,
                                   FilterChain filterChain)
           throws ServletException, IOException {
+    log.info("🔵 URI  : {}", request.getRequestURI());
+    log.info("🔵 Method: {}", request.getMethod());
+    log.info("🔵 AuthH : {}", request.getHeader("Authorization"));
 
     /** ① 보호 URL인지 확인 */
     boolean needCheck = false;

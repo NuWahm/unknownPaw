@@ -1,9 +1,6 @@
 package com.seroter.unknownPaw.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -17,6 +14,18 @@ import java.util.List;
 @NoArgsConstructor
 
 public class PetSitter extends Post {
+    @Column(name = "desired_hourly_rate", nullable = false)
+    @Builder.Default
+    private Integer desiredHourlyRate = 5000;
+
+    public int getHourlyRate() {
+        return desiredHourlyRate;
+    }
+
+    public void setHourlyRate(int hourlyRate) {
+        this.desiredHourlyRate = hourlyRate;
+    }
+
     @Builder.Default
     @OneToMany(mappedBy = "petSitter",
             cascade = CascadeType.ALL,
@@ -24,5 +33,8 @@ public class PetSitter extends Post {
             fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
 
+
+
 }
+
 
