@@ -1,15 +1,14 @@
 package com.seroter.unknownPaw.controller;
 
 import com.seroter.unknownPaw.dto.ModifyRequestDTO;
-import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
-import com.seroter.unknownPaw.entity.PostType;
+import com.seroter.unknownPaw.entity.Enum.PostType;
 import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +26,7 @@ public class PostController {
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
       @PathVariable String postType,
-      PageRequestDTO pageRequestDTO,
+      Pageable pageable,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String location,
       @RequestParam(required = false) String category
@@ -35,19 +34,24 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
           location,
           category,
-          pageRequestDTO.getPageable()
-
+          pageable
       );
+
       Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
       return ResponseEntity.ok(dtoPage);
     } catch (IllegalArgumentException e) {
       return  ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
+    }
+    // 정렬 추가
+    catch (Exception e) {
+      // 기타 예외 처리 로직 추가 (필요시)
+      log.error("Error listing posts: {}", e.getMessage(), e); // 로깅 추가 (로거 선언 필요)
+      return ResponseEntity.internalServerError().body("게시글 조회 중 오류가 발생했습니다.");
     }
   }
 

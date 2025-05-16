@@ -1,23 +1,28 @@
 package com.seroter.unknownPaw.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.seroter.unknownPaw.entity.Enum.PostType;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.PetOwner;
 import com.seroter.unknownPaw.entity.PetSitter;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import com.seroter.unknownPaw.entity.Post;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDTO implements  Identifiable{
+public class PostDTO implements Identifiable {
 
 
-
+  private static final Logger log = LogManager.getLogger(PostDTO.class);
   private Long postId; // 글번호 (고유 키)
 
   private String title; // 글제목
@@ -39,6 +44,9 @@ public class PostDTO implements  Identifiable{
   private boolean isPetSitterPost; // true: PetSitter 게시글, false: PetOwner 게시글
 
   private MemberResponseDTO member;
+
+  private String postTypeUrlSegment; // 예: "petowner" 또는 "petsitter"
+
   // 🖱️ 무한 스크롤
   @Override
   public Long getId() {
@@ -47,24 +55,36 @@ public class PostDTO implements  Identifiable{
 
   public static PostDTO fromEntity(Post post) {
     List<ImageDTO> images = List.of();  // 기본 빈 리스트
+// ✨ postType Enum 결정 (엔티티 타입 확인)
+    PostType postTypeEnum = null;
+    if (post instanceof PetSitter) {
+      postTypeEnum = PostType.PET_SITTER;
+    } else if (post instanceof PetOwner) {
+      postTypeEnum = PostType.PET_OWNER;
+    }
+    String postTypeSegment = (postTypeEnum != null) ? postTypeEnum.getValue() : null;
 
 
     if (post instanceof PetOwner owner) {
-      images = owner.getImages().stream()
-          .map(img -> ImageDTO.builder()
-              .imgId(img.getImgId())
-              .path(img.getPath())
-              .build())
-          .toList();
+      if (owner.getImages() != null) {
+        images = owner.getImages().stream()
+            .map(img -> ImageDTO.builder()
+                .imgId(img.getImgId())
+                .path(img.getPath())
+                .build())
+            .toList();
+      }
     } else if (post instanceof PetSitter sitter) {
-      images = sitter.getImages().stream()
-          .map(img -> ImageDTO.builder()
-              .imgId(img.getImgId())
-              .path(img.getPath())
-              .build())
-          .toList();
+      if (sitter.getImages() != null) {
+        images = sitter.getImages().stream()
+            .map(img -> ImageDTO.builder()
+                .imgId(img.getImgId())
+                .path(img.getPath())
+                .build())
+            .toList();
+      }
     }
-    return PostDTO.builder()
+    PostDTO.PostDTOBuilder builder = PostDTO.builder()
         .postId(post.getPostId())
         .title(post.getTitle())
         .content(post.getContent())
@@ -78,9 +98,28 @@ public class PostDTO implements  Identifiable{
         .modDate(post.getModDate())
 //        .email(post.getMember().getEmail())
         .images(images)                     // ← 여기!
-        .isPetSitterPost(post instanceof PetSitter)
-        .build();
+        .postTypeUrlSegment(postTypeSegment)
+        .isPetSitterPost(post instanceof PetSitter);
+
+    if (post.getMember() != null) {
+      Member memberEntity = post.getMember();
+
+      MemberResponseDTO memberResponseDTO = MemberResponseDTO.builder()
+          .mid(memberEntity.getMid())
+          .email(memberEntity.getEmail())
+          .nickname(memberEntity.getNickname())
+          .profileImagePath(memberEntity.getProfileImagePath())
+          .pawRate(memberEntity.getPawRate())
+          .build();
+      // MemberResponseDTO 객체를 설정하는 핵심
+      builder.member(memberResponseDTO);
+    } else {
+      log.warn("POST entity with ID {} has a null member.", post.getPostId());
+      builder.member(null);
+    }
+    return builder.build();
   }
+
   // 정적 팩토리 사용 -- MemberResponseDTO 클래스 자체에 엔티티를 받아서 DTO 객체를 생성해 반환하는 정적 메서드를 만드는 방식
   public static MemberResponseDTO fromEntity(Member member) {
     if (member == null) {

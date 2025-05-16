@@ -1,4 +1,4 @@
-package com.seroter.unknownPaw.entity;
+package com.seroter.unknownPaw.entity.Enum;
 
 public enum PostType {
     PET_OWNER,
@@ -10,7 +10,7 @@ public enum PostType {
             throw new IllegalArgumentException("Role string cannot be null");
         }
         switch (roleString.toLowerCase()) { // 입력 문자열을 소문자로 변환하여 비교
-            case "petowner":
+            case "petowner": // petowner petOwner PetOwner pPETOWnER
                 return PET_OWNER;
             case "petsitter":
                 return PET_SITTER;

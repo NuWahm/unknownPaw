@@ -1,7 +1,7 @@
 package com.seroter.unknownPaw.dto;
 
 
-import com.seroter.unknownPaw.entity.ServiceCategory;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

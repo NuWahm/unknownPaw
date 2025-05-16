@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/member/login", "/api/member/register").permitAll()
-                        .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
+                        .requestMatchers("/api/posts/**", "/api/member/**", "/api/member/*/pets" ).authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,8 +1,6 @@
 package com.seroter.unknownPaw.controller;
 
-import com.seroter.unknownPaw.dto.LoginRequestDTO;
-import com.seroter.unknownPaw.dto.MemberRequestDTO;
-import com.seroter.unknownPaw.dto.MemberResponseDTO;
+import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
@@ -75,8 +73,36 @@ public class MemberController {
     // ✅ 3. 회원 요약 정보 (프로필 등) 조회
     @GetMapping("/profile/simple/{mid}")
     public ResponseEntity<MemberResponseDTO> getSimpleProfile(@PathVariable Long mid) {
+        System.out.println("요청 simple!! ");
         return ResponseEntity.ok(memberService.getSimpleProfileInfo(mid));
     }
+    // 3-1. 특정 회원의 펫 목록 조회
+    @GetMapping("/{mid}/pets") // ✨ 새로운 엔드포인트: /api/member/{mid}/pets
+    public ResponseEntity<List<PetDTO>> getMemberPets(@PathVariable Long mid) {
+        log.info("getMemberPets for mid: " + mid);
+        try {
+            List<PetDTO> pets = memberService.getMemberPets(mid);
+            return ResponseEntity.ok(pets); // 펫이 없으면 빈 리스트 [] 반환
+        } catch (Exception e) {
+            log.error("회원 펫 정보 조회 중 오류 발생: " + mid, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // 3-2 특정 회원이 작성한 게시글 목록 조회
+    @GetMapping("/{mid}/posts") // ✨ 새로운 엔드포인트: /api/member/{mid}/posts
+    public ResponseEntity<List<PostDTO>> getMemberPosts(@PathVariable Long mid) {
+        log.info("getMemberPosts for mid: " + mid);
+        try {
+            List<PostDTO> posts = memberService.getMemberPosts(mid);
+            return ResponseEntity.ok(posts); // 작성한 글이 없으면 빈 리스트 [] 반환
+        } catch (Exception e) {
+            log.error("회원 게시글 정보 조회 중 오류 발생: " + mid, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
 
     // ✅ 4. 이메일로 회원 조회 (테스트용)
     @GetMapping("/email")

@@ -2,6 +2,8 @@
 package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import com.seroter.unknownPaw.entity.escrowEntity.EscrowPayment;
 import com.seroter.unknownPaw.entity.escrowEntity.EscrowStatus;
 import com.seroter.unknownPaw.entity.escrowEntity.ServiceProof;
