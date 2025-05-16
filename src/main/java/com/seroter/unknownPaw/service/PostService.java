@@ -136,7 +136,7 @@ public class PostService {
                     .title(dto.getTitle())
                     .content(dto.getContent())
                     .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
-                    .desiredHourlyRate(dto.getHourlyRate())
+                    .hourlyRate(dto.getHourlyRate())
                     .likes(dto.getLikes())
                     .chatCount(dto.getChatCount())
                     .defaultLocation(dto.getDefaultLocation())
@@ -181,7 +181,7 @@ public class PostService {
                 .title(dto.getTitle()) // 제목
                 .content(dto.getContent()) // 내용
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory())) // 서비스 카테고리
-                .desiredHourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
                 .likes(dto.getLikes()) // 좋아요 수
                 .chatCount(dto.getChatCount()) // 채팅 수
                 .defaultLocation(dto.getDefaultLocation()) // 기본 위치

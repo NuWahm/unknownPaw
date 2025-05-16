@@ -36,7 +36,8 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     //inherited
     public final StringPath flexibleLocation;
 
-    public final NumberPath<Integer> hourlyRate = createNumber("hourlyRate", Integer.class);
+    //inherited
+    public final NumberPath<Integer> hourlyRate;
 
     public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
 
@@ -87,6 +88,7 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
         this.content = _super.content;
         this.defaultLocation = _super.defaultLocation;
         this.flexibleLocation = _super.flexibleLocation;
+        this.hourlyRate = _super.hourlyRate;
         this.likes = _super.likes;
         this.member = _super.member;
         this.modDate = _super.modDate;

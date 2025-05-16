@@ -80,9 +80,7 @@ public class PostDTO implements Identifiable {
             .images(images)
             .isPetSitterPost(post instanceof PetSitter)
             // PetSitter는 desiredHourlyRate를, PetOwner는 hourlyRate를 사용
-            .hourlyRate(post instanceof PetSitter ?
-                    ((PetSitter) post).getDesiredHourlyRate() :
-                    ((PetOwner) post).getHourlyRate());
+            .hourlyRate(post.getHourlyRate());
 
     if (post.getMember() != null) {
       builder.member(MemberResponseDTO.builder()

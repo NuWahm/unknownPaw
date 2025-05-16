@@ -21,23 +21,21 @@ public abstract class Post {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long postId;
 
-  private String title; // 글제목
-
+  private String title;
   @Column(columnDefinition = "TEXT")
-  private String content;  // 글내용
+  private String content;
 
   @Enumerated(EnumType.STRING)
   private ServiceCategory serviceCategory;
 
-  private int likes; // 관심(좋아요 수)
-  private int chatCount; // 채팅 개수
+  private int likes;
+  private int chatCount;
 
-  private String defaultLocation; // 기본 위치
-  private String flexibleLocation; // 유동적인 위치
+  private String defaultLocation;
+  private String flexibleLocation;
 
-  private LocalDateTime regDate; // 등록일
-  private LocalDateTime modDate; // 수정일
-
+  private LocalDateTime regDate;
+  private LocalDateTime modDate;
 
   @PrePersist
   protected void onCreate() {
@@ -50,12 +48,16 @@ public abstract class Post {
     this.modDate = LocalDateTime.now();
   }
 
-  // 관계 설정
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-  private Member member; // 회원번호(참조 키)
+  private Member member;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private PostType postType; // 게시글 타입 (PetOwner / PetSitter)
+  private PostType postType;
+
+  // ✅ 통합된 시급 필드
+  @Column(name = "hourly_rate", nullable = false)
+  @Builder.Default
+  private Integer hourlyRate = 5000;
 }

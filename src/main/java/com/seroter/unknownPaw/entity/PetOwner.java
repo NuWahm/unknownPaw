@@ -13,19 +13,6 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 public class PetOwner extends Post {
-    @Column(name = "hourly_rate", nullable = false)
-    @Builder.Default
-    private Integer hourlyRate = 5000;
-
-    @Override
-    public int getHourlyRate() {
-        return hourlyRate;
-    }
-
-    @Override
-    public void setHourlyRate(int hourlyRate) {
-        this.hourlyRate = hourlyRate;
-    }
 
     @Builder.Default
     @OneToMany(mappedBy = "petOwner",
@@ -33,11 +20,4 @@ public class PetOwner extends Post {
             orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
-//    public void changeTitle() {
-//        this.changeTitle = title;
-//    }
-//    public void changeContent() {
-//        this.changeContent = content;
-//    }
-
 }
