@@ -203,8 +203,5 @@ public class CommunityService {
     // ========== [댓글 ID로 댓글 조회] ==========
     public Comment getCommentById(Long commentId) {
         return commentRepository.findByCommentId(commentId);
-=======
-        commentRepository.delete(comment); // 삭제
-
     }
 }
