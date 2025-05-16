@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;         
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;                                                                // ★
@@ -56,6 +55,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
     /** ② Authorization 헤더 파싱 */
     String header = request.getHeader("Authorization");
+
     log.info("❤Authorization header = {}", header);
     if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
       deny(response);
@@ -89,7 +89,6 @@ public class ApiCheckFilter extends OncePerRequestFilter {
       deny(response);
     }
   }
-
   /* ---------- 403 공통 응답 ---------- */
   private void deny(HttpServletResponse res) throws IOException {
     res.setStatus(HttpServletResponse.SC_FORBIDDEN);

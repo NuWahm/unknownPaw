@@ -15,7 +15,6 @@ import com.seroter.unknownPaw.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +26,7 @@ public class CommunityService {
     private final CommunityRepository communityRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+
     private final CommunityImageRepository communityImageRepository;
 
     // ========== [게시글 등록] ==========
@@ -47,6 +47,7 @@ public class CommunityService {
                 .likes(0)
                 .member(member)  // 게시글 작성자 설정
                 .regDate(null)  // @PrePersist로 자동 설정
+
                 .build();
 
         // 게시글 저장
@@ -69,6 +70,7 @@ public class CommunityService {
     public List<CommunityResponseDTO> getAllCommunityPosts() {
         List<Community> communities = communityRepository.findAllByOrderByRegDateDesc();
         return communities.stream()
+
                 .map(CommunityResponseDTO::fromEntity)  // fromEntity 메서드를 이용해 변환
                 .collect(Collectors.toList());
     }
@@ -77,16 +79,19 @@ public class CommunityService {
     @Transactional
     public void updateCommunityPost(Long communityId, CommunityRequestDTO dto) {
         Community community = communityRepository.findByCommunityId(communityId);
+
         if (community == null) {
             throw new IllegalArgumentException("Post not found");
         }
 
         // 엔티티 수정 메서드 호출
         community.modify(dto);
+
     }
 
     // ========== [게시글 삭제] ==========
     @Transactional
+
     public void deleteCommunityPost(Long communityId) {
         Community community = communityRepository.findByCommunityId(communityId);
         if (community == null) {
@@ -94,20 +99,26 @@ public class CommunityService {
         }
 
         communityRepository.delete(community);
+
     }
 
     // ========== [댓글 작성] ==========
     @Transactional
+
     public Long createComment(Long communityId, Long memberId, String content) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
 
         Community community = communityRepository.findByCommunityId(communityId);
+
         if (community == null) {
             throw new IllegalArgumentException("Post not found");
         }
 
+
         // 댓글 엔티티 생성 (생성 시간 수동 설정)
+
+
         Comment comment = Comment.builder()
                 .content(content)
                 .member(member)
@@ -120,6 +131,7 @@ public class CommunityService {
     }
 
     // ========== [댓글 조회] ==========
+
     public List<CommentDTO> getCommentsByCommunityId(Long communityId) {
         List<Comment> comments = commentRepository.findByCommunity_CommunityId(communityId);
         return comments.stream()
@@ -132,12 +144,13 @@ public class CommunityService {
     public void updateComment(Long commentId, Long memberId, String newContent) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
-
         if (!comment.getMember().getMid().equals(memberId)) {
             throw new IllegalArgumentException("You can only update your own comment");
         }
 
+
         comment.setContent(newContent);
+
     }
 
     // ========== [댓글 삭제] ==========
@@ -149,6 +162,7 @@ public class CommunityService {
         if (!comment.getMember().getMid().equals(memberId)) {
             throw new IllegalArgumentException("You can only delete your own comment");
         }
+
 
         commentRepository.delete(comment);
     }

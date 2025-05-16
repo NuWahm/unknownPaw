@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,22 +27,22 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-      @PathVariable String postType,
-      PageRequestDTO pageRequestDTO,
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) String location,
-      @RequestParam(required = false) String category
+          @PathVariable String postType,
+          PageRequestDTO pageRequestDTO,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) String location,
+          @RequestParam(required = false) String category
   ) {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
       PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
-          postType,     // enum → String
-          keyword,
-          location,
-          category,
-          pageRequestDTO.getPageable()
+              postType,     // enum → String
+              keyword,
+              location,
+              category,
+              pageRequestDTO.getPageable()
 
       );
       Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
@@ -54,8 +55,8 @@ public class PostController {
   /* ---------------- 상세 ---------------- */
   @GetMapping("/{postType}/read/{postId}")
   public ResponseEntity<?> read(
-      @PathVariable String postType,
-      @PathVariable Long postId
+          @PathVariable String postType,
+          @PathVariable Long postId
   ) {
     // 콘솔로 받은 값 확인
     System.out.println("Front에서 받은 postType: " + postType);
@@ -78,7 +79,7 @@ public class PostController {
   public ResponseEntity<?> register(
           @PathVariable String postType,
           @RequestBody PostDTO postDTO,
-          @RequestParam Long mid
+          @RequestParam Long memberId
   ) {
     PostType enumPostType;
     try {
@@ -86,33 +87,45 @@ public class PostController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body("Invalid postType: " + postType);
     }
-    Long newId = postService.register(enumPostType.name(), postDTO, mid);
+    Long newId = postService.register(enumPostType.name(), postDTO, memberId);
     return ResponseEntity.ok(Map.of("postId", newId));
   }
 
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
-      @PathVariable PostType postType,
-      @RequestBody ModifyRequestDTO modifyRequestDTO
+          @PathVariable PostType postType,
+          @RequestBody ModifyRequestDTO modifyRequestDTO
   ) {
     postService.modify(postType.name(), modifyRequestDTO.getPostDTO());
     return ResponseEntity.ok(Map.of(
-        "msg", "수정 완료",
-        "postId", modifyRequestDTO.getPostDTO().getPostId()
+            "msg", "수정 완료",
+            "postId", modifyRequestDTO.getPostDTO().getPostId()
     ));
   }
 
   /* ---------------- 삭제 ---------------- */
   @DeleteMapping("/{postType}/delete/{postId}")
   public ResponseEntity<?> delete(
-      @PathVariable PostType postType,
-      @PathVariable Long postId
+          @PathVariable PostType postType,
+          @PathVariable Long postId
   ) {
     postService.remove(postType.name(), postId);
     return ResponseEntity.ok(Map.of(
-        "msg", "삭제 완료",
-        "postId", postId
+            "msg", "삭제 완료",
+            "postId", postId
     ));
   }
+  // 최근 7일 이내 펫오너 게시글 랜덤 6개
+  @GetMapping("/petowner/recent/random6")
+  public List<PostDTO> getRecentRandomPetOwnerPosts() {
+    return postService.getRandom6PetOwnerPosts();
+  }
+
+  // 최근 7일 이내 펫시터 게시글 랜덤 6개
+  @GetMapping("/petsitter/recent/random6")
+  public List<PostDTO> getRecentRandomPetSitterPosts() {
+    return postService.getRandom6PetSitterPosts();
+  }
+
 }

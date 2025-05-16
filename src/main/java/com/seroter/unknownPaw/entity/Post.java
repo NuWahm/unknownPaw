@@ -56,7 +56,6 @@ public abstract class Post {
   @Column(nullable = false)
   private PostType postType;
 
-  // ✅ 통합된 시급 필드
   @Column(name = "hourly_rate", nullable = false)
   @Builder.Default
   private Integer hourlyRate = 5000;
