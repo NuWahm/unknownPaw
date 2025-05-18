@@ -83,14 +83,13 @@ public class PostController {
   ) {
     PostType enumPostType;
     try {
-      enumPostType = PostType.valueOf(postType.toUpperCase());
+      enumPostType = PostType.from(postType);      // <-- 여기
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body("Invalid postType: " + postType);
+      return ResponseEntity.badRequest().body("Invalid postType: "+postType);
     }
     Long newId = postService.register(enumPostType.name(), postDTO, memberId);
     return ResponseEntity.ok(Map.of("postId", newId));
   }
-
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
