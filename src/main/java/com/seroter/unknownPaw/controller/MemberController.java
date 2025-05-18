@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -148,4 +149,15 @@ public class MemberController {
                 .collect(Collectors.toList()); // ← 이제 제대로 작동합니다!
         return ResponseEntity.ok(petList);
     }
+
+    // ✅ 12. 심플 프로필용
+    @GetMapping("/profile/simple/me")
+    public ResponseEntity<MemberResponseDTO> getMySimpleProfile(Authentication auth) {
+        String email = auth.getName(); // JWT "sub"에서 꺼낸 이메일
+        MemberResponseDTO response = memberService.getMySimpleProfileWithPets(email);
+        return ResponseEntity.ok(response);
+    }
+
 }
+
+

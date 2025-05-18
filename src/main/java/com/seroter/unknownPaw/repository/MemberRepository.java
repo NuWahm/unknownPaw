@@ -73,4 +73,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Query("SELECT m FROM Member m LEFT JOIN FETCH m.pets WHERE m.mid = :mid")
   Optional<Member> findSimpleProfile(@Param("mid") Long mid);
 
+  @Query("SELECT m FROM Member m LEFT JOIN FETCH m.pets WHERE m.email = :email")
+  Optional<Member> findWithPetsByEmail(@Param("email") String email);
+
+  @Query("SELECT m FROM Member m LEFT JOIN FETCH m.pets WHERE m.email = :email")
+  Optional<Member> findByEmailWithPets(@Param("email") String email);
+
 }

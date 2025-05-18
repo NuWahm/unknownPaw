@@ -61,7 +61,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         ApiCheckFilter apiCheckFilter = new ApiCheckFilter(
-                new String[]{"/api/posts/**", "/api/member/mypage"}, jwtUtil);
+                new String[]{"/api/posts/**", "/api/member/mypage", "/api/member/profile/**" }, jwtUtil);
 
 
         //front main 작업과 매치되도록 수정 예정
@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/member/login", "/api/member/register").permitAll()
-                        .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
+                        .requestMatchers("/api/posts/**", "/api/member/mypage", "/api/member/profile/simple/me").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);

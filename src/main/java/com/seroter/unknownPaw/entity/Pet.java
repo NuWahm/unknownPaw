@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"member", "petOwnerId", "petSitterId", "imgId"})
+@ToString(exclude = {"member", "imgId"})
 public class Pet extends BaseEntity {
 
   @Id
@@ -25,35 +25,16 @@ public class Pet extends BaseEntity {
   private boolean neutering; // 중성화 여부
   private String petIntroduce; // 펫 소개
 
-  // 유저 정보 (펫 소유자)
+  // 연관된 회원 (소유자)
   @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id")
-  private Member member; // 유저 정보 (펫 소유자 또는 시터)
+  private Member member;
 
   // 이미지 정보
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "img_id")
   private Image imgId; // 이미지
-
-  // 펫 오너
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "pet_owner_id")
-  private PetOwner petOwnerId; // 펫 오너
-
-  // 펫 시터
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "pet_sitter_id")
-  private PetSitter petSitterId; // 펫 시터
-
-  // 펫이 오너인지 시터인지 결정하는 메서드
-  public void setOwnerOrSitter() {
-    if (this.petOwnerId != null) {
-      this.petSitterId = null; // 오너가 있으면 시터는 null
-    } else if (this.petSitterId != null) {
-      this.petOwnerId = null; // 시터가 있으면 오너는 null
-    }
-  }
 
   // 이미지 설정
   public void setImgId(Image image) {

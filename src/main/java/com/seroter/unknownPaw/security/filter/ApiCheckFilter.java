@@ -42,10 +42,14 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
     /** ① 보호 URL인지 확인 */
     boolean needCheck = false;
+    String requestPath = request.getRequestURI().replaceFirst(request.getContextPath(), "");
+    log.info("🔵 실제 검사할 URI (requestPath): {}", requestPath); // 디버깅용
+
     for (String p : pattern) {
-      if (antPathMatcher.match(request.getContextPath() + p,
-              request.getRequestURI())) {
-        needCheck = true; break;
+      if (antPathMatcher.match(p, requestPath)) {
+        needCheck = true;
+        log.info("✅ 보호 URL에 해당: {}", p);  // 매칭 성공 로그
+        break;
       }
     }
     if (!needCheck) {                     // 보호 URL 아님 → 그대로 진행

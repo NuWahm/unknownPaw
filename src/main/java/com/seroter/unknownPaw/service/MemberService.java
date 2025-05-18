@@ -285,4 +285,11 @@ public class MemberService {
         String strValue = value.toString().toLowerCase();
         return "true".equals(strValue) || "1".equals(strValue) || "yes".equals(strValue);
     }
+
+    // ✅ JWT 인증된 사용자 전용 – pets 포함된 심플 프로필
+    public MemberResponseDTO getMySimpleProfileWithPets(String email) {
+        Member member = memberRepository.findByEmailWithPets(email)
+                .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+        return new MemberResponseDTO(member);
+    }
 }
