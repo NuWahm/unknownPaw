@@ -79,12 +79,10 @@ public class MemberController {
     // 3-1. 특정 회원의 펫 목록 조회
     @GetMapping("/{mid}/pets") // ✨ 새로운 엔드포인트: /api/member/{mid}/pets
     public ResponseEntity<List<PetDTO>> getMemberPets(@PathVariable Long mid) {
-        log.info("getMemberPets for mid: " + mid);
         try {
             List<PetDTO> pets = memberService.getMemberPets(mid);
             return ResponseEntity.ok(pets); // 펫이 없으면 빈 리스트 [] 반환
         } catch (Exception e) {
-            log.error("회원 펫 정보 조회 중 오류 발생: " + mid, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -101,8 +99,6 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-
 
     // ✅ 4. 이메일로 회원 조회 (테스트용)
     @GetMapping("/email")
@@ -150,4 +146,5 @@ public class MemberController {
     public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getDashboardData(mid));
     }
+
 }

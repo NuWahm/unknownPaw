@@ -81,11 +81,9 @@ public class MemberService {
       throw new IllegalArgumentException("회원 정보 데이터 요소가 부족합니다.");
     }
 
-    log.info("Actual data array contents for DTO mapping:");
     for (int i = 0; i < actualDataArray.length; i++) {
       Object element = actualDataArray[i];
       String elementType = (element != null) ? element.getClass().getName() : "null";
-      log.info("actualDataArray[" + i + "]: Type=" + elementType + ", Value=" + element);
     }
 
     return MemberResponseDTO.builder()

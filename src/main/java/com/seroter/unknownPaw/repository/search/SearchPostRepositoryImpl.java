@@ -29,17 +29,11 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
   @PersistenceContext
   private EntityManager em;
 
-  // Log4j2 로거 인스턴스 생성 (이미 파일 상단에 있을 것입니다)
-// import org.apache.logging.log4j.LogManager;
-// import org.apache.logging.log4j.Logger;
-// private static final Logger log = LogManager.getLogger(SearchPostRepositoryImpl.class);
-
   @Override
   public Page<? extends Post> searchDynamic(String role, String keyword, String defaultLocation, String category, Pageable pageable) {
     log.info("Starting searchDynamic with role: {}, keyword: {}, defaultLocation: {}, category: {}, pageable: {}", role, keyword, defaultLocation, category, pageable);
 
     try {
-      // ... (FROM 절 및 JOIN 절 빌드 기존 코드 유지) ...
       Class<? extends Post> postClass = "petOwner".equalsIgnoreCase(role) ? PetOwner.class : PetSitter.class;
       String alias = "p";
       String memberAlias = "m"; // 멤버 엔티티에 대한 별칭 부여
@@ -47,11 +41,9 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
       StringBuilder jpql = new StringBuilder("select ").append(alias).append(" from ")
           .append(postClass.getSimpleName()).append(" ").append(alias)
           .append(" LEFT JOIN ").append(alias).append(".member ").append(memberAlias) // LEFT JOIN FETCH 구문은 별도의 쿼리로 분리하거나 fetch join으로 직접 추가해야 N+1을 막을 수 있으나, 현재 코드 구조에서는 이렇게 유지
-          // 만약 fetch join을 COUNT 쿼리에서 제외하기 위해 COUNT 쿼리를 분리한다면, 메인 쿼리에 fetch join을 명시적으로 추가하는 것이 좋습니다.
-          // 예: .append(" LEFT JOIN FETCH ").append(alias).append(".member ")
+
 
           .append(" where 1=1 "); // 기본 WHERE 절 시작
-
 
       // ... (검색 조건 추가 기존 코드 유지: keyword, defaultLocation, category) ...
       if (keyword != null && !keyword.isEmpty()) {
@@ -79,14 +71,9 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
           if ("regDate".equals(frontendProperty)) {
             backendJpqlPath = "regDate"; // Post 엔티티에 'regDate' 필드가 있다고 가정
           } else if ("likes".equals(frontendProperty)) {
-            backendJpqlPath = "likes"; // Post 엔티티에 'likes' 필드가 있다고 가정
           } else if ("hourlyRate".equals(frontendProperty)) {
-            // 가격 정렬: 엔티티의 실제 필드 이름으로 매핑
-            // PetOwner/PetSitter 엔티티에 'desiredHourlyRate' 필드가 있다고 가정
             backendJpqlPath = "desiredHourlyRate";
           } else if ("author".equals(frontendProperty)) {
-            // 작성자 정렬: 멤버 닉네임 필드로 매핑
-            // Member 엔티티의 닉네임 필드가 'nickname'이고 Post -> Member 관계 필드가 'member'라고 가정
             backendJpqlPath = "member.nickname"; // 'p.member.nickname' 경로
           }
           // 다른 정렬 기준이 있다면 여기에 else if 블록으로 추가 매핑합니다.
@@ -98,7 +85,6 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             }
             // 엔티티 별칭과 실제 JPQL 경로 및 정렬 방향 추가
             orderByJpql.append(alias).append(".").append(backendJpqlPath).append(" ").append(order.getDirection().name().toLowerCase(Locale.ROOT));
-            log.debug("Mapped sort property: {} ({}) -> JPQL Path: {}.{}", frontendProperty, order.getDirection(), alias, backendJpqlPath);
           } else {
             // 지원하지 않는 정렬 속성이 요청된 경우 경고 로깅
             log.warn("Unsupported sort property requested: {}", frontendProperty);
@@ -112,14 +98,10 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
       if (orderByJpql.length() > 0) {
         jpql.append(" ORDER BY ").append(orderByJpql);
       } else {
-        // 정렬 기준이 전혀 없거나 지원되지 않는 기준만 있는 경우, 기본 정렬 적용 (선택 사항)
-        // 예: 최신순으로 기본 정렬
+        // 정렬 기준이 전혀 없거나 지원되지 않는 기준만 있는 경우, 기본 정렬 적용 (선택 사항) 예: 최신순으로 기본 정렬
         jpql.append(" ORDER BY ").append(alias).append(".regDate DESC");
-        log.debug("No valid sort property provided, applying default sort: {}.regDate DESC", alias);
       }
 
-
-      log.debug("Constructed JPQL: {}", jpql.toString());
 
       // 데이터 조회를 위한 TypedQuery 생성 (기존 코드 유지)
       TypedQuery<? extends Post> query = em.createQuery(jpql.toString(), postClass);
