@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.service;
 
+
 import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.entity.Enum.PostType;
@@ -89,6 +90,7 @@ public class PostService {
         // 그러므로 PostDTO.fromEntity가 제대로 수정되어야 함
         log.info("Finished searching posts. Found {} elements.", result.getTotalElements());
         return result;
+
     }
 
 
@@ -216,10 +218,13 @@ public class PostService {
 
     // 역할에 맞는 게시글을 조회하는 메서드
     private Optional<Post> findPostbyPostType(String postType, Long postId) {
+
         log.debug("Finding post by type {} and ID {}", postType, postId);
         if (PostType.PET_OWNER.name().equals(postType)) {
+           // 펫오너 게시글 조회
             return petOwnerRepository.findById(postId).map(post -> (Post) post);
         } else if (PostType.PET_SITTER.name().equals(postType)) {
+          // 펫시터 게시글 조회
             return petSitterRepository.findById(postId).map(post -> (Post) post);
         } else {
             throw new IllegalArgumentException("5 알 수 없는 게시글 타입 문자열입니다." + postType);
@@ -241,6 +246,7 @@ public class PostService {
 
     // 펫시터 여부를 확인하는 메서드
     private boolean isSitter(String postType) {
+
         return PostType.PET_SITTER.name().equals(postType); // 역할이 펫시터이면 true 반환
     }
     // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
@@ -261,6 +267,23 @@ public class PostService {
 
 
 
+
+    // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
+    public List<PostDTO> getRandom6PetOwnerPosts() {
+        return petOwnerRepository.findRecent7DaysRandom6Posts()
+            .stream()
+            .map(post -> entityToDto(post, false))  // false = 오너
+            .toList();
+    }
+
+    // 최근 7일 이내 펫시터 게시물 랜덤 6개 가져오기
+    public List<PostDTO> getRandom6PetSitterPosts() {
+        return petSitterRepository.findRecent7DaysRandom6Posts()
+            .stream()
+            .map(post -> entityToDto(post, true))  // true = 시터
+            .toList();
+
+    }
 
 
     // 🖱️ 무한 스크롤

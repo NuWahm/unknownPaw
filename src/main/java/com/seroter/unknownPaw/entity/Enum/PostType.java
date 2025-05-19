@@ -43,4 +43,6 @@ public enum PostType {
     public String getValue() {
         return this.name().toLowerCase().replace("_", "");
     }
+
 }
+

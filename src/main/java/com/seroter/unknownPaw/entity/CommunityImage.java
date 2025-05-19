@@ -2,6 +2,10 @@ package com.seroter.unknownPaw.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -16,6 +20,7 @@ public class CommunityImage {
     private Long communityImageId;  // 커뮤니티 이미지 ID
 
     // ========== [커뮤니티 게시글 참조] ==========
+  
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_id", nullable = false)
@@ -26,4 +31,10 @@ public class CommunityImage {
 
     // ========== [썸네일 여부 필드 추가] ==========
     private boolean communityIsThumbnail;  // 커뮤니티 이미지가 썸네일인지 여부
+
+    // 이미지 참조
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
+    private Image image;
+
 }

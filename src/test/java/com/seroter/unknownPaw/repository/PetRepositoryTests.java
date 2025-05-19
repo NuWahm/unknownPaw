@@ -91,6 +91,7 @@ class PetRepositoryTests {
                     .uuid("uuid_" + random.nextInt(1000))
                     .path("/images/" + i + ".jpg")
                     .imageType(2)  // 2 means it's a pet image
+
                     .pet(pet)
                     .build();
 

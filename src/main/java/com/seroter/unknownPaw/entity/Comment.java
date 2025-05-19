@@ -2,10 +2,13 @@ package com.seroter.unknownPaw.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -27,22 +30,25 @@ public class Comment {
     // 작성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+
     private Member member;  // 댓글 작성자
 
     // 커뮤니티 게시글 참조
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_id")
-    private Community community;  // 댓글이 달린 커뮤니티 게시글
 
-    private LocalDateTime createdAt;  // 댓글 작성 시간
+    private Community community;   // 댓글이 달린 커뮤니티 게시글
 
-    // 댓글 작성 시 createdAt 자동 설정
+    private LocalDateTime createdAt;   // 댓글 작성 시간
+
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();  // 댓글 생성 시 자동으로 현재 시간 설정
+        this.createdAt = LocalDateTime.now();   // 댓글 생성 시 자동으로 현재 시간 설정
     }
 
-
-
+    // 댓글 내용을 수정하는 메서드
+    public void setContent(String content) {
+        this.content = content;
+    }
 
 }
