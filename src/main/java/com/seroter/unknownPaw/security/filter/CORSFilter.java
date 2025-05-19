@@ -19,46 +19,46 @@ import java.util.List;
 @Log4j2
 public class CORSFilter extends OncePerRequestFilter {
 
-  private static final List<String> ALLOWED_ORIGINS = Arrays.asList(
-          "http://localhost:3000"  // 개발 환경
+    private static final List<String> ALLOWED_ORIGINS = Arrays.asList(
+            "http://localhost:3000"  // 개발 환경
 
-  );
+    );
 
-  private static final List<String> ALLOWED_METHODS = Arrays.asList(
-          "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
-  );
+    private static final List<String> ALLOWED_METHODS = Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+    );
 
-  private static final List<String> ALLOWED_HEADERS = Arrays.asList(
-          "Origin",
-          "X-Requested-With",
-          "Content-Type",
-          "Accept",
-          "Key",
-          "Authorization"
-  );
+    private static final List<String> ALLOWED_HEADERS = Arrays.asList(
+            "Origin",
+            "X-Requested-With",
+            "Content-Type",
+            "Accept",
+            "Key",
+            "Authorization"
+    );
 
-  private static final List<String> EXPOSED_HEADERS = Arrays.asList(
-          "Authorization"
-  );
+    private static final List<String> EXPOSED_HEADERS = Arrays.asList(
+            "Authorization"
+    );
 
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-          throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-    String origin = request.getHeader("Origin");
-    if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
-      response.setHeader("Access-Control-Allow-Origin", origin);
-      response.setHeader("Access-Control-Allow-Methods", String.join(",", ALLOWED_METHODS));
-      response.setHeader("Access-Control-Allow-Headers", String.join(",", ALLOWED_HEADERS));
-      response.setHeader("Access-Control-Expose-Headers", String.join(",", EXPOSED_HEADERS));
-      response.setHeader("Access-Control-Allow-Credentials", "true");
-      response.setHeader("Access-Control-Max-Age", "3600");
+        String origin = request.getHeader("Origin");
+        if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Methods", String.join(",", ALLOWED_METHODS));
+            response.setHeader("Access-Control-Allow-Headers", String.join(",", ALLOWED_HEADERS));
+            response.setHeader("Access-Control-Expose-Headers", String.join(",", EXPOSED_HEADERS));
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Max-Age", "3600");
+        }
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            filterChain.doFilter(request, response);
+        }
     }
-
-    if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-      response.setStatus(HttpServletResponse.SC_OK);
-    } else {
-      filterChain.doFilter(request, response);
-    }
-  }
 }
