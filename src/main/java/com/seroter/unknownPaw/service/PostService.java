@@ -8,6 +8,7 @@ import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetOwnerRepository;
 import com.seroter.unknownPaw.repository.PetSitterRepository;
+import com.seroter.unknownPaw.repository.PostRepository;
 import com.seroter.unknownPaw.repository.search.SearchPostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+
 
 @Log4j2
 @Service
@@ -29,6 +32,7 @@ public class PostService {
     private final PetOwnerRepository petOwnerRepository; // 펫오너 게시글 조회 및 관리
     private final PetSitterRepository petSitterRepository; // 펫시터 게시글 조회 및 관리
     private final SearchPostRepository searchPostRepository; // 동적 게시글 검색 기능
+    private PostRepository<Post> postRepository;  //
 
     // 게시글 등록 메서드
     public Long register(String postType, PostDTO dto, Long memberId) {
@@ -91,22 +95,20 @@ public class PostService {
 
 
     // 특정 멤버의 게시글 조회 메서드
-    public List<PostDTO> getPostsByMember(String postType, Long memberId) {
-        if ("petOwner".equals(postType)) {
-            // 펫오너 게시글 조회
-            return petOwnerRepository.findByMember_Mid(memberId)
+    public List<PostDTO> getPostsByMember(PostType postType, Long memberId) {
+        switch (postType) {
+            case PET_OWNER:
+                return petOwnerRepository.findByMember_Mid(memberId)
                     .stream()
-                    .map(post -> entityToDto(post, false)) // DTO로 변환
+                    .map(post -> entityToDto(post, false))
                     .toList();
-        } else if ("petSitter".equals(postType)) {
-            // 펫시터 게시글 조회
-            return petSitterRepository.findByMember_Mid(memberId)
+            case PET_SITTER:
+                return petSitterRepository.findByMember_Mid(memberId)
                     .stream()
-                    .map(post -> entityToDto(post, true)) // DTO로 변환
+                    .map(post -> entityToDto(post, true))
                     .toList();
-        } else {
-            throw new IllegalArgumentException(
-                    "4잘못된 역할입니다."); // 잘못된 역할 처리
+            default:
+                throw new IllegalArgumentException("잘못된 PostType입니다.");
         }
     }
 
@@ -247,6 +249,24 @@ public class PostService {
 
         return PostType.PET_SITTER.name().equals(postType); // 역할이 펫시터이면 true 반환
     }
+    // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
+    public List<PostDTO> getRandom6PetOwnerPosts() {
+        return petOwnerRepository.findRecent7DaysRandom6Posts()
+            .stream()
+            .map(post -> entityToDto(post, false))  // false = 오너
+            .toList();
+    }
+
+    // 최근 7일 이내 펫시터 게시물 랜덤 6개 가져오기
+    public List<PostDTO> getRandom6PetSitterPosts() {
+        return petSitterRepository.findRecent7DaysRandom6Posts()
+            .stream()
+            .map(post -> entityToDto(post, true))  // true = 시터
+            .toList();
+    }
+
+
+
 
     // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
     public List<PostDTO> getRandom6PetOwnerPosts() {
