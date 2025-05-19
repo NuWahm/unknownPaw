@@ -17,70 +17,88 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final MembersUserDetailsService          userDetailsService;
-    private final MembersOAuth2UserDetailsService    oAuth2UserService;
-    private final JWTUtil                            jwtUtil;
-    private final ApiLoginFailHandler                apiLoginFailHandler;
-    private final ApplicationContext                 applicationContext;
+    private final MembersUserDetailsService userDetailsService;
+    private final MembersOAuth2UserDetailsService oAuth2UserService;
+    private final JWTUtil jwtUtil;
+    private final ApiLoginFailHandler apiLoginFailHandler;
+    private final ApplicationContext applicationContext;
 
-    /* ----------------------------------------------------------------
-       ① AuthenticationManager 생성
-          ⓐ EncoderConfig 에 이미 등록된 PasswordEncoder(BCrypt)가 있으므로
-             여기서 새로 만들지 않고 **주입**만 받아 사용합니다.
-       ---------------------------------------------------------------- */
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http,
                                                        org.springframework.security.crypto.password.PasswordEncoder encoder)
             throws Exception {
-
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
         builder
                 .userDetailsService(userDetailsService)
-                .passwordEncoder(encoder);            // 🔸 주입받은 encoder 사용
+                .passwordEncoder(encoder);
         return builder.build();
     }
 
-    /* ----------------------------------------------------------------
-       ② *중복* passwordEncoder Bean 제거
-          EncoderConfig 에서 이미 정의됐으므로 **아래 메서드는 삭제**했습니다.
-          ----------------------------------------------------------------
-          @Bean
-          public BCryptPasswordEncoder passwordEncoder() { ... }
-          ---------------------------------------------------------------- */
-
-    /* ----------------------------------------------------------------
-       ③ SecurityFilterChain – 기존 로직 유지 (변경 없음)
-       ---------------------------------------------------------------- */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         ApiCheckFilter apiCheckFilter = new ApiCheckFilter(
-                new String[]{"/api/posts/**", "/api/member/mypage"}, jwtUtil);
+                new String[]{
+                        "/api/posts/**",
+                        "/api/member/mypage"
+                },
+                jwtUtil
+        );
 
-
-        //front main 작업과 매치되도록 수정 예정
         http
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/member/login", "/api/member/register").permitAll()
-                        .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
+                        .requestMatchers("/api/member/login", "/api/member/register",
+                                "/api/maps/**").permitAll()
+                        .requestMatchers(
+                                "/api/posts/**",
+                                "/api/member/mypage"
+                        ).authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);
 
-        /* OAuth2 로그인은 있을 때만 활성화 */
         if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {
             http.oauth2Login(oauth -> oauth
                     .userInfoEndpoint(info -> info.userService(oAuth2UserService)));
         }
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Vite 개발 서버 주소로 수정
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Origin",
+                "X-Requested-With",
+                "Content-Type",
+                "Accept",
+                "Key",
+                "Authorization"
+        ));
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization" // JWT 토큰을 클라이언트에서 받을 수 있도록 추가
+        ));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
