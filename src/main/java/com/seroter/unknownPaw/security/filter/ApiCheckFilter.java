@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;         
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;                                                                // ★
@@ -36,13 +35,13 @@ public class ApiCheckFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain filterChain)
-          throws ServletException, IOException {
+      throws ServletException, IOException {
 
     /** ① 보호 URL인지 확인 */
     boolean needCheck = false;
     for (String p : pattern) {
       if (antPathMatcher.match(request.getContextPath() + p,
-              request.getRequestURI())) {
+          request.getRequestURI())) {
         needCheck = true; break;
       }
     }
@@ -53,6 +52,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
 
     /** ② Authorization 헤더 파싱 */
     String header = request.getHeader("Authorization");
+
     log.info("❤Authorization header = {}", header);
     if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
       deny(response);
@@ -66,14 +66,14 @@ public class ApiCheckFilter extends OncePerRequestFilter {
       // sub(email)·role 추출
       String email = jwtUtil.validateAndExtract(token);
       String role  = jwtUtil.getClaims(token)
-              .get("role", String.class);
+          .get("role", String.class);
 
       /** ③ SecurityContext에 Authentication 주입 */
       var authList = List.of(
-              new SimpleGrantedAuthority("ROLE_" + role)
+          new SimpleGrantedAuthority("ROLE_" + role)
       );
       var authToken =
-              new UsernamePasswordAuthenticationToken(email, null, authList);
+          new UsernamePasswordAuthenticationToken(email, null, authList);
       SecurityContextHolder.getContext().setAuthentication(authToken);
 
       log.info("❤Token validation successful for user: {} with role: {}", email, role); //💫 성공 시 로깅
@@ -86,7 +86,6 @@ public class ApiCheckFilter extends OncePerRequestFilter {
       deny(response);
     }
   }
-
   /* ---------- 403 공통 응답 ---------- */
   private void deny(HttpServletResponse res) throws IOException {
     res.setStatus(HttpServletResponse.SC_FORBIDDEN);
