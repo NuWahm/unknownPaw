@@ -10,16 +10,19 @@ import com.seroter.unknownPaw.repository.PetSitterRepository;
 import com.seroter.unknownPaw.repository.PostRepository;
 import com.seroter.unknownPaw.repository.search.SearchPostRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Log4j2
@@ -90,7 +93,6 @@ public class PostService {
         log.info("Finished searching posts. Found {} elements.", result.getTotalElements());
         return result;
     }
-
 
     // 특정 멤버의 게시글 조회 메서드
     public List<PostDTO> getPostsByMember(PostType postType, Long memberId) {
@@ -258,6 +260,77 @@ public class PostService {
             .map(post -> entityToDto(post, true))  // true = 시터
             .toList();
     }
+
+
+    // 펫오너,펫시터 좋아요 등록
+    @Transactional
+    public void likePost(Long memberId, Long postId, PostType postType) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        switch (postType) {
+            case PET_OWNER -> {
+                PetOwner post = petOwnerRepository.findById(postId).orElseThrow();
+                member.getLikedPetOwner().add(post);
+                post.setLikes(post.getLikes() + 1);
+            }
+            case PET_SITTER -> {
+                PetSitter post = petSitterRepository.findById(postId).orElseThrow();
+                member.getLikedPetSitter().add(post);
+                post.setLikes(post.getLikes() + 1);
+            }
+            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
+        }
+
+        memberRepository.save(member);
+    }
+
+
+    // 펫오너, 시터 좋아요 취소
+    @Transactional
+    public void unlikePost(Long memberId, Long postId, PostType postType) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        switch (postType) {
+            case PET_OWNER -> {
+                PetOwner post = petOwnerRepository.findById(postId).orElseThrow();
+                member.getLikedPetOwner().remove(post);
+                post.setLikes(post.getLikes() - 1);
+            }
+            case PET_SITTER -> {
+                PetSitter post = petSitterRepository.findById(postId).orElseThrow();
+                member.getLikedPetSitter().remove(post);
+                post.setLikes(post.getLikes() - 1);
+            }
+            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
+        }
+
+        memberRepository.save(member);
+    }
+
+    // 펫 오너 시터 좋아요 한 글 목록 조회
+    @Transactional(readOnly = true)
+    public Set<? extends Post> getLikedPosts(Long memberId, PostType postType) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        return switch (postType) {
+            case PET_OWNER -> member.getLikedPetOwner();
+            case PET_SITTER -> member.getLikedPetSitter();
+            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
+        };
+    }
+
+    // entityToDto 가 private 선언이 되어있어 접근하기 위한 메서드 컨트롤러에서 좋아요 누른글 조회
+    public Set<PostDTO> getLikedPostDTOs(Long memberId, PostType postType) {
+        Set<? extends Post> likedPosts = getLikedPosts(memberId, postType);
+
+        return likedPosts.stream()
+            .map(post -> entityToDto(post, postType == PostType.PET_SITTER))
+            .collect(Collectors.toSet());
+    }
+
+
+
+
 
 
 

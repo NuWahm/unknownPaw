@@ -78,4 +78,8 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
 }

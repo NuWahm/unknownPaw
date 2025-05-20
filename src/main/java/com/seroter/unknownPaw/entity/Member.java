@@ -98,4 +98,35 @@ public class Member extends BaseEntity {
         this.roleSet.add(role);
     }
 
+
+    // PetOwnerPost 좋아요
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_petowner_posts",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetOwner> likedPetOwner = new HashSet<>();
+
+    // PetSitterPost 좋아요
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_petsitter_posts",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetSitter> likedPetSitter = new HashSet<>();
+
+    // Community 좋아요
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_community_posts",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "community_id")
+    )
+    @Builder.Default
+    private Set<Community> likedCommunity = new HashSet<>();
+
 }

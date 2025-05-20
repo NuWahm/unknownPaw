@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -123,7 +125,7 @@ public class PostController {
     return postService.getRandom6PetSitterPosts();
   }
 
-
+  // 내가 쓴글 불러오기
   @GetMapping("/{postType}/{mid}")
   public ResponseEntity<?> getPostsByMember(
       @PathVariable String postType,
@@ -141,6 +143,35 @@ public class PostController {
       return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다: " + postType);
     }
   }
+
+
+  // ❤️ 좋아요 등록
+  @PostMapping("/likes/{postType}/{postId}")
+  public ResponseEntity<String> likePost(@PathVariable PostType postType,
+                                         @PathVariable Long postId,
+                                         @RequestParam Long memberId) {
+    postService.likePost(memberId, postId, postType);
+    return ResponseEntity.ok("좋아요 완료");
+  }
+
+  // 💔 좋아요 취소
+  @DeleteMapping("/likes/{postType}/{postId}")
+  public ResponseEntity<String> unlikePost(@PathVariable PostType postType,
+                                           @PathVariable Long postId,
+                                           @RequestParam Long memberId) {
+    postService.unlikePost(memberId, postId, postType);
+    return ResponseEntity.ok("좋아요 취소 완료");
+  }
+
+  // 🧾 좋아요 누른 게시글 목록 조회
+  @GetMapping("/likes/{postType}")
+  public ResponseEntity<Set<PostDTO>> getLikedPosts(@PathVariable PostType postType,
+                                                    @RequestParam Long memberId) {
+    Set<PostDTO> dtoSet = postService.getLikedPostDTOs(memberId, postType);
+    return ResponseEntity.ok(dtoSet);
+  }
+
+
 
 
 }

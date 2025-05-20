@@ -77,4 +77,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         WHERE m.mid = :mid
         """)
   Optional<Object[]> findSimpleProfileInfo(@Param("mid") Long mid);
+
+
+  // fetch join 오너게시판, 시터게시판, 커뮤니티 게시판 좋아요 목록 불러오기
+  @Query("SELECT m FROM Member m LEFT JOIN FETCH m.likedPetOwner " +
+      "LEFT JOIN FETCH m.likedPetSitter " +
+      "LEFT JOIN FETCH m.likedCommunity " +
+      "WHERE m.mid = :mid")
+  Optional<Member> fetchWithLikes(@Param("mid") Long mid);
+
+
 }
