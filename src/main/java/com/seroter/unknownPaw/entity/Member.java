@@ -66,22 +66,12 @@ public class Member extends BaseEntity {
     @Column(length = 30)
     private String signupChannel; // 가입 경로 (kakao, google등)
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     // 🛡️ 권한 및 상태
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role; // 사용자 권한 (일반회원, 관리자)
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MemberStatus status; // 회원 상태 (활성, 비활성, 차단, 탈퇴 등)
-
-    public enum Role {
-        USER, ADMIN
-    }
-
-    public enum MemberStatus {
-        ACTIVE, INACTIVE, BANNED, DELETED
-    }
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "member_roles",
@@ -96,6 +86,19 @@ public class Member extends BaseEntity {
     }
     public void addMemberRole(Role role) {
         this.roleSet.add(role);
+    }
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberStatus status; // 회원 상태 (활성, 비활성, 차단, 탈퇴 등)
+
+    public enum Role {
+        USER, ADMIN
+    }
+
+    public enum MemberStatus {
+        ACTIVE, INACTIVE, BANNED, DELETED
     }
 
 }

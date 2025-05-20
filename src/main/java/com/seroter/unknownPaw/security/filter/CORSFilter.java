@@ -14,14 +14,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Component  // << 여기에 추가해서 스프링 빈으로 등록
 @Log4j2
 public class CORSFilter extends OncePerRequestFilter {
 
     private static final List<String> ALLOWED_ORIGINS = Arrays.asList(
-            "http://localhost:3000"  // 개발 환경
-
+            "http://localhost:5173"  // Vite 개발 서버 주소로 수정
     );
 
     private static final List<String> ALLOWED_METHODS = Arrays.asList(
@@ -30,7 +29,6 @@ public class CORSFilter extends OncePerRequestFilter {
 
     private static final List<String> ALLOWED_HEADERS = Arrays.asList(
             "Origin",
-            "X-Requested-With",
             "Content-Type",
             "Accept",
             "Key",
@@ -46,6 +44,8 @@ public class CORSFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String origin = request.getHeader("Origin");
+        log.debug("CORSFilter: Request origin: {}", origin);
+
         if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", String.join(",", ALLOWED_METHODS));
@@ -57,8 +57,10 @@ public class CORSFilter extends OncePerRequestFilter {
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            filterChain.doFilter(request, response);
+            return;  // 필수
         }
+
+        filterChain.doFilter(request, response);
     }
+
 }

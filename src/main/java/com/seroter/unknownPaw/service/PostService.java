@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -30,13 +31,13 @@ public class PostService {
     private final SearchPostRepository searchPostRepository; // 동적 게시글 검색 기능
 
     // 게시글 등록 메서드
-    public Long register(String postType, PostDTO dto, Long memberId) {
+    public Long register(PostType postType, PostDTO dto, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-        Post entity = dtoToEntity(dto, postType);
+        Post entity = dtoToEntity(dto, String.valueOf(postType));
         entity.setMember(member);
 
-        return savePostbyPostType(postType, entity);
+        return savePostbyPostType(String.valueOf(postType), entity);
     }
 
     // 게시글 조회 메서드
@@ -222,16 +223,27 @@ public class PostService {
 
     // 최근 7일 이내 펫오너 게시글 랜덤 6개
     public List<PostDTO> getRandom6PetOwnerPosts() {
-        return petOwnerRepository.findRecent7DaysRandom6Posts()
-                .stream()
+        List<PetOwner> posts = petOwnerRepository.findRecent7DaysRandom6Posts();
+        if (posts.isEmpty()) {
+            // 최근 7일 이내 데이터가 없으면 전체 데이터에서 랜덤으로 가져오기
+            posts = petOwnerRepository.findAll().stream()
+                    .limit(6)
+                    .collect(Collectors.toList());
+        }
+        return posts.stream()
                 .map(post -> entityToDto(post, false))
                 .toList();
     }
-
-    // 최근 7일 이내 펫시터 게시글 랜덤 6개
+    
     public List<PostDTO> getRandom6PetSitterPosts() {
-        return petSitterRepository.findRecent7DaysRandom6Posts()
-                .stream()
+        List<PetSitter> posts = petSitterRepository.findRecent7DaysRandom6Posts();
+        if (posts.isEmpty()) {
+            // 최근 7일 이내 데이터가 없으면 전체 데이터에서 랜덤으로 가져오기
+            posts = petSitterRepository.findAll().stream()
+                    .limit(6)
+                    .collect(Collectors.toList());
+        }
+        return posts.stream()
                 .map(post -> entityToDto(post, true))
                 .toList();
     }
