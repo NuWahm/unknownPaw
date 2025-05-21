@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.repository;
 
+import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.Pet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,4 +53,8 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
   // ✨ 9 특정 회원 페이징이 없는 전체 펫 목록 조회 메서드
    @Query("SELECT DISTINCT p FROM Pet p WHERE p.member.mid = :mid")
    List<Pet> findAllByMemberId(@Param("mid") Long mid);
+
+   // 특정회원의 펫 정보 찾기
+  Optional<Pet> findByPetIdAndMember(Long petId, Member member);
+  List<Pet> findByMember(Member member);
 }

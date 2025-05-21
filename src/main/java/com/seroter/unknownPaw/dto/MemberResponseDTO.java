@@ -18,6 +18,10 @@ public class MemberResponseDTO {
     private String role;              // 역할
     private String status;            // 상태
     private LocalDateTime regDate;    // 가입일
+    private LocalDateTime modDate;    // 가입일
+    private String phoneNumber;
+    private String address;
+
 
     public MemberResponseDTO(Member member) {
         this.mid = member.getMid();
@@ -29,6 +33,9 @@ public class MemberResponseDTO {
         this.role = member.getRole().name(); // enum → String
         this.status = member.getStatus().name(); // enum → String
         this.regDate = member.getRegDate();
+        this.regDate = member.getModDate();
+        this.phoneNumber = member.getPhoneNumber();
+        this.address = member.getAddress();
     }
 
     public MemberResponseDTO(
@@ -40,7 +47,10 @@ public class MemberResponseDTO {
             boolean emailVerified,
             String role,
             String status,
-            LocalDateTime regDate
+            LocalDateTime regDate,
+            LocalDateTime modDate,
+            String phoneNumber,
+            String address
     ) {
         this.mid = mid;
         this.email = email;
@@ -51,6 +61,9 @@ public class MemberResponseDTO {
         this.role = role;
         this.status = status;
         this.regDate = regDate;
+        this.modDate = modDate;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
     }
 }
 

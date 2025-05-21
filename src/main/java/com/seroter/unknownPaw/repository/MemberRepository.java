@@ -77,4 +77,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         WHERE m.mid = :mid
         """)
   Optional<Object[]> findSimpleProfileInfo(@Param("mid") Long mid);
+
+  // 📌 [10] 닉네임 고유성 검사
+  Optional<Member> findByNickname(String nickname);
 }

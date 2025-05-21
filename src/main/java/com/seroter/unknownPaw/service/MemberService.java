@@ -1,14 +1,19 @@
 package com.seroter.unknownPaw.service;
 
-import com.seroter.unknownPaw.dto.MemberRequestDTO;
-import com.seroter.unknownPaw.dto.MemberResponseDTO;
-import com.seroter.unknownPaw.dto.PetDTO;
-import com.seroter.unknownPaw.dto.PostDTO;
+import com.seroter.unknownPaw.dto.*;
+import com.seroter.unknownPaw.dto.EditProfile.MemberUpdateRequestDTO;
+import com.seroter.unknownPaw.dto.EditProfile.PasswordChangeRequestDTO;
 import com.seroter.unknownPaw.entity.*;
-import com.seroter.unknownPaw.repository.*;
+import com.seroter.unknownPaw.repository.MemberRepository;
+import com.seroter.unknownPaw.repository.PetOwnerRepository;
+import com.seroter.unknownPaw.repository.PetRepository;
+import com.seroter.unknownPaw.repository.PetSitterRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +29,7 @@ public class MemberService {
   private final PetRepository petRepository;
   private final PetOwnerRepository petOwnerRepository;
   private final PetSitterRepository petSitterRepository;
-//    private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
   public MemberResponseDTO register(MemberRequestDTO dto) {
     Member member = Member.builder()
@@ -66,6 +71,63 @@ public class MemberService {
         .pawRate(member.getPawRate())
         .build();
   }
+
+  // 2-1. 나의 개인정보
+  public MemberResponseDTO getMemberById(Long mid) {
+    Member member = memberRepository.findById(mid)
+        .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다. mid = " + mid));
+
+    return new MemberResponseDTO(member);
+  }
+
+  // 2-2. 회원 정보 업데이트
+  @Transactional
+  public Member updateMember(Member member, MemberUpdateRequestDTO updateRequestDTO) {
+    // 닉네임 업데이트 로직
+    if (updateRequestDTO.getNickname() != null && !updateRequestDTO.getNickname().trim().isEmpty()) {
+      String newNickname = updateRequestDTO.getNickname().trim();
+      Optional<Member> existingMemberWithNickname = memberRepository.findByNickname(newNickname);
+
+      // 2. 조회된 회원이 존재하고, 그 회원이 현재 업데이트하려는 본인이 아닌 경우 중복으로 판단
+      if (existingMemberWithNickname.isPresent() && !existingMemberWithNickname.get().getMid().equals(member.getMid())) {
+        // 중복 닉네임 예외 발생
+        throw new IllegalArgumentException("이미 사용 중인 닉네임입니다."); // 커스텀 예외 사용 권장
+      }
+      // 중복이 아니거나 본인인 경우에만 닉네임 업데이트
+      member.setNickname(newNickname);
+    }
+    if (updateRequestDTO.getAddress() != null) {
+      member.setAddress(updateRequestDTO.getAddress());
+    }
+    if (updateRequestDTO.getPhoneNumber() != null) {
+      member.setPhoneNumber(updateRequestDTO.getPhoneNumber());
+    }
+    // 이미지는 나중에
+    Member updatedMember = memberRepository.save(member);
+
+    return updatedMember;
+  }
+
+  // 2-3. 회원 비밀번호 수정
+  @Transactional // 데이터 변경이 발생하므로 트랜잭션 설정
+  public void changePassword(Member member, PasswordChangeRequestDTO passwordChangeRequestDTO) {
+    String currentPassword = passwordChangeRequestDTO.getCurrentPassword();
+    String newPassword = passwordChangeRequestDTO.getNewPassword();
+    //  현재 비밀번호 확인
+    if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+      throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+    }
+    //  새로운 비밀번호 유효성 검사 (필요하다면 추가)
+    // 예: 비밀번호 길이, 복잡성 규칙 등 검사
+    // if (newPassword == null || newPassword.length() < 8) {
+    //     throw new IllegalArgumentException("새 비밀번호는 8자 이상이어야 합니다.");
+    // }
+    //  새로운 비밀번호 암호화
+    String encodedNewPassword = passwordEncoder.encode(newPassword);
+
+    member.setPassword(encodedNewPassword);
+  }
+
 
   // ✨ 배열 문제로 수정
   public MemberResponseDTO getSimpleProfileInfo(Long mid) {
