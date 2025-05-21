@@ -25,10 +25,10 @@ public enum PostType {
 
         switch (cleaned) {
             case "petowner":
-                System.out.println("✅ 매칭 성공 → PET_OWNER");
+                System.out.println("✅ 매칭 성공 → PETOWNER");
                 return PET_OWNER;
             case "petsitter":
-                System.out.println("✅ 매칭 성공 → PET_SITTER");
+                System.out.println("✅ 매칭 성공 → PETSITTER");
                 return PET_SITTER;
             default:
                 System.out.println("❌ PostType 매핑 실패: '" + cleaned + "'");
@@ -43,4 +43,6 @@ public enum PostType {
     public String getValue() {
         return this.name().toLowerCase().replace("_", "");
     }
+
 }
+
