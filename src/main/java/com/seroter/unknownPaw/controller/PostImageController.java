@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.controller;
 
+import com.seroter.unknownPaw.entity.Enum.ImageType;
 import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -30,7 +31,7 @@ public class PostImageController {
         return ResponseEntity.badRequest().body("올바르지 않은 역할입니다.");
       }
 
-      String fileName = imageService.saveImage(file, postType, postType, targetId);
+      String fileName = imageService.saveImage(file, ImageType.POST, "postType", targetId);
       return ResponseEntity.ok(Map.of("fileName", fileName, "role", postType));
     } catch (Exception e) {
       log.error("이미지 업로드 실패", e);
@@ -47,7 +48,7 @@ public class PostImageController {
                                         @RequestParam("file") MultipartFile newFile,
                                         @RequestParam("targetId") Long targetId) {
     try {
-      String newFileName = imageService.replaceImage(newFile, postType, oldFileName, postType, targetId);
+      String newFileName = imageService.replaceImage(newFile, ImageType.POST,oldFileName, "postType", targetId);
       return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "교체 성공"));
     } catch (Exception e) {
       log.error("이미지 교체 실패", e);

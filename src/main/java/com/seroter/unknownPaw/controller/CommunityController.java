@@ -1,15 +1,21 @@
 package com.seroter.unknownPaw.controller;
 
+import com.seroter.unknownPaw.dto.CommentDTO;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.dto.CommunityResponseDTO;
-import com.seroter.unknownPaw.dto.CommentDTO;
+import com.seroter.unknownPaw.entity.Enum.ImageType;
 import com.seroter.unknownPaw.service.CommunityService;
+import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/community")
@@ -17,15 +23,27 @@ import java.util.List;
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final ImageService imageService;
 
-    // ========== [게시글 등록] ==========
-    @PostMapping("/posts")
-    public ResponseEntity<Long> createCommunityPost(@RequestParam Long memberId, @RequestBody CommunityRequestDTO dto) {
-        // 게시글 등록 서비스 호출
-        Long postId = communityService.createCommunityPost(memberId, dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(postId);  // 생성된 게시글 ID 반환
+    @PostMapping(value = "/posts-with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Long> createCommunityPostWithImage(
+            @RequestParam Long memberId,
+            @RequestPart("community") CommunityRequestDTO communityDTO, // "community"
+            @RequestPart(value = "images", required = false) List<MultipartFile> images // "images"
+    ) throws Exception {
+        Long postId = communityService.createCommunityPost(memberId, communityDTO);
+
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = new ArrayList<>();
+            for (MultipartFile image : images) {
+                String imageUrl = imageService.saveImage(image, ImageType.COMMUNITY, "community", postId);
+                imageUrls.add(imageUrl);
+            }
+            communityService.addImagesToCommunity(postId, imageUrls);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
-
     // ========== [게시글 조회 (단건)] ==========
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CommunityResponseDTO> getCommunityPost(@PathVariable Long postId) {
@@ -95,3 +113,5 @@ public class CommunityController {
 
     }
 }
+
+

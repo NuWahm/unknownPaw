@@ -85,7 +85,7 @@ public class PostRepositoryImplTests {
           .defaultLocation("부산시 부산진구")
           .flexibleLocation("부산시 기장군")
           .member(owner)
-          .postType(PostType.PET_OWNER) // role 추가
+          .postType(PostType.PET_OWNER)
           .build();
       petOwnerRepository.save(petOwner);
 
