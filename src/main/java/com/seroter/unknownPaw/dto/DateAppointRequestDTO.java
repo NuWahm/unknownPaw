@@ -18,6 +18,7 @@ public class DateAppointRequestDTO {
   private String defaultLocation;
   private String flexibleLocation;
 
+
   @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime confirmationDate;
 

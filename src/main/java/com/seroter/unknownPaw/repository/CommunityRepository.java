@@ -13,7 +13,9 @@ import java.util.Optional;
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
     // 게시글 ID로 커뮤니티 게시글 조회
+
     Community findByCommunityId(Long communityId);
+
     // 모든 커뮤니티 게시글 조회
     List<Community> findAllByOrderByRegDateDesc();
 

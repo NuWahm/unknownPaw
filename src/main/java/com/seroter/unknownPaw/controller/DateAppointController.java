@@ -58,7 +58,7 @@ public class DateAppointController {
 
   // [DELETE] 예약 완전 삭제 (필요할 경우)
   @DeleteMapping("/{rno}")
-  public void delete(@PathVariable Long rno) {
+  public void celete(@PathVariable Long rno) {
     dateAppointService.deleteById(rno);
   }
 }

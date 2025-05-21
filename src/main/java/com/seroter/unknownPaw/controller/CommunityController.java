@@ -33,11 +33,14 @@ public class CommunityController {
         // 단건 게시글 조회 서비스 호출
         CommunityResponseDTO community = communityService.getCommunityPost(postId);
         return ResponseEntity.ok(community);  // 조회된 게시글 반환
+
+
     }
 
     // ========== [게시글 조회 (전체)] ==========
     @GetMapping("/posts")
     public ResponseEntity<List<CommunityResponseDTO>> getAllCommunityPosts() {
+
         // 전체 게시글 조회 서비스 호출
         List<CommunityResponseDTO> communityList = communityService.getAllCommunityPosts();
         return ResponseEntity.ok(communityList);  // 전체 게시글 반환
@@ -81,6 +84,7 @@ public class CommunityController {
         // 댓글 수정 서비스 호출
         communityService.updateComment(commentId, memberId, newContent);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 수정 완료 응답
+
     }
 
     // ========== [댓글 삭제] ==========
@@ -89,6 +93,7 @@ public class CommunityController {
         // 댓글 삭제 서비스 호출
         communityService.deleteComment(commentId, memberId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 삭제 완료 응답
+
     }
 
 

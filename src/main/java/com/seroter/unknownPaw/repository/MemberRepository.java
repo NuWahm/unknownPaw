@@ -71,12 +71,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [9] 상대방 프로필 요약 정보 조회
   @Query("""
-        SELECT m.mid, m.nickname, m.pawRate, i.path
-        FROM Member m
-        LEFT JOIN Image i ON i.member = m AND i.imageType = 1
-        WHERE m.mid = :mid
-        """)
-  Optional<Object[]> findSimpleProfileInfo(@Param("mid") Long mid);
+    SELECT m.mid, m.nickname, m.pawRate, i.path
+    FROM Member m
+    LEFT JOIN Image i ON i.member = m AND i.imageType = 1
+    WHERE m.mid = :mid
+    """)
+
+  Optional<Object> findSimpleProfileInfo(@Param("mid") Long mid);
 
 
   // fetch join 오너게시판, 시터게시판, 커뮤니티 게시판 좋아요 목록 불러오기
