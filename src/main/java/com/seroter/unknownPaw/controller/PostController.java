@@ -8,7 +8,12 @@ import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.Pageable;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,28 +31,48 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-
+    
       @PathVariable String postType,
       Pageable pageable,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String location,
       @RequestParam(required = false) String category
+
   ) {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
+
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
           location,
           category,
           pageable
+
+
+      // page 보정 (page가 1 미만일 경우 1로 설정)
+      int pageNum = pageRequestDTO.getPage();
+      if (pageNum < 1) {
+        pageNum = 1;
+      }
+
+      PageRequest pageRequest = PageRequest.of(pageNum - 1, pageRequestDTO.getSize());
+
+      Page<? extends Post> result = postService.searchPosts(
+              postType,
+              keyword,
+              location,
+              category,
+              pageRequest
+
       );
 
       Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
       return ResponseEntity.ok(dtoPage);
+
     } catch (IllegalArgumentException e) {
-      return  ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
+      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
     }
     // 정렬 추가
     catch (Exception e) {
@@ -56,6 +81,7 @@ public class PostController {
       return ResponseEntity.internalServerError().body("게시글 조회 중 오류가 발생했습니다.");
     }
   }
+
 
   /* ---------------- 상세 ---------------- */
   @GetMapping("/{postType}/read/{postId}")
@@ -88,7 +114,7 @@ public class PostController {
       @RequestBody PostDTO postDTO,
       @RequestParam Long memberId
   ) {
-    Long newId = postService.register(postType.name(), postDTO, memberId);
+    Long newId = postService.register(PostType.valueOf(postType.name()), postDTO, memberId);
     return ResponseEntity.ok(Map.of("postId", newId));
   }
 
@@ -121,15 +147,50 @@ public class PostController {
 
   // 최근 7일 이내 펫오너 게시글 랜덤 6개
   @GetMapping("/petowner/recent/random6")
-  public List<PostDTO> getRecentRandomPetOwnerPosts() {
-    return postService.getRandom6PetOwnerPosts();
+  public ResponseEntity<?> getRecentRandomPetOwnerPosts() {
+    try {
+        List<PostDTO> posts = postService.getRandom6PetOwnerPosts();
+        return ResponseEntity.ok(posts);
+    } catch (Exception e) {
+        log.error("펫오너 게시글 조회 중 오류 발생", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "게시글을 불러오는데 실패했습니다."));
+    }
   }
 
   // 최근 7일 이내 펫시터 게시글 랜덤 6개
   @GetMapping("/petsitter/recent/random6")
-  public List<PostDTO> getRecentRandomPetSitterPosts() {
-    return postService.getRandom6PetSitterPosts();
+  public ResponseEntity<?> getRecentRandomPetSitterPosts() {
+    try {
+        List<PostDTO> posts = postService.getRandom6PetSitterPosts();
+        return ResponseEntity.ok(posts);
+    } catch (Exception e) {
+        log.error("펫시터 게시글 조회 중 오류 발생", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "게시글을 불러오는데 실패했습니다."));
+    }
   }
+
+
+
+  @GetMapping("/{postType}/{mid}")
+  public ResponseEntity<?> getPostsByMember(
+      @PathVariable String postType,
+      @PathVariable Long mid
+  ) {
+
+    try {
+      PostType pType = PostType.from(postType);
+
+      List<PostDTO> posts = postService.getPostsByMember(pType.toString(), mid);
+      return ResponseEntity.ok(posts);
+
+    } catch (IllegalArgumentException e) {
+
+      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다: " + postType);
+    }
+  }
+
 
 }
 

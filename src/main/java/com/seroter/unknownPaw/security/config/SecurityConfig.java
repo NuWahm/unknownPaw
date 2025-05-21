@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -74,7 +72,8 @@ public class SecurityConfig {
         .formLogin(form -> form.disable())
         .httpBasic(basic -> basic.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/member/login", "/api/member/register").permitAll()
+           .requestMatchers("/api/member/login", "/api/member/register",
+                                "/api/maps/**").permitAll()
             .requestMatchers("/api/posts/**", "/api/member/**").permitAll()
 //            .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
             .anyRequest().permitAll())

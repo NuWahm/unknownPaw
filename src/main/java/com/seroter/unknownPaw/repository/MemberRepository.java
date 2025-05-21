@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+
+
   // 📌 [0] 회원 Id로 조회
   Optional<Member> findByMid(Long mid);
 
@@ -71,6 +73,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [9] 상대방 프로필 요약 정보 조회
   @Query("""
+
         SELECT m.mid, m.nickname, m.pawRate, i.path
         FROM Member m
         LEFT JOIN Image i ON i.member = m AND i.imageType = 1
@@ -80,4 +83,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [10] 닉네임 고유성 검사
   Optional<Member> findByNickname(String nickname);
+
 }

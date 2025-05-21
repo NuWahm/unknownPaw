@@ -13,7 +13,7 @@ public enum CommunityCategory {
             return CommunityCategory.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException e) {
             // 잘못된 값이 들어올 경우 기본값을 설정
-            return CommunityCategory.GENERAL; // 기본값 설정
+            return CommunityCategory.COMMUNITY; // 기본값 설정
         }
     }
 

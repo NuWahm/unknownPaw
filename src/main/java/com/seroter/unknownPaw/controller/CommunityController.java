@@ -3,6 +3,7 @@ package com.seroter.unknownPaw.controller;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.dto.CommunityResponseDTO;
 import com.seroter.unknownPaw.dto.CommentDTO;
+import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -94,4 +95,10 @@ public class CommunityController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 삭제 완료 응답
 
     }
+
+//    // 커뮤니티 최근 랜덤게시물 들고오기
+//    @GetMapping("/community/recent/random6")
+//    public List<CommunityResponseDTO> getRecentRandomPetCommunity() {
+//        return communityService.getRandom6Community();
+//    }
 }

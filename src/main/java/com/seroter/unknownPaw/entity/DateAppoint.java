@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,14 +36,6 @@ public class DateAppoint extends BaseEntity {
   private LocalDateTime futureDate; // 예약 실행 날짜
 
 
-  // 예약실행 남은시간 표시 메서드
-  public long getRemainingMinutes() {
-    if (futureDate != null && confirmationDate != null) {
-      Duration duration = Duration.between(confirmationDate, futureDate);
-      return duration.toMinutes(); // 남은 시간을 분 단위로 반환
-    }
-    return 0;
-  }
 
   @Enumerated(EnumType.STRING)
   private ServiceCategory serviceCategory; // 서비스 카테고리(산책, 돌봄, 호텔)
@@ -67,4 +60,7 @@ public class DateAppoint extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = "sitter_post_id")
   private PetSitter petSitterPost;
+
+
 }
+
