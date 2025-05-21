@@ -86,6 +86,8 @@ public class MemberController {
         }
     }
     // 3-1. 특정 회원의 펫 목록 조회
+
+
     @GetMapping("/{mid}/pets") // ✨ 새로운 엔드포인트: /api/member/{mid}/pets
     public ResponseEntity<List<PetDTO>> getMemberPets(@PathVariable Long mid) {
         try {

@@ -16,9 +16,11 @@ public enum PostType {
         }
 
         // 문자열 정제 (소문자 변환, 공백/특수문자 제거)
-        String cleaned = roleString
+         String cleaned = roleString
             .trim()
             .toLowerCase()
+
+
             .replaceAll("[^a-z]", ""); // 🔥 영문자만 남김
 
         System.out.println("🧪 PostType.from() 정제된 값: '" + cleaned + "'");

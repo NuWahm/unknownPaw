@@ -72,7 +72,8 @@ public class MemberService {
 
     public MemberResponseDTO getSimpleProfileInfo(Long mid) {
         Object result = memberRepository.findSimpleProfileInfo(mid)
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+
 
         if (!(result instanceof Object[] objects)) {
             throw new IllegalStateException("예상치 못한 쿼리 결과 형식");

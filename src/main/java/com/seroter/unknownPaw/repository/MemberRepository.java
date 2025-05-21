@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+
+
   // 📌 [0] 회원 Id로 조회
   Optional<Member> findByMid(Long mid);
 
