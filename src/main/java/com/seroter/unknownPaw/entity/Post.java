@@ -7,8 +7,12 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "post_type")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,10 +34,9 @@ public abstract class Post {
 
   private int likes;
   private int chatCount;
-
+  private LocalDateTime serviceDate;
   private String defaultLocation;
   private String flexibleLocation;
-
   private LocalDateTime regDate;
   private LocalDateTime modDate;
 
@@ -52,11 +55,12 @@ public abstract class Post {
   @JoinColumn(name = "mid")
   private Member member;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private PostType postType;
 
   @Column(name = "hourly_rate", nullable = false)
   @Builder.Default
   private Integer hourlyRate = 5000;
+
+  @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Image> images = new ArrayList<>();
 }

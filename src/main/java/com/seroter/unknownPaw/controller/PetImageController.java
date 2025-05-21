@@ -25,7 +25,7 @@ public class PetImageController {
   public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
                                   @RequestParam("targetId") Long petId) {
     try {
-      String fileName = imageService.saveImage(file, "pet", "pet", petId);
+      String fileName = imageService.saveImage(file, "pet", "pet", petId, petId);
       return ResponseEntity.ok(Map.of("fileName", fileName));
     } catch (Exception e) {
       log.error("펫 이미지 업로드 실패", e);
@@ -41,7 +41,7 @@ public class PetImageController {
                                         @RequestParam("file") MultipartFile newFile,
                                         @RequestParam("targetId") Long petId) {
     try {
-      String newFileName = imageService.replaceImage(newFile, "pet", oldFileName, "pet", petId);
+      String newFileName = imageService.replaceImage(newFile, "pet", oldFileName, "pet", petId, petId);
       return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "교체 성공"));
     } catch (Exception e) {
       log.error("이미지 교체 실패", e);

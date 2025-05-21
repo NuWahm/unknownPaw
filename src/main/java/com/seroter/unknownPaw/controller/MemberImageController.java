@@ -25,7 +25,7 @@ public class MemberImageController {
   public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
                                   @RequestParam("targetId") Long memberId) {
     try {
-      String fileName = imageService.saveImage(file, "member", "member", memberId);
+      String fileName = imageService.saveImage(file, "member", "member", memberId, null);
       return ResponseEntity.ok(Map.of("fileName", fileName));
     } catch (Exception e) {
       log.error("회원 이미지 업로드 실패", e);
@@ -41,7 +41,7 @@ public class MemberImageController {
                                         @RequestParam("file") MultipartFile newFile,
                                         @RequestParam("targetId") Long memberId) {
     try {
-      String newFileName = imageService.replaceImage(newFile, "member", oldFileName, "member", memberId);
+      String newFileName = imageService.replaceImage(newFile, "member", oldFileName, "member", memberId, null);
       return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "교체 성공"));
     } catch (Exception e) {
       log.error("이미지 교체 실패", e);

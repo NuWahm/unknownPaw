@@ -6,6 +6,7 @@ import com.seroter.unknownPaw.entity.Enum.PostType;
 import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetOwnerRepository;
+import com.seroter.unknownPaw.repository.PetRepository;
 import com.seroter.unknownPaw.repository.PetSitterRepository;
 import com.seroter.unknownPaw.repository.search.SearchPostRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class PostService {
 
     private final MemberRepository memberRepository;
+    private final PetRepository petRepository;
     private final PetOwnerRepository petOwnerRepository;
     private final PetSitterRepository petSitterRepository;
     private final SearchPostRepository searchPostRepository;
@@ -106,36 +109,54 @@ public class PostService {
 
     // 펫오너 게시글 엔티티 생성
     private Post createPetOwnerEntity(PostDTO dto) {
-        return PetOwner.builder()
+        LocalDateTime parsedServiceDate = null;
+        if (dto.getServiceDate() != null) {
+            parsedServiceDate = dto.getServiceDate();
+        }
+        PetOwner.PetOwnerBuilder builder = PetOwner.builder()
                 .postId(dto.getPostId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
                 .hourlyRate(dto.getHourlyRate())
+                .serviceDate(dto.getServiceDate())
                 .likes(dto.getLikes())
                 .chatCount(dto.getChatCount())
                 .defaultLocation(dto.getDefaultLocation())
                 .flexibleLocation(dto.getFlexibleLocation())
-                .member(null)
-                .postType(PostType.PET_OWNER)
-                .build();
+                .member(null);
+        if (dto.getPetId() != null) {
+            Pet pet = petRepository.findById(dto.getPetId())
+                    .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
+            builder.pet(pet);
+        }
+        return builder.build();
     }
 
     // 펫시터 게시글 엔티티 생성
     private Post createPetSitterEntity(PostDTO dto) {
-        return PetSitter.builder()
+        LocalDateTime parsedServiceDate = null;
+        if (dto.getServiceDate() != null) {
+            parsedServiceDate = dto.getServiceDate();
+        }
+        PetSitter.PetSitterBuilder builder = PetSitter.builder()
                 .postId(dto.getPostId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
                 .hourlyRate(dto.getHourlyRate())
+                .serviceDate(dto.getServiceDate())
                 .likes(dto.getLikes())
                 .chatCount(dto.getChatCount())
                 .defaultLocation(dto.getDefaultLocation())
                 .flexibleLocation(dto.getFlexibleLocation())
-                .member(null)
-                .postType(PostType.PET_SITTER)
-                .build();
+                .member(null);
+        if (dto.getLicense() != null)
+            builder.license(dto.getLicense());
+        if (dto.getPetExperience() != null)
+            builder.petExperience(dto.getPetExperience());
+
+        return builder.build();
     }
 
     // 엔티티를 DTO로 변환
@@ -208,16 +229,18 @@ public class PostService {
 
     // 최근 7일 이내 펫오너 게시글 랜덤 6개
     public List<PostDTO> getRandom6PetOwnerPosts() {
-        return petOwnerRepository.findRecent7DaysRandom6Posts()
+        return petOwnerRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
                 .stream()
+                .limit(6)
                 .map(post -> entityToDto(post, false))
                 .toList();
     }
 
     // 최근 7일 이내 펫시터 게시글 랜덤 6개
     public List<PostDTO> getRandom6PetSitterPosts() {
-        return petSitterRepository.findRecent7DaysRandom6Posts()
+        return petSitterRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
                 .stream()
+                .limit(6)
                 .map(post -> entityToDto(post, true))
                 .toList();
     }

@@ -12,13 +12,10 @@ import java.util.List;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
+@DiscriminatorValue("PET_SITTER")
 public class PetSitter extends Post {
-
-    @Builder.Default
-    @OneToMany(mappedBy = "petSitter",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    private List<Image> images = new ArrayList<>();
+    private List<String> license;
+    private int petExperience;
 }
+
 

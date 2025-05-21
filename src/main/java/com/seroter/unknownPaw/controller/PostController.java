@@ -1,10 +1,12 @@
 package com.seroter.unknownPaw.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seroter.unknownPaw.dto.ModifyRequestDTO;
 import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
 import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.service.ImageService;
 import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,8 @@ import java.util.Map;
 public class PostController {
 
   private final PostService postService;
+  private final ImageService imageService;
+  private final ObjectMapper objectMapper;
 
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
@@ -103,6 +108,32 @@ public class PostController {
     ));
   }
 
+  @PostMapping("/{postType}/registerWithImage")
+  public ResponseEntity<?> registerWithImage(
+          @PathVariable String postType,
+          @RequestParam("post") String postJson,
+          @RequestParam("file") MultipartFile file,
+          @RequestParam Long memberId
+  ) {
+    try {
+      PostDTO postDTO = objectMapper.readValue(postJson, PostDTO.class);
+
+      // 1. 게시글 저장
+      Long postId = postService.register(postType, postDTO, memberId);
+
+      // 2. 이미지 저장 (postId 연결)
+      Long petId = null;
+      if (postType.equalsIgnoreCase("petowner") && postDTO.getPetId() != null) {
+        petId = postDTO.getPetId();
+      }
+      imageService.saveImage(file, postType, postType, postId, petId);
+
+      return ResponseEntity.ok(Map.of("postId", postId));
+    } catch (Exception e) {
+      log.error("글+이미지 등록 실패", e);
+      return ResponseEntity.badRequest().body("등록 실패: " + e.getMessage());
+    }
+  }
   /* ---------------- 삭제 ---------------- */
   @DeleteMapping("/{postType}/delete/{postId}")
   public ResponseEntity<?> delete(

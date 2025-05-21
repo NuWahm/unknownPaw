@@ -39,7 +39,8 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     //inherited
     public final NumberPath<Integer> hourlyRate;
 
-    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+    //inherited
+    public final ListPath<Image, QImage> images;
 
     //inherited
     public final NumberPath<Integer> likes;
@@ -50,17 +51,19 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modDate;
 
-    //inherited
-    public final NumberPath<Long> postId;
+    public final QPet pet;
 
     //inherited
-    public final EnumPath<com.seroter.unknownPaw.entity.Enum.PostType> postType;
+    public final NumberPath<Long> postId;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
     public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> serviceDate;
 
     //inherited
     public final StringPath title;
@@ -89,13 +92,15 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
         this.defaultLocation = _super.defaultLocation;
         this.flexibleLocation = _super.flexibleLocation;
         this.hourlyRate = _super.hourlyRate;
+        this.images = _super.images;
         this.likes = _super.likes;
         this.member = _super.member;
         this.modDate = _super.modDate;
+        this.pet = inits.isInitialized("pet") ? new QPet(forProperty("pet"), inits.get("pet")) : null;
         this.postId = _super.postId;
-        this.postType = _super.postType;
         this.regDate = _super.regDate;
         this.serviceCategory = _super.serviceCategory;
+        this.serviceDate = _super.serviceDate;
         this.title = _super.title;
     }
 

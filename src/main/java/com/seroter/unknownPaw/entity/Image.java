@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
-@ToString(exclude = {"member", "pet", "petOwner", "petSitter"})
+@ToString(exclude = {"member", "pet", "post"})
 @Table(name = "image")
 
 public class Image {
@@ -31,24 +31,19 @@ public class Image {
   // 회원정보 참조 (멤버)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-
   private Member member;
 
 
   // 반려동물 정보 참조
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "pet_id")
-
   private Pet pet;
 
-
-  // 펫오너 포스트 참조
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "pet_owner_id")
-  private PetOwner petOwner;
+  @JoinColumn(name = "post_id", nullable = true)
+  private Post post;
 
-  // 펫시터 포스트 참조
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "pet_sitter_id")
-  private PetSitter petSitter;
+  @JoinColumn(name = "community_id")
+  private Community community;
 }
