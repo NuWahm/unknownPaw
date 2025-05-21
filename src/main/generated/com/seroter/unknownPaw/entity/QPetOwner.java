@@ -43,7 +43,13 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     public final ListPath<Image, QImage> images;
 
     //inherited
+    public final NumberPath<Double> latitude;
+
+    //inherited
     public final NumberPath<Integer> likes;
+
+    //inherited
+    public final NumberPath<Double> longitude;
 
     // inherited
     public final QMember member;
@@ -93,7 +99,9 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
         this.flexibleLocation = _super.flexibleLocation;
         this.hourlyRate = _super.hourlyRate;
         this.images = _super.images;
+        this.latitude = _super.latitude;
         this.likes = _super.likes;
+        this.longitude = _super.longitude;
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.pet = inits.isInitialized("pet") ? new QPet(forProperty("pet"), inits.get("pet")) : null;

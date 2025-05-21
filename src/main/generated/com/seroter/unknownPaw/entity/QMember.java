@@ -36,6 +36,12 @@ public class QMember extends EntityPathBase<Member> {
 
     public final StringPath introduce = createString("introduce");
 
+    public final SetPath<Community, QCommunity> likedCommunity = this.<Community, QCommunity>createSet("likedCommunity", Community.class, QCommunity.class, PathInits.DIRECT2);
+
+    public final SetPath<PetOwner, QPetOwner> likedPetOwner = this.<PetOwner, QPetOwner>createSet("likedPetOwner", PetOwner.class, QPetOwner.class, PathInits.DIRECT2);
+
+    public final SetPath<PetSitter, QPetSitter> likedPetSitter = this.<PetSitter, QPetSitter>createSet("likedPetSitter", PetSitter.class, QPetSitter.class, PathInits.DIRECT2);
+
     public final NumberPath<Long> mid = createNumber("mid", Long.class);
 
     //inherited

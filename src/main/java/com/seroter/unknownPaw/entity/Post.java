@@ -37,6 +37,8 @@ public abstract class Post {
   private LocalDateTime serviceDate;
   private String defaultLocation;
   private String flexibleLocation;
+  private Double latitude;
+  private Double longitude;
   private LocalDateTime regDate;
   private LocalDateTime modDate;
 

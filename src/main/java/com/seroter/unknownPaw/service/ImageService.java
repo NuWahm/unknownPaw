@@ -79,6 +79,7 @@ public class ImageService {
 
     String type = targetType.toLowerCase();
     Image image = switch (type) {
+
       case "member" -> Image.builder()
               .uuid(uuid)
               .profileImg(originalName)
@@ -153,6 +154,7 @@ public class ImageService {
       default -> throw new IllegalArgumentException("잘못된 targetType 입니다: " + targetType);
     };
 
+
     imageRepository.save(image);
     return saveName;
   }
@@ -188,4 +190,5 @@ public class ImageService {
     }
     return false;
   }
+
 }

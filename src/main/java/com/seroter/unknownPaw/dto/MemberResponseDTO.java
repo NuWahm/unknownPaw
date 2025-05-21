@@ -2,6 +2,9 @@ package com.seroter.unknownPaw.dto;
 
 import com.seroter.unknownPaw.entity.Member;
 import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +29,7 @@ public class MemberResponseDTO {
     private String introduce;  // 소개
     private List<PetDTO> pets; // PetDTO 목록
 
+
     // Member 엔티티를 기반으로 DTO 변환
     public MemberResponseDTO(Member member) {
         this.mid = member.getMid();
@@ -46,5 +50,16 @@ public class MemberResponseDTO {
                 .collect(Collectors.toList());
     }
 
-
+    public MemberResponseDTO(Long mid, String email, String nickname, String profileImagePath, float pawRate,
+                             boolean emailVerified, String role, String status, LocalDateTime regDate) {
+        this.mid = mid;
+        this.email = email;
+        this.nickname = nickname;
+        this.profileImagePath = profileImagePath;
+        this.pawRate = pawRate;
+        this.emailVerified = emailVerified;
+        this.role = role;
+        this.status = status;
+        this.regDate = regDate;
+    }
 }

@@ -20,61 +20,65 @@ public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long mid; // 회원 고유 번호(PK)
+    private Long mid;
 
-    // 🔐 로그인 정보
     @Column(nullable = false, unique = true, length = 100)
-    private String email; // 이메일 주소
+    private String email;
 
     @Column(length = 100)
-    private String password; // 일반 로그인 시 사용
+    private String password;
 
     @Column(nullable = false)
-    private boolean fromSocial; // 소셜 로그인 여부
+    private boolean fromSocial;
 
     @Column(length = 100)
-    private String socialId; // 소셜 로그인 플랫폼에서 받은 사용자 식별 ID
+    private String socialId;
 
-    // 👤 기본 사용자 정보
     @Column(nullable = false, length = 50)
-    private String name; // 실명 또는 사용자 이름
+    private String name;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String nickname; // 닉네임
+    private String nickname;
 
     @Column(length = 20)
-    private String phoneNumber; // 전화번호
+    private String phoneNumber;
 
     @Column(nullable = false)
-    private int birthday; // 출생 연도
+    private int birthday;
 
     @Column(nullable = false)
-    private Boolean gender; // 성별
+    private Boolean gender;
 
     @Column(length = 255)
-    private String address; // 주소
+    private String address;
 
-    // 🌟 사용자 추가 정보
-    private float pawRate; // 사용자 평점
+    private float pawRate;
 
-    private String profileImagePath; // 프로필 이미지 파일 경로
+    private String profileImagePath;
 
     @Column(nullable = false)
-    private boolean emailVerified; // 이메일 인증 여부
+    private boolean emailVerified;
 
     @Column(length = 30)
-    private String signupChannel; // 가입 경로
+    private String signupChannel;
 
-    // 🛡️ 권한 및 상태
+    // === Enum ===
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role; // 사용자 권한
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberStatus status; // 회원 상태
+    private MemberStatus status;
 
-    // 롤을 위한 Set 컬렉션
+    public enum Role {
+        USER, ADMIN
+    }
+
+    public enum MemberStatus {
+        ACTIVE, INACTIVE, BANNED, DELETED
+    }
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "member_roles",
@@ -84,16 +88,6 @@ public class Member extends BaseEntity {
     @Builder.Default
     private Set<Role> roleSet = new HashSet<>();
 
-    // 회원이 소유한 펫들
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
-    @Builder.Default  // Builder 패턴 사용 시 기본값 설정
-    private Set<Pet> pets = new HashSet<>();
-
-    // 소개 추가
-    @Column(length = 500)
-    private String introduce; // 회원 소개
-
-    // 롤을 위한 메서드들
     public void addRole(Role role) {
         roleSet.add(role);
     }
@@ -102,22 +96,45 @@ public class Member extends BaseEntity {
         this.roleSet.add(role);
     }
 
-    // pets 목록을 반환하는 메서드
+    // 👇 펫 리스트 연관관계
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Pet> pets = new HashSet<>();
+
+    // introduce 소개
+    @Column(length = 500)
+    private String introduce;
+
     public List<Pet> getPets() {
         return new ArrayList<>(pets);
     }
+    public String getIntroduce() { return this.introduce; }
 
-    public String getIntroduce() {
-        return this.introduce;  // 소개 반환
-    }
+    // 👇 좋아요 연관관계들
+    @ManyToMany
+    @JoinTable(
+            name = "member_liked_petowner_posts",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetOwner> likedPetOwner = new HashSet<>();
 
-    // Role enum 정의
-    public enum Role {
-        USER, ADMIN
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "member_liked_petsitter_posts",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetSitter> likedPetSitter = new HashSet<>();
 
-    // MemberStatus enum 정의
-    public enum MemberStatus {
-        ACTIVE, INACTIVE, BANNED, DELETED
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "member_liked_community_posts",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "community_id")
+    )
+    @Builder.Default
+    private Set<Community> likedCommunity = new HashSet<>();
 }

@@ -7,13 +7,18 @@ import com.seroter.unknownPaw.dto.MemberResponseDTO;
 import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.Pet;
-import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetRepository;
+import com.seroter.unknownPaw.dto.PostDTO;
+import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.repository.MemberRepository;
+import com.seroter.unknownPaw.repository.PetOwnerRepository;
+import com.seroter.unknownPaw.repository.PetSitterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,8 +29,12 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
     private final PetRepository petRepository;
+    private final PetOwnerRepository petOwnerRepository;
+    private final PetSitterRepository petSitterRepository;
+    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder passwordEncoder;
+
 
     // ✅ 회원가입
     public MemberResponseDTO register(MemberRequestDTO dto) {
@@ -103,21 +112,9 @@ public class MemberService {
         return memberRepository.findByEmailAndFromSocial(email, fromSocial);
     }
 
-    // ✅ 회원 닉네임 수정
-    public void updateNickname(Long memberId, String newNickname) {
-        Member member = findMemberById(memberId);
-        member.setNickname(newNickname);
-        memberRepository.save(member);
-    }
-
     // ✅ 대시보드 데이터 조회
     public List<Object[]> getDashboardData(Long mid) {
         return memberRepository.findMemberWithAllData(mid);
-    }
-
-    // ✅ 회원 활동 통계 조회
-    public Object[] getMyActivityStats(Long mid) {
-        return memberRepository.findMyActivityStats(mid);
     }
 
     // ✅ 회원 평점 조회
@@ -254,6 +251,32 @@ public class MemberService {
         return memberRepository.findByMid(mid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
     }
+
+    public MemberResponseDTO getSimpleProfileInfo(Long mid) {
+        Object result = memberRepository.findSimpleProfileInfo(mid)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+        if (!(result instanceof Object[] objects)) {
+            throw new IllegalStateException("예상치 못한 쿼리 결과 형식");
+        }
+
+        Long memberId = ((Number) objects[0]).longValue();
+        String nickname = (String) objects[1];
+        Integer pawRate = objects[2] != null ? ((Number) objects[2]).intValue() : 0;
+        String profileImagePath = (String) objects[3];
+
+        return MemberResponseDTO.builder()
+                .mid(memberId)
+                .nickname(nickname)
+                .pawRate(pawRate)
+                .profileImagePath(profileImagePath)
+                .build();
+    }
+
+    public Member getMemberWithPetOwners(Long mid) {
+        return memberRepository.findMemberWithPetOwners(mid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+    }
     // 타입 변환을 위한 유틸리티 메서드들
     private Long convertToLong(Object value) {
         if (value == null) return null;
@@ -268,7 +291,6 @@ public class MemberService {
     private String convertToString(Object value) {
         return value != null ? value.toString() : null;
     }
-
     private Float convertToFloat(Object value) {
         if (value == null) return 0.0f;
         if (value instanceof Number) return ((Number) value).floatValue();
@@ -292,4 +314,58 @@ public class MemberService {
                 .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
         return new MemberResponseDTO(member);
     }
-}
+
+    public Object[] getMyActivityStats(Long mid) {
+        Object[] result = memberRepository.findMyActivityStats(mid);
+
+        // 방어적 캐스팅: Number → Long
+        Long memberId = ((Number) result[0]).longValue();
+        Long petOwnerPostCount = ((Number) result[1]).longValue();
+        Long petSitterPostCount = ((Number) result[2]).longValue();
+        Long dateAppointCount = ((Number) result[3]).longValue();
+
+        return new Object[]{memberId, petOwnerPostCount, petSitterPostCount, dateAppointCount};
+    }
+
+
+
+    public void updateNickname(Long memberId, String newNickname) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        member.setNickname(newNickname);
+        memberRepository.save(member);
+    }
+        // ✨ 상대방의 프로필을 보기 위해 추가
+        public List<PetDTO> getMemberPets(Long mid) {
+            List<Pet> pets = petRepository.findAllByMemberId(mid);
+            List<PetDTO> petDTOs = pets.stream().map(pet -> PetDTO.builder()
+                    .petId(pet.getPetId())
+                    .petName(pet.getPetName())
+                    .breed(pet.getBreed())
+                    .petBirth(pet.getPetBirth())
+                    .petMbti(pet.getPetMbti())
+                    .weight(pet.getWeight())
+                    .petIntroduce(pet.getPetIntroduce())
+                    .build()
+            ).collect(Collectors.toUnmodifiableList());
+            return petDTOs; // pet이 없으면 빈 리스트
+        }
+
+        public List<PostDTO> getMemberPosts(Long mid) {
+            List<PetOwner> ownerPosts = petOwnerRepository.findByMember_Mid(mid);
+            List<PetSitter> sitterPosts = petSitterRepository.findByMember_Mid(mid);
+            // PetOwner와 PetSitter 글 리스트를 하나의 Post 리스트로 합치기
+            List<Post> allPosts = new ArrayList<>();
+            allPosts.addAll(ownerPosts); // PetOwner 리스트 추가
+            allPosts.addAll(sitterPosts); // PetSitter 리스트 추가
+
+            allPosts.sort((p1, p2) -> p2.getRegDate().compareTo(p1.getRegDate()));
+
+            List<PostDTO> postDTOs = allPosts.stream()
+                    .map(post -> PostDTO.fromEntity(post))
+                    .collect(Collectors.toUnmodifiableList());
+
+            return postDTOs;
+        }
+
+    }

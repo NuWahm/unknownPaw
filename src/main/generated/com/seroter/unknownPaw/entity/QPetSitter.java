@@ -42,10 +42,16 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     //inherited
     public final ListPath<Image, QImage> images;
 
+    //inherited
+    public final NumberPath<Double> latitude;
+
     public final ListPath<String, StringPath> license = this.<String, StringPath>createList("license", String.class, StringPath.class, PathInits.DIRECT2);
 
     //inherited
     public final NumberPath<Integer> likes;
+
+    //inherited
+    public final NumberPath<Double> longitude;
 
     // inherited
     public final QMember member;
@@ -95,7 +101,9 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.flexibleLocation = _super.flexibleLocation;
         this.hourlyRate = _super.hourlyRate;
         this.images = _super.images;
+        this.latitude = _super.latitude;
         this.likes = _super.likes;
+        this.longitude = _super.longitude;
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.postId = _super.postId;

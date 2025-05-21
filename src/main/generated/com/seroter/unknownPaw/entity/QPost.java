@@ -34,7 +34,11 @@ public class QPost extends EntityPathBase<Post> {
 
     public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
 
+    public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
+
     public final NumberPath<Integer> likes = createNumber("likes", Integer.class);
+
+    public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
 
     public final QMember member;
 
