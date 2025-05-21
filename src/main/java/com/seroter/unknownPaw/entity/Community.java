@@ -78,4 +78,9 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
+
+    // @Setter 쓰지 않기 위해 추가
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
 }

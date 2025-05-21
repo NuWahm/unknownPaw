@@ -133,7 +133,7 @@ public class PostService {
                 .title(dto.getTitle()) // 제목
                 .content(dto.getContent()) // 내용
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory())) // 서비스 카테고리
-                .desiredHourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
                 .likes(dto.getLikes()) // 좋아요 수
                 .chatCount(dto.getChatCount()) // 채팅 수
                 .defaultLocation(dto.getDefaultLocation()) // 기본 위치
@@ -147,7 +147,7 @@ public class PostService {
                 .title(dto.getTitle()) // 제목
                 .content(dto.getContent()) // 내용
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory())) // 서비스 카테고리
-                .desiredHourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
                 .likes(dto.getLikes()) // 좋아요 수
                 .chatCount(dto.getChatCount()) // 채팅 수
                 .defaultLocation(dto.getDefaultLocation()) // 기본 위치
@@ -162,7 +162,7 @@ public class PostService {
                 .title(entity.getTitle()) // 제목
                 .content(entity.getContent()) // 내용
                 .serviceCategory(entity.getServiceCategory().name()) // 서비스 카테고리
-                .hourlyRate(entity.getDesiredHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(entity.getHourlyRate()) // 원하는 시간당 요금
                 .likes(entity.getLikes()) // 좋아요 수
                 .chatCount(entity.getChatCount()) // 채팅 수
                 .defaultLocation(entity.getDefaultLocation()) // 기본 위치
@@ -211,7 +211,7 @@ public class PostService {
         entity.setTitle(dto.getTitle()); // 제목
         entity.setContent(dto.getContent()); // 내용
         entity.setServiceCategory(ServiceCategory.valueOf(dto.getServiceCategory())); // 서비스 카테고리
-        entity.setDesiredHourlyRate(dto.getHourlyRate()); // 원하는 시간당 요금
+        entity.setHourlyRate(dto.getHourlyRate()); // 원하는 시간당 요금
         entity.setDefaultLocation(dto.getDefaultLocation()); // 기본 위치
         entity.setFlexibleLocation(dto.getFlexibleLocation()); // 유연한 위치
     }
