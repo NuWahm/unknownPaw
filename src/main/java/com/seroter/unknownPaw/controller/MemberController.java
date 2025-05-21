@@ -86,7 +86,7 @@ public class MemberController {
 //  }
 
   // ----------- 개인 정보 수정  -----------
-  // ✅ 2-1. 수정할 개인정보 가져오기
+  // ✅ 2-1. 수정할 개인정보 가져오기 
   @GetMapping("/me")
   public ResponseEntity<?> getCurrentMemberInfo(HttpServletRequest request) {
     try {
@@ -145,7 +145,7 @@ public class MemberController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 정보 업데이트 중 오류 발생: " + e.getMessage());
     }
   }
-  // ✅ 2-3. 회원의 비밀번호를 수정
+  // ✅ 2-3. 회원의 비밀번호를 수정 - 유효성 검사 등 추가 사항 많아서 따로 뺌
   @PutMapping("/change-password") // 비밀번호 변경 전용 엔드포인트
   public ResponseEntity<?> changePassword(
       HttpServletRequest request,
