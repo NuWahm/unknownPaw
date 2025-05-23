@@ -37,7 +37,7 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() , pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
@@ -49,7 +49,7 @@ public class PostController {
       Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
       return ResponseEntity.ok(dtoPage);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
+      return  ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
     }
   }
 
@@ -126,27 +126,6 @@ public class PostController {
   public List<PostDTO> getRecentRandomPetSitterPosts() {
     return postService.getRandom6PetSitterPosts();
   }
-
-
-
-  @GetMapping("/{postType}/{mid}")
-  public ResponseEntity<?> getPostsByMember(
-      @PathVariable String postType,
-      @PathVariable Long mid
-  ) {
-
-    try {
-      PostType pType = PostType.from(postType);
-
-      List<PostDTO> posts = postService.getPostsByMember(pType, mid);
-      return ResponseEntity.ok(posts);
-
-    } catch (IllegalArgumentException e) {
-
-      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다: " + postType);
-    }
-  }
-
 
 }
 

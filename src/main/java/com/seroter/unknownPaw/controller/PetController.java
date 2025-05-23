@@ -1,6 +1,5 @@
 package com.seroter.unknownPaw.controller;
 
-
 import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.service.PetService;
 import lombok.RequiredArgsConstructor;
@@ -14,34 +13,36 @@ import org.springframework.web.bind.annotation.*;
 @Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/pet")
+@CrossOrigin(origins = "http://localhost:3000")
 public class PetController {
+
   private final PetService petService;
 
-  // 등록
-  @PostMapping(value = "/register")
-  public ResponseEntity<Long> register(@RequestBody PetDTO petDTO){
-    log.info("register.................");
+  // 펫 등록
+  @PostMapping("/register")
+  public ResponseEntity<Long> register(@RequestBody PetDTO petDTO) {
+    log.info("🐾 펫 등록 요청: {}", petDTO);
     return new ResponseEntity<>(petService.registerPet(petDTO), HttpStatus.OK);
   }
 
-  // 조회
+  // 펫 조회
   @GetMapping(value = "/get/{petId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PetDTO> read(@PathVariable("petId") Long petId) {
     return new ResponseEntity<>(petService.getPet(petId), HttpStatus.OK);
   }
-  // 수정
+
+  // 펫 수정
   @PutMapping("/update")
   public ResponseEntity<Long> update(@RequestBody PetDTO petDTO) {
-    log.info("update.................");
+    log.info("🛠️ 펫 수정 요청: {}", petDTO);
     return new ResponseEntity<>(petService.updatePet(petDTO), HttpStatus.OK);
   }
 
-  // 삭제
+  // 펫 삭제
   @DeleteMapping("/delete/{petId}")
   public ResponseEntity<Void> remove(@PathVariable("petId") Long petId) {
-    log.info("delete.................");
+    log.info("🗑️ 펫 삭제 요청 ID: {}", petId);
     petService.removePet(petId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
-
 }

@@ -45,10 +45,4 @@ public class Comment {
     public void onCreate() {
         this.createdAt = LocalDateTime.now();   // 댓글 생성 시 자동으로 현재 시간 설정
     }
-
-    // 댓글 내용을 수정하는 메서드
-    public void setContent(String content) {
-        this.content = content;
-    }
-
 }

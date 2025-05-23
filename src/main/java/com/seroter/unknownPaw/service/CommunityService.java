@@ -204,18 +204,7 @@ public class CommunityService {
     // ========== [댓글 ID로 댓글 조회] ==========
     public Comment getCommentById(Long commentId) {
         return commentRepository.findByCommentId(commentId);
-=======
-        commentRepository.delete(comment); // 삭제
-
     }
 
-
-    //  커뮤니티 최근 게시물 랜덤 6개 가져오기
-//    public List<CommunityResponseDTO> getRandom6Community() {
-//        return communityRepository.findRecent7DaysRandom6Community()
-//            .stream()
-//            .map(CommunityResponseDTO::fromEntity)
-//            .collect(Collectors.toList());
-//    }
-
 }
+

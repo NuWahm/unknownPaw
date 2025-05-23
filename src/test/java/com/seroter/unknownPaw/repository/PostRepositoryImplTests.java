@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;  // UUID 생성 관련 import 추가
@@ -47,6 +49,8 @@ public class PostRepositoryImplTests {
 
 
   @Test
+  @Transactional
+  @Commit      // or @Rollback(false)
   public void createPostWithOwnerAndSitter() {
     Random random = new Random();
 
@@ -75,13 +79,13 @@ public class PostRepositoryImplTests {
           .title("우리집 강아지 산책 도와주세요! #" + i)
           .content("강아지가 순하고 사람을 좋아해요. 편안한 산책을 좋아해요.")
           .serviceCategory(ServiceCategory.WALK)
-          .desiredHourlyRate(10000 + random.nextInt(5000))
+          .hourlyRate(10000 + random.nextInt(5000))
           .likes(random.nextInt(50))
           .chatCount(random.nextInt(10))
           .defaultLocation("부산시 부산진구")
           .flexibleLocation("부산시 기장군")
           .member(owner)
-          .postType(PostType.PET_OWNER) // role 추가
+          .postType(PostType.PET_OWNER)
           .build();
       petOwnerRepository.save(petOwner);
 
@@ -90,7 +94,7 @@ public class PostRepositoryImplTests {
           .title("강아지 산책 시켜드려요! #" + i)
           .content("2시간 동안 강아지와 산책할 수 있어요. 자전거로도 산책 가능!")
           .serviceCategory(ServiceCategory.WALK)
-          .desiredHourlyRate(10000 + random.nextInt(5000))
+          .hourlyRate(10000 + random.nextInt(5000))
           .likes(random.nextInt(30))
           .chatCount(random.nextInt(10))
           .defaultLocation("서울시 강남구")
@@ -142,7 +146,6 @@ public class PostRepositoryImplTests {
           .neutering(true)
           .petIntroduce("사람 좋아하고 순해요")
           .member(owner)
-          .petOwnerId(petOwner)  // 펫 오너와 연결
           .build();
       petRepository.save(pet);
 

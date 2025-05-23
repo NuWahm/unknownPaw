@@ -85,14 +85,13 @@ public class PostDTO implements Identifiable {
             .title(post.getTitle())
             .content(post.getContent())
             .serviceCategory(post.getServiceCategory().name())
-            .hourlyRate(post.getDesiredHourlyRate())
+            .hourlyRate(post.getHourlyRate())
             .likes(post.getLikes())
             .chatCount(post.getChatCount())
             .defaultLocation(post.getDefaultLocation())
             .flexibleLocation(post.getFlexibleLocation())
             .regDate(post.getRegDate())
             .modDate(post.getModDate())
-            .email(post.getMember().getEmail())
             .images(images)                     // ← 여기!
             .isPetSitterPost(post instanceof PetSitter);
 

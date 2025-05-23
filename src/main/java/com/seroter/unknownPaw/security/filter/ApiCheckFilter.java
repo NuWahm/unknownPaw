@@ -37,20 +37,29 @@ public class ApiCheckFilter extends OncePerRequestFilter {
                                   FilterChain filterChain)
           throws ServletException, IOException {
 
-    /** ① 보호 URL인지 확인 */
+    log.info("🔵 URI  : {}", request.getRequestURI());
+    log.info("🔵 Method: {}", request.getMethod());
+    log.info("🔵 AuthH : {}", request.getHeader("Authorization"));
+
+    // ① 보호 URL인지 확인
     boolean needCheck = false;
+    String requestPath = request.getRequestURI().replaceFirst(request.getContextPath(), "");
+    log.info("🔵 실제 검사할 URI (requestPath): {}", requestPath);
+
     for (String p : pattern) {
-      if (antPathMatcher.match(request.getContextPath() + p,
-              request.getRequestURI())) {
-        needCheck = true; break;
+      if (antPathMatcher.match(p, requestPath)) {
+        needCheck = true;
+        log.info("✅ 보호 URL에 해당: {}", p);
+        break;
       }
     }
-    if (!needCheck) {                     // 보호 URL 아님 → 그대로 진행
+
+    if (!needCheck) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    /** ② Authorization 헤더 파싱 */
+    // ② Authorization 헤더 파싱
     String header = request.getHeader("Authorization");
 
     log.info("❤Authorization header = {}", header);
@@ -62,27 +71,21 @@ public class ApiCheckFilter extends OncePerRequestFilter {
     try {
       String token = header.substring(7);
 
-      log.debug("Extracted Token: {}", token);  //💫
-      // sub(email)·role 추출
-      String email = jwtUtil.validateAndExtract(token);
-      String role  = jwtUtil.getClaims(token)
-              .get("role", String.class);
+      log.debug("Extracted Token: {}", token);
 
-      /** ③ SecurityContext에 Authentication 주입 */
-      var authList = List.of(
-              new SimpleGrantedAuthority("ROLE_" + role)
-      );
-      var authToken =
-              new UsernamePasswordAuthenticationToken(email, null, authList);
+      // ✅ sub(email)만 추출하고 권한은 생략
+      String email = jwtUtil.validateAndExtract(token);
+
+      // ✅ 권한 없이 인증만 등록 (빈 권한 리스트)
+      var authToken = new UsernamePasswordAuthenticationToken(email, null, List.of());
       SecurityContextHolder.getContext().setAuthentication(authToken);
 
-      log.info("❤Token validation successful for user: {} with role: {}", email, role); //💫 성공 시 로깅
+      log.info("✅ Token validated, user: {}", email);
 
       filterChain.doFilter(request, response);
 
     } catch (Exception ex) {
-      log.error("❤JWT Token validation failed: {}", ex.getMessage(), ex); // 💫 dPdi xkdlq
-      ex.printStackTrace();
+      log.error("❌ JWT Token validation failed: {}", ex.getMessage(), ex);
       deny(response);
     }
   }

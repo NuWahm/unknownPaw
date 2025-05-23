@@ -34,6 +34,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final BooleanPath gender = createBoolean("gender");
 
+    public final StringPath introduce = createString("introduce");
+
     public final NumberPath<Long> mid = createNumber("mid", Long.class);
 
     //inherited
@@ -46,6 +48,8 @@ public class QMember extends EntityPathBase<Member> {
     public final StringPath password = createString("password");
 
     public final NumberPath<Float> pawRate = createNumber("pawRate", Float.class);
+
+    public final SetPath<Pet, QPet> pets = this.<Pet, QPet>createSet("pets", Pet.class, QPet.class, PathInits.DIRECT2);
 
     public final StringPath phoneNumber = createString("phoneNumber");
 

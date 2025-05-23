@@ -1,6 +1,7 @@
 package com.seroter.unknownPaw.service;
 
 import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.entity.Enum.ImageType;
 import com.seroter.unknownPaw.repository.ImageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +37,12 @@ public class ImageService {
 
 
 
-  public String saveImage(MultipartFile file, String imageType, String targetType, Long targetId) throws Exception {
+  public String saveImage(MultipartFile file, ImageType imageType, String targetType, Long targetId) throws Exception {
 
     String originalName = file.getOriginalFilename();
     String uuid = UUID.randomUUID().toString();
     String saveName = uuid + "_" + originalName;
+    String folder = imageType.name().toLowerCase();
 
     File dir = new File(uploadPath + "/" + imageType);
     if (!dir.exists()) dir.mkdirs();
@@ -48,6 +50,7 @@ public class ImageService {
     File saveFile = new File(dir, saveName);
     file.transferTo(saveFile);
 
+    String fullPath = folder + "/" + saveName;
 
     // switch expression 구문
     // 자바 14+부터 지원하는 **switch expression**을 활용하여 가독성 매우 좋음
@@ -70,38 +73,46 @@ public class ImageService {
 
     Image image = switch (targetType) {
       case "member" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .member(Member.builder().mid(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(fullPath)
+              .imageType(imageType.ordinal()) // or use a method in the enum
+              .member(Member.builder().mid(targetId).build())
+              .build();
 
       case "pet" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .pet(Pet.builder().petId(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(fullPath)
+              .imageType(imageType.ordinal())
+              .pet(Pet.builder().petId(targetId).build())
+              .build();
 
       case "petOwner" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .petOwner(PetOwner.builder().postId(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(fullPath)
+              .imageType(imageType.ordinal())
+              .petOwner(PetOwner.builder().postId(targetId).build())
+              .build();
 
       case "petSitter" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .petSitter(PetSitter.builder().postId(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(fullPath)
+              .imageType(imageType.ordinal())
+              .petSitter(PetSitter.builder().postId(targetId).build())
+              .build();
 
-      default -> throw new IllegalArgumentException("잘못된 targetType 입니다.");
+      case "community" -> Image.builder()
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(fullPath)
+              .imageType(imageType.ordinal())
+              .community(Community.builder().communityId(targetId).build())
+              .build();
+
+      default -> throw new IllegalArgumentException("잘못된 targetType 입니다: " + targetType);
     };
 
     imageRepository.save(image);
@@ -112,7 +123,7 @@ public class ImageService {
   // ✅ 이미지 교체 (파일+DB)
   // @Transactional 실패하면 모든 변경사항을 롤백할 수 있어 데이터 일관성을 지켜줌
   @Transactional
-  public String replaceImage(MultipartFile newFile, String imageType, String oldFileName, String targetType, Long targetId) throws Exception {
+  public String replaceImage(MultipartFile newFile, ImageType imageType, String oldFileName, String targetType, Long targetId) throws Exception {
     // 1. 기존 파일 삭제
     File oldFile = new File(uploadPath + "/" + imageType, oldFileName);
     if (oldFile.exists()) oldFile.delete();

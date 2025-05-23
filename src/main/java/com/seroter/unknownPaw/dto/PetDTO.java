@@ -1,30 +1,41 @@
 package com.seroter.unknownPaw.dto;
 
+import com.seroter.unknownPaw.entity.Pet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-
-@Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetDTO {
-  private Long petId; // 펫 고유 번호(PK)
-  private String petName; // 펫 이름
-  private String breed; // 견종
-  private int petBirth; // 펫 출생 연도(예: 2025)
-  private boolean petGender; // 펫 성별
-  private double weight; // 무게
-  private String petMbti; // 펫 성격
-  private boolean neutering; // 중성화 여부
-  private String petIntroduce; // 펫 소개
 
+  private Long petId;
+  private String petName;
+  private String breed;
+  private int petBirth;
+  private boolean petGender;
+  private double weight;
+  private String petMbti;
+  private boolean neutering;
+  private String petIntroduce;
 
-  private LocalDateTime regDate;
-  private LocalDateTime modDate;
+  private Long mid; // 회원 ID (foreign key 역할)
+
+  // Pet 엔티티를 기반으로 DTO 변환
+  public PetDTO(Pet pet) {
+    this.petId = pet.getPetId();
+    this.petName = pet.getPetName();
+    this.breed = pet.getBreed();
+    this.petBirth = pet.getPetBirth();
+    this.petGender = pet.isPetGender();
+    this.weight = pet.getWeight();
+    this.petMbti = pet.getPetMbti();
+    this.neutering = pet.isNeutering();
+    this.petIntroduce = pet.getPetIntroduce();
+    this.mid = pet.getMember() != null ? pet.getMember().getMid() : null; // ← 이거 추가!!
+  }
+
 }

@@ -26,7 +26,8 @@ public class Image {
   public static final int TYPE_PROFILE = 1;
   public static final int TYPE_PET     = 2;
   public static final int TYPE_POST    = 3;
-  private int imageType; // 1-멤버, 2-펫, 3-포스트
+  public static final int TYPE_COMMUNITY    = 4;
+  private int imageType; // 1-멤버, 2-펫, 3-포스트, 4-커뮤니티
 
   // 회원정보 참조 (멤버)
   @ManyToOne(fetch = FetchType.LAZY)
@@ -51,4 +52,8 @@ public class Image {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "pet_sitter_id")
   private PetSitter petSitter;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "community_id")
+  private Community community;
 }
