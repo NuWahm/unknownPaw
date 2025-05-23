@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PetSitterRepository extends JpaRepository<PetSitter, Long> {
 
@@ -17,4 +18,7 @@ public interface PetSitterRepository extends JpaRepository<PetSitter, Long> {
     @Query(value = "SELECT * FROM pet_sitter WHERE reg_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY RAND() LIMIT 6", nativeQuery = true)
     List<PetSitter> findRecent7DaysRandom6Posts();
 
+    // 펫시터 최근 내가쓴글 조회
+    int countByMember_Mid(Long mid);
+    Optional<PetSitter> findTopByMember_MidOrderByRegDateDesc(Long mid);
 }

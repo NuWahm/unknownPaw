@@ -19,4 +19,10 @@ public interface PetOwnerRepository extends JpaRepository<PetOwner, Long> {
     @Query(value = "SELECT * FROM pet_owner WHERE reg_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY RAND() LIMIT 6", nativeQuery = true)
     List<PetOwner> findRecent7DaysRandom6Posts();
 
+
+    // 펫오너 최근 내가 쓴글 조회
+    int countByMember_Mid(Long mid);
+    Optional<PetOwner> findTopByMember_MidOrderByRegDateDesc(Long mid);
+
+
 }

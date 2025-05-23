@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Log4j2
@@ -36,16 +38,13 @@ public class PostService {
 
     // 게시글 등록 메서드
     public Long register(String postType, PostDTO dto, Long memberId) {
-        // 멤버 조회
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다.")); // 회원이 없으면 예외 발생
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        // DTO를 엔티티로 변환
-        Post entity = dtoToEntity(dto, postType);
-        entity.setMember(member); // 게시글에 멤버 연결
-
-        // 역할에 맞게 게시글 저장 후 ID 반환
-        return savePostbyPostType(postType, entity);
+        PostType type = PostType.from(postType); // 문자열 → Enum
+        Post entity = dtoToEntity(type, dto);    // Enum과 DTO 전달
+        entity.setMember(member);
+        return savePostbyPostType(type.getValue(), entity); // 문자열(postType)와 엔티티 저장
     }
 
     // 게시글 조회 메서드
@@ -94,22 +93,15 @@ public class PostService {
     }
 
 
-    // 특정 멤버의 게시글 조회 메서드
-    public List<PostDTO> getPostsByMember(PostType postType, Long memberId) {
-        switch (postType) {
-            case PET_OWNER:
-                return petOwnerRepository.findByMember_Mid(memberId)
-                    .stream()
-                    .map(post -> entityToDto(post, false))
-                    .toList();
-            case PET_SITTER:
-                return petSitterRepository.findByMember_Mid(memberId)
-                    .stream()
-                    .map(post -> entityToDto(post, true))
-                    .toList();
-            default:
-                throw new IllegalArgumentException("잘못된 PostType입니다.");
-        }
+    // 특정 멤버의 게시글 조회
+    public List<PostDTO> getPostsByMember(String postType, Long memberId) {
+        PostType type = PostType.from(postType);
+        return switch (type) {
+            case PET_OWNER -> petOwnerRepository.findByMember_Mid(memberId)
+                    .stream().map(post -> entityToDto(post, false)).toList();
+            case PET_SITTER -> petSitterRepository.findByMember_Mid(memberId)
+                    .stream().map(post -> entityToDto(post, true)).toList();
+        };
     }
 
     // 특정 위치에 맞는 펫시터 게시글 조회 메서드
@@ -122,9 +114,16 @@ public class PostService {
     }
 
     // DTO를 엔티티로 변환하는 메서드
-    private Post dtoToEntity(PostDTO dto, String postType) {
-        // 역할에 맞는 엔티티 생성
-        return "petOwner".equals(postType) ? createPetOwnerEntity(dto) : createPetSitterEntity(dto);
+    private Post dtoToEntity(PostType type, PostDTO dto) {
+        try {
+            ServiceCategory.valueOf(dto.getServiceCategory());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("잘못된 서비스 카테고리");
+        }
+        return switch (type) {
+            case PET_OWNER -> createPetOwnerEntity(dto);
+            case PET_SITTER -> createPetSitterEntity(dto);
+        };
     }
 
     // 펫오너 게시글 엔티티 생성
@@ -133,13 +132,18 @@ public class PostService {
                 .title(dto.getTitle()) // 제목
                 .content(dto.getContent()) // 내용
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory())) // 서비스 카테고리
-                .desiredHourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
                 .likes(dto.getLikes()) // 좋아요 수
                 .chatCount(dto.getChatCount()) // 채팅 수
                 .defaultLocation(dto.getDefaultLocation()) // 기본 위치
                 .flexibleLocation(dto.getFlexibleLocation()) // 유연한 위치
+                .latitude(dto.getLatitude())
+                .longitude(dto.getLongitude())
+                .member(null)
+                .postType(PostType.PET_OWNER)
                 .build();
     }
+
 
     // 펫시터 게시글 엔티티 생성
     private Post createPetSitterEntity(PostDTO dto) {
@@ -147,7 +151,7 @@ public class PostService {
                 .title(dto.getTitle()) // 제목
                 .content(dto.getContent()) // 내용
                 .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory())) // 서비스 카테고리
-                .desiredHourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(dto.getHourlyRate()) // 원하는 시간당 요금
                 .likes(dto.getLikes()) // 좋아요 수
                 .chatCount(dto.getChatCount()) // 채팅 수
                 .defaultLocation(dto.getDefaultLocation()) // 기본 위치
@@ -162,11 +166,13 @@ public class PostService {
                 .title(entity.getTitle()) // 제목
                 .content(entity.getContent()) // 내용
                 .serviceCategory(entity.getServiceCategory().name()) // 서비스 카테고리
-                .hourlyRate(entity.getDesiredHourlyRate()) // 원하는 시간당 요금
+                .hourlyRate(entity.getHourlyRate()) // 원하는 시간당 요금
                 .likes(entity.getLikes()) // 좋아요 수
                 .chatCount(entity.getChatCount()) // 채팅 수
                 .defaultLocation(entity.getDefaultLocation()) // 기본 위치
                 .flexibleLocation(entity.getFlexibleLocation()) // 유연한 위치
+                .latitude(entity.getLatitude())
+                .longitude(entity.getLongitude())
                 .regDate(entity.getRegDate()) // 등록일
                 .modDate(entity.getModDate()) // 수정일
                 // email 필드는 필요하면 남겨두거나 제거
@@ -211,9 +217,11 @@ public class PostService {
         entity.setTitle(dto.getTitle()); // 제목
         entity.setContent(dto.getContent()); // 내용
         entity.setServiceCategory(ServiceCategory.valueOf(dto.getServiceCategory())); // 서비스 카테고리
-        entity.setDesiredHourlyRate(dto.getHourlyRate()); // 원하는 시간당 요금
+        entity.setHourlyRate(dto.getHourlyRate()); // 원하는 시간당 요금
         entity.setDefaultLocation(dto.getDefaultLocation()); // 기본 위치
         entity.setFlexibleLocation(dto.getFlexibleLocation()); // 유연한 위치
+        entity.setLatitude(dto.getLatitude());
+        entity.setLongitude(dto.getLongitude());
     }
 
     // 역할에 맞는 게시글을 조회하는 메서드
@@ -268,22 +276,7 @@ public class PostService {
 
 
 
-    // 최근 7일 이내 펫오너 게시물 랜덤 6개 가져오기
-    public List<PostDTO> getRandom6PetOwnerPosts() {
-        return petOwnerRepository.findRecent7DaysRandom6Posts()
-            .stream()
-            .map(post -> entityToDto(post, false))  // false = 오너
-            .toList();
-    }
 
-    // 최근 7일 이내 펫시터 게시물 랜덤 6개 가져오기
-    public List<PostDTO> getRandom6PetSitterPosts() {
-        return petSitterRepository.findRecent7DaysRandom6Posts()
-            .stream()
-            .map(post -> entityToDto(post, true))  // true = 시터
-            .toList();
-
-    }
 
 
     // 🖱️ 무한 스크롤
@@ -291,5 +284,71 @@ public class PostService {
 //        List<Post> posts = postRepository.findNextPosts(request.getLastPostId(), request.getSize());
 //        return new CursorResultDTO<>(posts, request.getSize(), PostDTO::fromEntity);
 //    }
+
+    // 펫오너,펫시터 좋아요 등록
+    @org.springframework.transaction.annotation.Transactional
+    public void likePost(Long memberId, Long postId, PostType postType) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        switch (postType) {
+            case PET_OWNER -> {
+                PetOwner post = petOwnerRepository.findById(postId).orElseThrow();
+                member.getLikedPetOwner().add(post);
+                post.setLikes(post.getLikes() + 1);
+            }
+            case PET_SITTER -> {
+                PetSitter post = petSitterRepository.findById(postId).orElseThrow();
+                member.getLikedPetSitter().add(post);
+                post.setLikes(post.getLikes() + 1);
+            }
+            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
+        }
+
+        memberRepository.save(member);
+    }
+
+
+    // 펫오너, 시터 좋아요 취소
+    @org.springframework.transaction.annotation.Transactional
+    public void unlikePost(Long memberId, Long postId, PostType postType) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        switch (postType) {
+            case PET_OWNER -> {
+                PetOwner post = petOwnerRepository.findById(postId).orElseThrow();
+                member.getLikedPetOwner().remove(post);
+                post.setLikes(post.getLikes() - 1);
+            }
+            case PET_SITTER -> {
+                PetSitter post = petSitterRepository.findById(postId).orElseThrow();
+                member.getLikedPetSitter().remove(post);
+                post.setLikes(post.getLikes() - 1);
+            }
+            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
+        }
+
+        memberRepository.save(member);
+    }
+
+    // 펫 오너 시터 좋아요 한 글 목록 조회
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Set<? extends Post> getLikedPosts(Long memberId, PostType postType) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+
+        return switch (postType) {
+            case PET_OWNER -> member.getLikedPetOwner();
+            case PET_SITTER -> member.getLikedPetSitter();
+            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
+        };
+    }
+
+    // entityToDto 가 private 선언이 되어있어 접근하기 위한 메서드 컨트롤러에서 좋아요 누른글 조회
+    public Set<PostDTO> getLikedPostDTOs(Long memberId, PostType postType) {
+        Set<? extends Post> likedPosts = getLikedPosts(memberId, postType);
+
+        return likedPosts.stream()
+                .map(post -> entityToDto(post, postType == PostType.PET_SITTER))
+                .collect(Collectors.toSet());
+    }
 
 }

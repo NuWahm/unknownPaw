@@ -8,8 +8,6 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
-import com.seroter.unknownPaw.entity.Enum.PostType;
-import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 
 
 /**
@@ -36,15 +34,21 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     public final StringPath defaultLocation;
 
     //inherited
-    public final NumberPath<Integer> desiredHourlyRate;
+    public final StringPath flexibleLocation;
 
     //inherited
-    public final StringPath flexibleLocation;
+    public final NumberPath<Integer> hourlyRate;
 
     public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
 
     //inherited
+    public final NumberPath<Double> latitude;
+
+    //inherited
     public final NumberPath<Integer> likes;
+
+    //inherited
+    public final NumberPath<Double> longitude;
 
     // inherited
     public final QMember member;
@@ -56,9 +60,7 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     public final NumberPath<Long> postId;
 
     //inherited
-
     public final EnumPath<com.seroter.unknownPaw.entity.Enum.PostType> postType;
-
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
@@ -91,9 +93,11 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.chatCount = _super.chatCount;
         this.content = _super.content;
         this.defaultLocation = _super.defaultLocation;
-        this.desiredHourlyRate = _super.desiredHourlyRate;
         this.flexibleLocation = _super.flexibleLocation;
+        this.hourlyRate = _super.hourlyRate;
+        this.latitude = _super.latitude;
         this.likes = _super.likes;
+        this.longitude = _super.longitude;
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.postId = _super.postId;

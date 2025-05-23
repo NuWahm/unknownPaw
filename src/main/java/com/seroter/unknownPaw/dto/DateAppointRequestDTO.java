@@ -17,6 +17,9 @@ public class DateAppointRequestDTO {
   private String chat;
   private String defaultLocation;
   private String flexibleLocation;
+  private Double latitude;            // 위도
+  private Double longitude;           // 경도
+
 
   @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime confirmationDate;

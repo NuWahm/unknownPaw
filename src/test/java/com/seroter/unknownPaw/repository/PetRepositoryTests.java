@@ -81,8 +81,6 @@ class PetRepositoryTests {
                     .neutering(random.nextBoolean())
                     .petIntroduce("Pet Introduction")
                     .member(member)
-                    .petOwnerId(petOwner)  // Owner가 있을 때는 PetOwner 지정
-                    .petSitterId(petSitter)  // Sitter가 있을 때는 PetSitter 지정
                     .build();
 
             // 4. 이미지 생성

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() , pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
@@ -138,7 +139,7 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
 
-      List<PostDTO> posts = postService.getPostsByMember(pType, mid);
+      List<PostDTO> posts = postService.getPostsByMember(String.valueOf(pType), mid);
       return ResponseEntity.ok(posts);
 
     } catch (IllegalArgumentException e) {
@@ -146,7 +147,31 @@ public class PostController {
       return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다: " + postType);
     }
   }
+    // ❤️ 좋아요 등록
+    @PostMapping("/likes/{postType}/{postId}")
+    public ResponseEntity<String> likePost(@PathVariable PostType postType,
+                                           @PathVariable Long postId,
+                                           @RequestParam Long memberId) {
+        postService.likePost(memberId, postId, postType);
+        return ResponseEntity.ok("좋아요 완료");
+    }
 
+    // 💔 좋아요 취소
+    @DeleteMapping("/likes/{postType}/{postId}")
+    public ResponseEntity<String> unlikePost(@PathVariable PostType postType,
+                                             @PathVariable Long postId,
+                                             @RequestParam Long memberId) {
+        postService.unlikePost(memberId, postId, postType);
+        return ResponseEntity.ok("좋아요 취소 완료");
+    }
+
+    // 🧾 좋아요 누른 게시글 목록 조회
+    @GetMapping("/likes/{postType}")
+    public ResponseEntity<Set<PostDTO>> getLikedPosts(@PathVariable PostType postType,
+                                                      @RequestParam Long memberId) {
+        Set<PostDTO> dtoSet = postService.getLikedPostDTOs(memberId, postType);
+        return ResponseEntity.ok(dtoSet);
+    }
 
 }
 

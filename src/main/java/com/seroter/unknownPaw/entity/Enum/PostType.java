@@ -1,5 +1,7 @@
 package com.seroter.unknownPaw.entity.Enum;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum PostType {
     PET_OWNER,
     PET_SITTER;
@@ -9,6 +11,7 @@ public enum PostType {
      * - 소문자, 공백, 특수문자 제거
      * - 디버깅 로그 포함
      */
+    @JsonValue
     public static PostType from(String roleString) {
         if (roleString == null) {
             System.out.println("❌ PostType.from(): null 값");
@@ -40,6 +43,7 @@ public enum PostType {
      * Enum 값을 문자열로 변환하는 메서드
      * 예: PET_OWNER → "petowner"
      */
+    @JsonValue
     public String getValue() {
         return this.name().toLowerCase().replace("_", "");
     }

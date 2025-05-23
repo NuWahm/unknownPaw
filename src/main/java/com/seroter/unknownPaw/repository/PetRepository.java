@@ -40,12 +40,20 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
   @Query("SELECT p, m FROM Pet p LEFT JOIN p.member m WHERE p.petId = :petId")
   Object[] getPetWithMember(@Param("petId") Long petId);
 
-  // 📌 [8] 펫 + 이미지 ID 조회 - 회원(mid)의 펫 ID + 이름 + 이미지 ID 조회
-  @Query("""
-              SELECT p.petId, p.petName, i.imgId
-              FROM Pet p
-              LEFT JOIN Image i ON i.pet = p AND i.imageType = 2
-              WHERE p.member.mid = :mid
-          """)
-  List<Object[]> getPetAndImageByMemberId(@Param("mid") Long mid);
+    // 📌 [8] 펫 + 이미지 ID 조회 - 회원(mid)의 펫 ID + 이름 + 이미지 ID 조회
+    @Query("""
+                SELECT p.petId, p.petName, i.imgId
+                FROM Pet p
+                LEFT JOIN Image i ON i.pet = p AND i.imageType = 2
+                WHERE p.member.mid = :mid
+            """)
+    List<Object[]> getPetAndImageByMemberId(@Param("mid") Long mid);
+
+    // ✨ 9 특정 회원 페이징이 없는 전체 펫 목록 조회 메서드
+    @Query("SELECT DISTINCT p FROM Pet p WHERE p.member.mid = :mid")
+    List<Pet> findAllByMemberId(@Param("mid") Long mid);
+
+  @Query("SELECT p FROM Pet p WHERE p.member.mid = :mid")
+  List<Pet> findPetsByMemberId(@Param("mid") Long mid);
+
 }

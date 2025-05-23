@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,7 +24,7 @@ public class Comment {
     private Long commentId;  // 댓글 ID (필드명 수정)
 
     // 댓글 내용을 수정하는 메서드
-    @Setter
+
     @Column(columnDefinition = "TEXT")
     private String content;  // 댓글 내용
 
@@ -45,10 +46,4 @@ public class Comment {
     public void onCreate() {
         this.createdAt = LocalDateTime.now();   // 댓글 생성 시 자동으로 현재 시간 설정
     }
-
-    // 댓글 내용을 수정하는 메서드
-    public void setContent(String content) {
-        this.content = content;
-    }
-
 }
