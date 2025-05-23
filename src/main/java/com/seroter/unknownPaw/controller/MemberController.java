@@ -295,4 +295,33 @@ public class MemberController {
     return ResponseEntity.ok(response);
   }
 
+  // 12-1. 회원 가입 시, 이메일 중복
+  @GetMapping("/check-email")
+  public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam String email) {
+    boolean isDuplicate = memberService.checkEmailDuplication(email);
+    Map<String, Boolean> response = new HashMap<>();
+    response.put("isDuplicate", isDuplicate);
+    return ResponseEntity.ok(response);
+  }
+
+
+  // 12-2. 회원 가입 시, 전화번호 중복
+  @GetMapping("/check-phone")
+  public ResponseEntity<Map<String, Boolean>> checkPhoneNumberExistence(@RequestParam String phoneNumber) {
+    // You can combine the logic here if needed
+    boolean exists = memberService.isPhoneNumberExists(phoneNumber); // Or memberService.checkPhoneNumberDuplication(phoneNumber)
+
+    // If you need the logic about excluding the current user's phone number,
+    // implement it here or within your service layer.
+    // Example:
+//     String currentUsersPhoneNumber = getCurrentUsersPhoneNumber(); // Implement this
+//     if (exists && phoneNumber.equals(currentUsersPhoneNumber)) {
+//         exists = false; // Treat as not duplicated for the current user
+//     }
+
+    return ResponseEntity.ok(Map.of("exists", exists));
+  }
+
+
+
 }

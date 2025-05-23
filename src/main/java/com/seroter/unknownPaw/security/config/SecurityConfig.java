@@ -80,7 +80,8 @@ public class SecurityConfig {
         .formLogin(form -> form.disable())
         .httpBasic(basic -> basic.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/member/login", "/api/member/register", "/api/member/check-nickname").permitAll()
+            .requestMatchers("/api/member/login", "/api/member/register").permitAll()
+            .requestMatchers("/api/member/check-email", "/api/member/check-phone", "/api/member/check-nickname").permitAll()
             .requestMatchers("/api/member/mypage", "/api/member/**", "/api/pet/later").authenticated()
             .anyRequest().permitAll())
         .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)

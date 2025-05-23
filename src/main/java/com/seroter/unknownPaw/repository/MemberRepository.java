@@ -82,5 +82,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [10] 닉네임 고유성 검사
   Optional<Member> findByNickname(String nickname);
-
+  // 📌 [11] 휴대폰 번호로 회원을 찾는 메서드 (중복 확인용)
+//  Optional<Member> findByPhoneNumber(String phoneNumber);
+  // 중복 여부를 boolean으로 직접 반환하는 메서드 (조금 더 명시적)
+  boolean existsByEmail(String email);
+  boolean existsByPhoneNumber(String phoneNumber);
 }
