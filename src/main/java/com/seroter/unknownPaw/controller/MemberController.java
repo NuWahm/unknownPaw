@@ -277,4 +277,22 @@ public class MemberController {
     return ResponseEntity.ok("회원 탈퇴가 성공적으로 처리되었습니다.");
   }
 
+  // 12. 회원 가입 시 닉네임 중복 확인
+  @GetMapping("/check-nickname")
+  public ResponseEntity<Map<String, Boolean>> checkNickname(@RequestParam String nickname) {
+    log.info("Checking nickname duplication for: {}", nickname);
+
+    // memberService에 닉네임 존재 여부를 확인하는 새로운 메서드 추가 필요
+    // 현재 register 메서드에 있는 로직을 활용할 수 있습니다.
+    boolean isDuplicated = memberService.isNicknameDuplicated(nickname);
+
+    Map<String, Boolean> response = new HashMap<>();
+    response.put("isAvailable", !isDuplicated); // isDuplicated가 true면 isAvailable은 false
+
+    // 중복이면 409 Conflict, 아니면 200 OK를 반환할 수 있습니다.
+    // 여기서는 isAvailable이라는 필드로 상태를 명확히 전달합니다.
+    // 프론트엔드는 이 "isAvailable" 값을 기준으로 판단합니다.
+    return ResponseEntity.ok(response);
+  }
+
 }

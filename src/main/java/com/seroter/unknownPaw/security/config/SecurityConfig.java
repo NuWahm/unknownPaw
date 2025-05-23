@@ -70,7 +70,7 @@ public class SecurityConfig {
             "/api/member/change-password",
             "/api/member/withdraw",
             "/api/pet/register/later",
-            "/api/pet/{petId}"
+            "/api/pet/{petId}",
         }, jwtUtil);
 
 
@@ -80,7 +80,7 @@ public class SecurityConfig {
         .formLogin(form -> form.disable())
         .httpBasic(basic -> basic.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/member/login", "/api/member/register").permitAll()
+            .requestMatchers("/api/member/login", "/api/member/register", "/api/member/check-nickname").permitAll()
             .requestMatchers("/api/member/mypage", "/api/member/**", "/api/pet/later").authenticated()
             .anyRequest().permitAll())
         .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)

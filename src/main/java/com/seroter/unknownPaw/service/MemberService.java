@@ -308,4 +308,14 @@ public class MemberService {
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)); // 회원을 찾을 수 없을 때 예외 발생
   }
 
+  @Transactional(readOnly = true) // 데이터 변경이 없으므로 읽기 전용 트랜잭션
+  public boolean isNicknameDuplicated(String nickname) {
+    // 닉네임이 공백이거나 너무 짧은 경우 등 기본 유효성 검사를 여기서 할 수도 있습니다.
+    if (nickname == null || nickname.trim().isEmpty()) {
+      // 예를 들어 IllegalArgumentException을 던지거나 false를 반환하여 유효하지 않음을 알림
+      // 현재 프론트엔드에서 '닉네임을 입력해주세요' 메시지를 띄우므로 여기서는 간단히 처리
+      return true; // 유효하지 않은 닉네임도 중복으로 간주하여 사용 불가하게 함
+    }
+    return memberRepository.findByNickname(nickname.trim()).isPresent();
+  }
 }
