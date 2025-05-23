@@ -1,21 +1,18 @@
 package com.seroter.unknownPaw.controller;
 
-import com.seroter.unknownPaw.dto.LoginRequestDTO;
-import com.seroter.unknownPaw.dto.MemberRequestDTO;
-import com.seroter.unknownPaw.dto.MemberResponseDTO;
-import com.seroter.unknownPaw.dto.PetDTO;
+import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/member")
@@ -60,28 +57,111 @@ public class MemberController {
         response.put("error", "존재하지 않거나 비밀번호가 일치하지 않는 계정입니다.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-    // ✅ 2. 회원 기본 정보 조회 (mid)
-    @GetMapping("/id/{mid}")
-    public ResponseEntity<MemberResponseDTO> getMember(@PathVariable Long mid) {
-        return ResponseEntity.ok(memberService.getMember(mid));
+    // ✅ 2-2. 회원 정보 업데이트
+    @PutMapping("/update") // PUT 메서드 매핑
+    public ResponseEntity<?> updateMemberInfo(
+            HttpServletRequest request,
+            @RequestBody MemberUpdateRequestDTO updateRequestDTO // 요청 본문으로 업데이트할 정보 받기
+    ) {
+        try {
+            // 1. Authorization 헤더에서 토큰 추출 및 검증 (GET /me와 동일)
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+            }
+            String token = authHeader.substring(7);
+            String email = jwtUtil.getEmail(token); // JWT에서 이메일 추출
+
+            // 2. 이메일로 사용자 찾기 (GET /me와 동일)
+            Member member = memberService.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
+
+            // 3. MemberService를 통해 사용자 정보 업데이트 로직 수행
+            memberService.updateMember(member, updateRequestDTO);
+
+            // 4. 업데이트된 사용자 정보 반환 또는 성공 응답
+            Member updatedMember = memberService.findByEmail(email) // 업데이트 후 다시 조회 (또는 updateMember 메서드에서 반환)
+                    .orElseThrow(() -> new RuntimeException("업데이트된 사용자를 찾을 수 없습니다.")); // 예상치 못한 오류
+
+            return ResponseEntity.ok(new MemberResponseDTO(updatedMember)); // 업데이트된 정보 반환
+
+        } catch (UsernameNotFoundException e) {
+            // 사용자를 찾을 수 없는 경우
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            // 토큰 오류, 업데이트 중 오류 등 실제 구현에서는 더 구체적인 예외 처리가 필요합니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 정보 업데이트 중 오류 발생: " + e.getMessage());
+        }
     }
 
+    // ✅ 2-3. 회원의 비밀번호를 수정 - 유효성 검사 등 추가 사항 많아서 따로 뺌
+    @PutMapping("/change-password") // 비밀번호 변경 전용 엔드포인트
+    public ResponseEntity<?> changePassword(
+            HttpServletRequest request,
+            @RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO) {
+
+        log.info("change password.................");
+
+        try {
+            // 1. Authorization 헤더에서 토큰 추출 및 검증 (다른 엔드포인트와 동일)
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+            }
+            String token = authHeader.substring(7); // "Bearer " 제거
+            String email = jwtUtil.getEmail(token); // JWT에서 이메일 추출
+
+            Member member = memberService.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+            // 3. MemberService를 통해 비밀번호 변경 로직 수행
+            memberService.changePassword(member, passwordChangeRequestDTO);
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다."); // 200 OK
+
+        } catch (UsernameNotFoundException e) {
+            log.error("비밀번호 변경 - 사용자 없음: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
+        } catch (IllegalArgumentException e) {
+            // MemberService에서 발생시킨 예외 (예: 현재 비밀번호 불일치, 새 비밀번호 유효성 오류)
+            log.error("비밀번호 변경 - 유효성 오류: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 400 Bad Request
+        } catch (Exception e) {
+            // 예상치 못한 오류
+            log.error("비밀번호 변경 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    // ----------- 타인의 프로필 열람  -----------
     // ✅ 3. 회원 요약 정보 (프로필 등) 조회
     @GetMapping("/profile/simple/{mid}")
-    public ResponseEntity<MemberResponseDTO> getSimpleProfileInfo(@PathVariable Long mid) {
-        log.info("회원 요약 정보 요청: mid = {}", mid); // 로깅 추가
+    public ResponseEntity<MemberResponseDTO> getSimpleProfile(@PathVariable Long mid) {
+        System.out.println("요청 simple!! ");
+        return ResponseEntity.ok(memberService.getSimpleProfileInfo(mid));
+    }
+
+    // ✅ 3-1. 특정 회원의 펫 목록 조회
+    @GetMapping("/{mid}/pets") // ✨ 새로운 엔드포인트: /api/member/{mid}/pets
+    public ResponseEntity<List<PetDTO>> getMemberPets(@PathVariable Long mid) {
         try {
-            MemberResponseDTO profile = memberService.getSimpleProfileInfo(mid);
-            return ResponseEntity.ok(profile);
-        } catch (IllegalArgumentException e) {
-            log.warn("회원 정보를 찾을 수 없습니다. mid = {}", mid);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 응답
+            List<PetDTO> pets = memberService.getMemberPets(mid);
+            return ResponseEntity.ok(pets); // 펫이 없으면 빈 리스트 [] 반환
         } catch (Exception e) {
-            log.error("회원 요약 정보 조회 중 오류 발생: mid = {}", mid, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
+    // ✅ 3-2 특정 회원이 작성한 게시글 목록 조회
+    @GetMapping("/{mid}/posts") // ✨ 새로운 엔드포인트: /api/member/{mid}/posts
+    public ResponseEntity<List<PostDTO>> getMemberPosts(@PathVariable Long mid) {
+        log.info("getMemberPosts for mid: " + mid);
+        try {
+            List<PostDTO> posts = memberService.getMemberPosts(mid);
+            return ResponseEntity.ok(posts); // 작성한 글이 없으면 빈 리스트 [] 반환
+        } catch (Exception e) {
+            log.error("회원 게시글 정보 조회 중 오류 발생: " + mid, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
     // ✅ 4. 이메일로 회원 조회 (테스트용)
     @GetMapping("/email")
     public ResponseEntity<Member> findByEmail(@RequestParam String email) {
@@ -108,8 +188,7 @@ public class MemberController {
     // ✅ 7. 마이페이지 활동 통계
     @GetMapping("/stats/{mid}")
     public ResponseEntity<Object[]> getMyActivityStats(@PathVariable Long mid) {
-        Object[] result = memberService.getMyActivityStats(mid);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(memberService.getMyActivityStats(mid));
     }
 
     // ✅ 8. 평점 조회
@@ -129,35 +208,4 @@ public class MemberController {
     public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getDashboardData(mid));
     }
-    // ✅ 11. 회원의 펫 목록 조회
-    @GetMapping(value = "/member/{mid}/pets", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<PetDTO>> readAllByMember(@PathVariable("mid") Long mid) {
-        List<PetDTO> petList = petService.getPetsByOwnerId(mid)
-                .stream()
-                .map(pet -> new PetDTO(
-                        pet.getPetId(),
-                        pet.getPetName(),
-                        pet.getBreed(),
-                        pet.getPetBirth(),
-                        pet.isPetGender(),
-                        pet.getWeight(),
-                        pet.getPetMbti(),
-                        pet.isNeutering(),
-                        pet.getPetIntroduce(),
-                        pet.getMember() != null ? pet.getMember().getMid() : null // 🔥 이거 꼭 넣어야 생성자 일치!
-                ))
-                .collect(Collectors.toList()); // ← 이제 제대로 작동합니다!
-        return ResponseEntity.ok(petList);
-    }
-
-    // ✅ 12. 심플 프로필용
-    @GetMapping("/profile/simple/me")
-    public ResponseEntity<MemberResponseDTO> getMySimpleProfile(Authentication auth) {
-        String email = auth.getName(); // JWT "sub"에서 꺼낸 이메일
-        MemberResponseDTO response = memberService.getMySimpleProfileWithPets(email);
-        return ResponseEntity.ok(response);
-    }
-
-}
-
 }

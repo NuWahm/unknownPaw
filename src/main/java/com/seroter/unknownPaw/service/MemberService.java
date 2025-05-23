@@ -1,9 +1,6 @@
 package com.seroter.unknownPaw.service;
 
-import com.seroter.unknownPaw.dto.MemberRequestDTO;
-import com.seroter.unknownPaw.dto.MemberResponseDTO;
-import com.seroter.unknownPaw.dto.PetDTO;
-import com.seroter.unknownPaw.dto.PostDTO;
+import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetOwnerRepository;
@@ -73,18 +70,21 @@ public class MemberService {
                 .build();
     }
 
-    public MemberResponseDTO getSimpleProfileInfo(Long mid) {
+    public MemberResponseDTO.Simple getSimpleProfileInfo(Long mid) {
         Object[] result = memberRepository.findSimpleProfileInfo(mid)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
-        return MemberResponseDTO.builder()
-                .mid((Long) result[0])
-                .nickname((String) result[1])
-                .pawRate((Float) result[2])
-                .profileImagePath((String) result[3])
-                .build();
-    }
 
-    private Member findMemberById(Long mid) {
+        return new MemberResponseDTO.Simple(
+                (Long) result[0],                                 // m.mid
+                (String) result[1],                               // m.nickname
+                result[2] != null ? ((Number) result[2]).floatValue() : 0f, // m.pawRate
+                (String) result[3]    );                            // i.path
+
+
+
+}
+
+        private Member findMemberById(Long mid) {
         return memberRepository.findByMid(mid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
     }
@@ -105,6 +105,11 @@ public class MemberService {
     public Member getMemberWithPetSitters(Long mid) {
         return memberRepository.findMemberWithPetSitters(mid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+    }
+    // ✅ 회원 기본 정보 조회 (mid)
+    public MemberResponseDTO getMember(Long mid) {
+        Member member = findMemberById(mid);
+        return buildMemberResponseDTO(member);
     }
 
     public List<Object[]> getDashboardData(Long mid) {
@@ -199,5 +204,19 @@ public class MemberService {
                 .collect(Collectors.toUnmodifiableList());
 
         return postDTOs;
+    }
+    // ✅ 로그인 인증 처리
+    public Optional<Member> authenticate(LoginRequestDTO dto) {
+        Optional<Member> memberOpt = memberRepository.findByEmail(dto.getEmail());
+        if (memberOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Member member = memberOpt.get();
+        if (passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
+            return Optional.of(member);
+        }
+
+        return Optional.empty();
     }
 }

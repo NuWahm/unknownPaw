@@ -41,4 +41,18 @@ public class Pet extends BaseEntity {
     this.imgId = image;
   }
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  private PetOwner petOwnerId; // 펫 오너
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private PetSitter petSitterId; // 펫 시터
+
+  public void setOwnerOrSitter() {
+    if (this.petOwnerId != null) {
+      this.petSitterId = null;  // 오너가 있으면 시터는 null
+    } else if (this.petSitterId != null) {
+      this.petOwnerId = null;  // 시터가 있으면 오너는 null
+    }
+  }
+
 }

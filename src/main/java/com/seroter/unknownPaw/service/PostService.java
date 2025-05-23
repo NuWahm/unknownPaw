@@ -38,15 +38,13 @@ public class PostService {
 
     // 게시글 등록 메서드
     public Long register(String postType, PostDTO dto, Long memberId) {
-        // 멤버 조회
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다.")); // 회원이 없으면 예외 발생
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        // DTO를 엔티티로 변환
-        PostType type = PostType.from(postType);
-        Post entity = dtoToEntity(dto, String.valueOf(type));
-        entity.setMember(member); // 게시글에 멤버 연결
-        return savePostbyPostType(postType, entity);
+        PostType type = PostType.from(postType); // 문자열 → Enum
+        Post entity = dtoToEntity(type, dto);    // Enum과 DTO 전달
+        entity.setMember(member);
+        return savePostbyPostType(type.getValue(), entity); // 문자열(postType)와 엔티티 저장
     }
 
     // 게시글 조회 메서드

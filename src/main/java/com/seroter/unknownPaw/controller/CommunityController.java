@@ -25,7 +25,7 @@ public class CommunityController {
     private final CommunityService communityService;
     private final ImageService imageService;
 
-    @PostMapping(value = "/posts-with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> createCommunityPostWithImage(
             @RequestParam Long memberId,
             @RequestPart("community") CommunityRequestDTO communityDTO, // "community"
@@ -114,35 +114,9 @@ public class CommunityController {
     }
 
 
-    // ❤️ 좋아요 등록
-    @PostMapping("/{communityId}/like")
-    public ResponseEntity<String> likePost(@RequestParam Long memberId, @PathVariable Long communityId) {
-        communityService.likeCommunityPost(memberId, communityId);
-        return ResponseEntity.ok("좋아요 완료");
-    }
-
-    // 💔 좋아요 취소
-    @DeleteMapping("/{communityId}/like")
-    public ResponseEntity<String> unlikePost(@RequestParam Long memberId, @PathVariable Long communityId) {
-        communityService.unlikeCommunityPost(memberId, communityId);
-        return ResponseEntity.ok("좋아요 취소 완료");
-    }
-
-    // 🧾 좋아요 누른 게시글 목록 조회
-    @GetMapping("/likes")
-    public ResponseEntity<List<CommunityResponseDTO>> getLikedPosts(@RequestParam Long memberId) {
-        List<CommunityResponseDTO> likedPosts = communityService.getLikedCommunityPosts(memberId);
-        return ResponseEntity.ok(likedPosts);
-    }
 
 
 
-
-//    // 커뮤니티 최근 랜덤게시물 들고오기
-//    @GetMapping("/community/recent/random6")
-//    public List<CommunityResponseDTO> getRecentRandomPetCommunity() {
-//        return communityService.getRandom6Community();
-//    }
 }
 
 

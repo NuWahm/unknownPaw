@@ -80,8 +80,6 @@ public class PostRepositoryImplTests {
                   .chatCount(random.nextInt(10))
                   .defaultLocation("부산시 부산진구")
                   .flexibleLocation("부산시 기장군")
-                  .latitude(35.123456)
-                  .longitude(36.4564564)
                   .member(owner)
                   .postType(PostType.PET_OWNER) // role 추가
                   .build();
@@ -97,8 +95,6 @@ public class PostRepositoryImplTests {
           .chatCount(random.nextInt(10))
           .defaultLocation("서울시 강남구")
           .flexibleLocation("서울시 서초구")
-              .latitude(35.123456)
-              .longitude(36.4564564)
           .member(owner)  // 동일한 owner가 시터 역할을 할 수 있습니다.
           .postType(PostType.PET_SITTER)
           .build();
@@ -146,7 +142,7 @@ public class PostRepositoryImplTests {
           .neutering(true)
           .petIntroduce("사람 좋아하고 순해요")
           .member(owner)
-          .petOwner(petOwner)  // 펫 오너와 연결
+          .petOwnerId(petOwner)  // 펫 오너와 연결
           .build();
       petRepository.save(pet);
 

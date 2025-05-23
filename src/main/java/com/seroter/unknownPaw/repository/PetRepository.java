@@ -52,4 +52,8 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
     // ✨ 9 특정 회원 페이징이 없는 전체 펫 목록 조회 메서드
     @Query("SELECT DISTINCT p FROM Pet p WHERE p.member.mid = :mid")
     List<Pet> findAllByMemberId(@Param("mid") Long mid);
+
+  @Query("SELECT p FROM Pet p WHERE p.member.mid = :mid")
+  List<Pet> findPetsByMemberId(@Param("mid") Long mid);
+
 }

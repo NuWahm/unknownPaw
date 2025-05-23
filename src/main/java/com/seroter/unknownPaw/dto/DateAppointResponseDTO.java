@@ -17,4 +17,6 @@ public class DateAppointResponseDTO {
   private String price;
   private String rating;
   private int decideHourRate;
+  private Double latitude;            // 위도
+  private Double longitude;           // 경도
 }

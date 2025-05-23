@@ -79,7 +79,7 @@ public class PostImageController {
                                           @RequestParam("targetId") Long targetId) {
     try {
       String targetType = postType + "Map"; // "petOwnerMap" or "petSitterMap"
-      String fileName = imageService.saveImage(file, postType, targetType, targetId);
+      String fileName = imageService.saveImage(file, ImageType.valueOf(postType), targetType, targetId);
       return ResponseEntity.ok(Map.of("fileName", fileName, "role", postType, "type", "map"));
     } catch (Exception e) {
       log.error("지도 이미지 업로드 실패", e);
@@ -95,7 +95,7 @@ public class PostImageController {
                                            @RequestParam("targetId") Long targetId) {
     try {
       String targetType = postType + "_map";
-      String newFileName = imageService.replaceImage(newFile, postType, oldFileName, targetType, targetId);
+      String newFileName = imageService.replaceImage(newFile, ImageType.valueOf(postType), oldFileName, targetType, targetId);
       return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "지도 이미지 교체 성공"));
     } catch (Exception e) {
       log.error("지도 이미지 교체 실패", e);

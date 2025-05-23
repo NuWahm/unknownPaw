@@ -38,7 +38,7 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() , pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
@@ -139,7 +139,7 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
 
-      List<PostDTO> posts = postService.getPostsByMember(pType, mid);
+      List<PostDTO> posts = postService.getPostsByMember(String.valueOf(pType), mid);
       return ResponseEntity.ok(posts);
 
     } catch (IllegalArgumentException e) {

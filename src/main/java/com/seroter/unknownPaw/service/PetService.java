@@ -44,7 +44,8 @@ public class PetService {
   }
 
   // 회원의 펫 목록 조회
-  public List<Pet> getPetsByOwnerId(Long mid) {
+  public List<Pet> getPetsByOwnerId(Long mid,PetDTO petDTO) {
+
     return petRepository.findPetsByMemberId(mid);
   }
 

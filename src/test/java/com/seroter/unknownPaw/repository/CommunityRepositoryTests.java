@@ -59,7 +59,7 @@ public class CommunityRepositoryTests {
                 int commentCount = 2; // 위에서 생성한 댓글 수
 
                 community.setLikes(randomLikes);       // 좋아요 수 설정
-                community.setComment(commentCount);    // 댓글 수 설정
+                community.setCommentCount(commentCount);    // 댓글 수 설정
 
                 communityRepository.save(community);   // 변경사항 저장
             });

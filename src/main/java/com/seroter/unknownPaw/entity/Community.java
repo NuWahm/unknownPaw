@@ -3,10 +3,7 @@ package com.seroter.unknownPaw.entity;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -71,8 +69,4 @@ public class Community {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    // @Setter 쓰지 않기 위해 추가
-    public void setLikes(int likes) {
-        this.likes = likes;
-    }
 }
