@@ -13,7 +13,7 @@ import com.seroter.unknownPaw.repository.CommentRepository;
 import com.seroter.unknownPaw.repository.CommunityImageRepository;
 import com.seroter.unknownPaw.repository.CommunityRepository;
 import com.seroter.unknownPaw.repository.MemberRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -165,6 +165,7 @@ public class CommunityService {
         }
 
 
+
         commentRepository.delete(comment);
     }
 
@@ -206,5 +207,53 @@ public class CommunityService {
         return commentRepository.findByCommentId(commentId);
     }
 
-}
 
+
+    @Transactional
+    public void likeCommunityPost(Long memberId, Long communityId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
+
+        if (!member.getLikedCommunity().contains(community)) {
+            member.getLikedCommunity().add(community);
+            community.setLikes(community.getLikes() + 1);
+            memberRepository.save(member);
+        }
+    }
+
+    @Transactional
+    public void unlikeCommunityPost(Long memberId, Long communityId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
+
+        if (member.getLikedCommunity().contains(community)) {
+            member.getLikedCommunity().remove(community);
+            community.setLikes(community.getLikes() - 1);
+            memberRepository.save(member);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommunityResponseDTO> getLikedCommunityPosts(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+        return member.getLikedCommunity()
+                .stream()
+                .map(CommunityResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+
+    //   //  커뮤니티 최근 게시물 랜덤 6개 가져오기
+//    public List<CommunityResponseDTO> getRandom6Community() {
+//        return communityRepository.findRecent7DaysRandom6Community()
+//            .stream()
+//            .map(CommunityResponseDTO::fromEntity)
+//            .collect(Collectors.toList());
+//    }
+
+}

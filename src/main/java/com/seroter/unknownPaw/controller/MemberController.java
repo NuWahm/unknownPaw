@@ -7,40 +7,34 @@ import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
-import com.seroter.unknownPaw.service.PetService;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 @Slf4j
-@ToString
 public class MemberController {
 
-    private final PetService petService;
     private final MemberService memberService;
+    private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
     // ✅ 0. 회원가입
     @PostMapping("/register")
     public ResponseEntity<MemberResponseDTO> register(@RequestBody MemberRequestDTO memberRequestDTO) {
-        log.info("회원가입 요청: {}", memberRequestDTO);
-        MemberResponseDTO memberResponseDTO = memberService.register(memberRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberResponseDTO);
+        log.info("register.....................");
+        return ResponseEntity.ok(memberService.register(memberRequestDTO));
     }
 
+    // ✅ 1. 로그인
     // ✅ 1. 로그인
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDTO dto) {
@@ -66,7 +60,6 @@ public class MemberController {
         response.put("error", "존재하지 않거나 비밀번호가 일치하지 않는 계정입니다.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-
     // ✅ 2. 회원 기본 정보 조회 (mid)
     @GetMapping("/id/{mid}")
     public ResponseEntity<MemberResponseDTO> getMember(@PathVariable Long mid) {
@@ -75,11 +68,18 @@ public class MemberController {
 
     // ✅ 3. 회원 요약 정보 (프로필 등) 조회
     @GetMapping("/profile/simple/{mid}")
-    public ResponseEntity<MemberResponseDTO> getSimpleProfile(@PathVariable Long mid) {
-        log.info("Requesting simple profile for mid: {}", mid);
-        MemberResponseDTO response = memberService.getSimpleProfile(mid); //🤩🤩
-        log.info("Returning response: {}", response);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<MemberResponseDTO> getSimpleProfileInfo(@PathVariable Long mid) {
+        log.info("회원 요약 정보 요청: mid = {}", mid); // 로깅 추가
+        try {
+            MemberResponseDTO profile = memberService.getSimpleProfileInfo(mid);
+            return ResponseEntity.ok(profile);
+        } catch (IllegalArgumentException e) {
+            log.warn("회원 정보를 찾을 수 없습니다. mid = {}", mid);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 응답
+        } catch (Exception e) {
+            log.error("회원 요약 정보 조회 중 오류 발생: mid = {}", mid, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // ✅ 4. 이메일로 회원 조회 (테스트용)
@@ -108,7 +108,8 @@ public class MemberController {
     // ✅ 7. 마이페이지 활동 통계
     @GetMapping("/stats/{mid}")
     public ResponseEntity<Object[]> getMyActivityStats(@PathVariable Long mid) {
-        return ResponseEntity.ok(memberService.getMyActivityStats(mid));
+        Object[] result = memberService.getMyActivityStats(mid);
+        return ResponseEntity.ok(result);
     }
 
     // ✅ 8. 평점 조회
@@ -128,7 +129,6 @@ public class MemberController {
     public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getDashboardData(mid));
     }
-
     // ✅ 11. 회원의 펫 목록 조회
     @GetMapping(value = "/member/{mid}/pets", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PetDTO>> readAllByMember(@PathVariable("mid") Long mid) {
@@ -160,4 +160,4 @@ public class MemberController {
 
 }
 
-
+}

@@ -71,4 +71,36 @@ public class PostImageController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
     }
   }
+
+  // 지도 이미지 업로드
+  @PostMapping("/upload/{postType}/map")
+  public ResponseEntity<?> uploadMapImage(@PathVariable String postType,
+                                          @RequestParam("file") MultipartFile file,
+                                          @RequestParam("targetId") Long targetId) {
+    try {
+      String targetType = postType + "Map"; // "petOwnerMap" or "petSitterMap"
+      String fileName = imageService.saveImage(file, postType, targetType, targetId);
+      return ResponseEntity.ok(Map.of("fileName", fileName, "role", postType, "type", "map"));
+    } catch (Exception e) {
+      log.error("지도 이미지 업로드 실패", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("지도 이미지 업로드 실패");
+    }
+  }
+
+  //지도 이미지 교체
+  @PostMapping("/replace/{postType}/map")
+  public ResponseEntity<?> replaceMapImage(@PathVariable String postType,
+                                           @RequestParam("oldFileName") String oldFileName,
+                                           @RequestParam("file") MultipartFile newFile,
+                                           @RequestParam("targetId") Long targetId) {
+    try {
+      String targetType = postType + "_map";
+      String newFileName = imageService.replaceImage(newFile, postType, oldFileName, targetType, targetId);
+      return ResponseEntity.ok(Map.of("fileName", newFileName, "message", "지도 이미지 교체 성공"));
+    } catch (Exception e) {
+      log.error("지도 이미지 교체 실패", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("교체 실패");
+    }
+  }
+
 }

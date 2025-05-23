@@ -15,48 +15,51 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(exclude = "member")
+
 public abstract class Post {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long postId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long postId;
 
-  private String title;
-  @Column(columnDefinition = "TEXT")
-  private String content;
+    private String title; // 글제목
 
-  @Enumerated(EnumType.STRING)
-  private ServiceCategory serviceCategory;
+    @Column(columnDefinition = "TEXT")
+    private String content;  // 글내용
 
-  private int likes;
-  private int chatCount;
+    @Enumerated(EnumType.STRING)
+    private ServiceCategory serviceCategory;
 
-  private String defaultLocation;
-  private String flexibleLocation;
+    private int hourlyRate;
+    private int likes; // 관심(좋아요 수)
+    private int chatCount; // 채팅 개수
+    private String defaultLocation; // 기본 위치
+    private String flexibleLocation; // 유동적인 위치
+    private Double latitude;            // 위도
+    private Double longitude;           // 경도
+    private LocalDateTime regDate; // 등록일
+    private LocalDateTime modDate; // 수정일
 
-  private LocalDateTime regDate;
-  private LocalDateTime modDate;
+    @PrePersist
+    protected void onCreate() {
+        this.regDate = LocalDateTime.now();
+        this.modDate = LocalDateTime.now();
 
-  @PrePersist
-  protected void onCreate() {
-    this.regDate = LocalDateTime.now();
-    this.modDate = LocalDateTime.now();
-  }
+    }
 
-  @PreUpdate
-  protected void onUpdate() {
-    this.modDate = LocalDateTime.now();
-  }
+    @PreUpdate
+    protected void onUpdate() {
+        this.modDate = LocalDateTime.now();
+    }
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "mid")
-  private Member member;
+    // 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mid")
+    private Member member; // 회원번호(참조 키) (펫오너)
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private PostType postType;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PostType postType;
 
-  @Column(name = "hourly_rate", nullable = false)
-  @Builder.Default
-  private Integer hourlyRate = 5000;
+
 }

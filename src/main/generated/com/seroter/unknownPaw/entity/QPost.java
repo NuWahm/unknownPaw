@@ -8,6 +8,8 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
+import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 
 
 /**
@@ -32,7 +34,11 @@ public class QPost extends EntityPathBase<Post> {
 
     public final NumberPath<Integer> hourlyRate = createNumber("hourlyRate", Integer.class);
 
+    public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
+
     public final NumberPath<Integer> likes = createNumber("likes", Integer.class);
+
+    public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
 
     public final QMember member;
 

@@ -47,6 +47,7 @@ public class DateAppointServiceTests {
   @Test
   public void create100DateAppointsTest() {
 
+    // PostRepositoryImplTests 후 Test 실행 하면됩니다.
 
     Member member = memberRepository.findAll().stream().findFirst()
         .orElseThrow(() -> new RuntimeException("No members found"));

@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;  // UUID 생성 관련 import 추가
@@ -49,56 +47,58 @@ public class PostRepositoryImplTests {
 
 
   @Test
-  @Transactional
-  @Commit      // or @Rollback(false)
   public void createPostWithOwnerAndSitter() {
     Random random = new Random();
 
-    for (int i = 1; i <= 100; i++) {
-      // 1. Member 생성 (Owner 및 Sitter 공통)
-      Member owner = Member.builder()
-          .email("owner" + i + "@example.com")
-          .password(passwordEncoder.encode("1")) // 필요 시 인코딩 주석 해제
-          .name("Owner" + i)
-          .nickname("OwnerNick" + i+"test❤")
-          .phoneNumber("010-1234-567" + i)
-          .pawRate(0.5f)
-          .gender(random.nextBoolean())
-          .birthday(1990 + (i % 10))
-          .address("Address" + i)
-          .emailVerified(true)
-          .fromSocial(false)
-          .role(Member.Role.USER)
-          .status(Member.MemberStatus.ACTIVE)
-          .signupChannel("test")
-          .build();
-      memberRepository.save(owner);
+      for (int i = 1; i <= 100; i++) {
+          // 1. Member 생성 (Owner 및 Sitter 공통)
+          Member owner = Member.builder()
+                  .email("Odeng" + i + "@mogae.com")
+                  .password(passwordEncoder.encode("1")) // 필요 시 인코딩 주석 해제
+                  .name("Owner" + i)
+                  .nickname("OwnerNick" + i+"test❤")
+                  .phoneNumber("010-1234-567" + i)
+                  .pawRate(0.5f)
+                  .gender(random.nextBoolean())
+                  .birthday(1990 + (i % 10))
+                  .address("Address" + i)
+                  .emailVerified(true)
+                  .fromSocial(false)
+                  .role(Member.Role.USER)
+                  .status(Member.MemberStatus.ACTIVE)
+                  .signupChannel("test")
+                  .build();
+          memberRepository.save(owner);
 
       // 2. PetOwner 생성 (오너 게시글)
-      PetOwner petOwner = PetOwner.builder()
-          .title("우리집 강아지 산책 도와주세요! #" + i)
-          .content("강아지가 순하고 사람을 좋아해요. 편안한 산책을 좋아해요.")
-          .serviceCategory(ServiceCategory.WALK)
-          .hourlyRate(10000 + random.nextInt(5000))
-          .likes(random.nextInt(50))
-          .chatCount(random.nextInt(10))
-          .defaultLocation("부산시 부산진구")
-          .flexibleLocation("부산시 기장군")
-          .member(owner)
-          .postType(PostType.PET_OWNER)
-          .build();
-      petOwnerRepository.save(petOwner);
+          PetOwner petOwner = PetOwner.builder()
+                  .title("우리집 강아지 산책 도와주세요! #" + i)
+                  .content("강아지가 순하고 사람을 좋아해요. 편안한 산책을 좋아해요.")
+                  .serviceCategory(ServiceCategory.WALK)
+                  .hourlyRate(10000 + random.nextInt(5000))
+                  .likes(random.nextInt(50))
+                  .chatCount(random.nextInt(10))
+                  .defaultLocation("부산시 부산진구")
+                  .flexibleLocation("부산시 기장군")
+                  .latitude(35.123456)
+                  .longitude(36.4564564)
+                  .member(owner)
+                  .postType(PostType.PET_OWNER) // role 추가
+                  .build();
+          petOwnerRepository.save(petOwner);
 
       // 3. PetSitter 생성 (시터 게시글)
       PetSitter petSitter = PetSitter.builder()
           .title("강아지 산책 시켜드려요! #" + i)
           .content("2시간 동안 강아지와 산책할 수 있어요. 자전거로도 산책 가능!")
           .serviceCategory(ServiceCategory.WALK)
-          .hourlyRate(10000 + random.nextInt(5000))
+              .hourlyRate(10000 + random.nextInt(5000))
           .likes(random.nextInt(30))
           .chatCount(random.nextInt(10))
           .defaultLocation("서울시 강남구")
           .flexibleLocation("서울시 서초구")
+              .latitude(35.123456)
+              .longitude(36.4564564)
           .member(owner)  // 동일한 owner가 시터 역할을 할 수 있습니다.
           .postType(PostType.PET_SITTER)
           .build();
@@ -146,6 +146,7 @@ public class PostRepositoryImplTests {
           .neutering(true)
           .petIntroduce("사람 좋아하고 순해요")
           .member(owner)
+          .petOwner(petOwner)  // 펫 오너와 연결
           .build();
       petRepository.save(pet);
 
