@@ -28,11 +28,15 @@ public class QPost extends EntityPathBase<Post> {
 
     public final StringPath defaultLocation = createString("defaultLocation");
 
-    public final NumberPath<Integer> desiredHourlyRate = createNumber("desiredHourlyRate", Integer.class);
-
     public final StringPath flexibleLocation = createString("flexibleLocation");
 
+    public final NumberPath<Integer> hourlyRate = createNumber("hourlyRate", Integer.class);
+
+    public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
+
     public final NumberPath<Integer> likes = createNumber("likes", Integer.class);
+
+    public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
 
     public final QMember member;
 

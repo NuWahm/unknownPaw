@@ -1,6 +1,7 @@
 package com.seroter.unknownPaw.controller;
 
 import com.seroter.unknownPaw.dto.ModifyRequestDTO;
+import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
 import com.seroter.unknownPaw.entity.Enum.PostType;
@@ -8,12 +9,13 @@ import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,9 +28,8 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-
       @PathVariable String postType,
-      Pageable pageable,
+      PageRequestDTO pageRequestDTO,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String location,
       @RequestParam(required = false) String category
@@ -36,31 +37,25 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
           location,
           category,
-          pageable
-      );
+          pageRequestDTO.getPageable()
 
+      );
       Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
       return ResponseEntity.ok(dtoPage);
     } catch (IllegalArgumentException e) {
-      return  ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
-    }
-    // 정렬 추가
-    catch (Exception e) {
-      // 기타 예외 처리 로직 추가 (필요시)
-      log.error("Error listing posts: {}", e.getMessage(), e); // 로깅 추가 (로거 선언 필요)
-      return ResponseEntity.internalServerError().body("게시글 조회 중 오류가 발생했습니다.");
+      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
     }
   }
 
   /* ---------------- 상세 ---------------- */
   @GetMapping("/{postType}/read/{postId}")
   public ResponseEntity<?> read(
-
       @PathVariable String postType,
       @PathVariable Long postId
   ) {
@@ -83,7 +78,6 @@ public class PostController {
   /* ---------------- 등록 ---------------- */
   @PostMapping("/{postType}/register")
   public ResponseEntity<?> register(
-
       @PathVariable PostType postType,
       @RequestBody PostDTO postDTO,
       @RequestParam Long memberId
@@ -95,7 +89,6 @@ public class PostController {
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
-
       @PathVariable PostType postType,
       @RequestBody ModifyRequestDTO modifyRequestDTO
   ) {
@@ -131,5 +124,53 @@ public class PostController {
     return postService.getRandom6PetSitterPosts();
   }
 
+
+  @GetMapping("/{postType}/{mid}")
+  public ResponseEntity<?> getPostsByMember(
+      @PathVariable String postType,
+      @PathVariable Long mid
+  ) {
+
+    try {
+      PostType pType = PostType.from(postType);
+
+      List<PostDTO> posts = postService.getPostsByMember(pType, mid);
+      return ResponseEntity.ok(posts);
+
+    } catch (IllegalArgumentException e) {
+
+      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다: " + postType);
+    }
+  }
+
+  // ❤️ 좋아요 등록
+  @PostMapping("/likes/{postType}/{postId}")
+  public ResponseEntity<String> likePost(@PathVariable PostType postType,
+                                         @PathVariable Long postId,
+                                         @RequestParam Long memberId) {
+    postService.likePost(memberId, postId, postType);
+    return ResponseEntity.ok("좋아요 완료");
+  }
+
+  // 💔 좋아요 취소
+  @DeleteMapping("/likes/{postType}/{postId}")
+  public ResponseEntity<String> unlikePost(@PathVariable PostType postType,
+                                           @PathVariable Long postId,
+                                           @RequestParam Long memberId) {
+    postService.unlikePost(memberId, postId, postType);
+    return ResponseEntity.ok("좋아요 취소 완료");
+  }
+
+  // 🧾 좋아요 누른 게시글 목록 조회
+  @GetMapping("/likes/{postType}")
+  public ResponseEntity<Set<PostDTO>> getLikedPosts(@PathVariable PostType postType,
+                                                    @RequestParam Long memberId) {
+    Set<PostDTO> dtoSet = postService.getLikedPostDTOs(memberId, postType);
+    return ResponseEntity.ok(dtoSet);
+  }
+
+
 }
+
+
 

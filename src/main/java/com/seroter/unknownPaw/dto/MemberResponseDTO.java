@@ -3,12 +3,15 @@ package com.seroter.unknownPaw.dto;
 import com.seroter.unknownPaw.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
+@Setter
 public class MemberResponseDTO {
+
     private Long mid;                   // 회원 ID
     private String email;             // 이메일
     private String nickname;          // 닉네임
@@ -23,6 +26,7 @@ public class MemberResponseDTO {
     private String address;
 
 
+
     public MemberResponseDTO(Member member) {
         this.mid = member.getMid();
         this.email = member.getEmail();
@@ -30,13 +34,14 @@ public class MemberResponseDTO {
         this.profileImagePath = member.getProfileImagePath();
         this.pawRate = member.getPawRate();
         this.emailVerified = member.isEmailVerified();
-        this.role = member.getRole().name(); // enum → String
-        this.status = member.getStatus().name(); // enum → String
+        this.role = member.getRole().name();
+        this.status = member.getStatus().name();
         this.regDate = member.getRegDate();
         this.regDate = member.getModDate();
         this.phoneNumber = member.getPhoneNumber();
         this.address = member.getAddress();
     }
+
 
     public MemberResponseDTO(
             Long mid,
@@ -52,6 +57,7 @@ public class MemberResponseDTO {
             String phoneNumber,
             String address
     ) {
+
         this.mid = mid;
         this.email = email;
         this.nickname = nickname;
@@ -66,4 +72,3 @@ public class MemberResponseDTO {
         this.address = address;
     }
 }
-

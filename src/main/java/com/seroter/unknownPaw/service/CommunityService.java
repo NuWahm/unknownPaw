@@ -3,6 +3,7 @@ package com.seroter.unknownPaw.service;
 import com.seroter.unknownPaw.dto.CommentDTO;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.dto.CommunityResponseDTO;
+import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Comment;
 import com.seroter.unknownPaw.entity.Community;
 import com.seroter.unknownPaw.entity.CommunityImage;
@@ -203,8 +204,17 @@ public class CommunityService {
     // ========== [댓글 ID로 댓글 조회] ==========
     public Comment getCommentById(Long commentId) {
         return commentRepository.findByCommentId(commentId);
-//=======
-//        commentRepository.delete(comment); // 삭제
 
     }
+
+
+    //  커뮤니티 최근 게시물 랜덤 6개 가져오기
+//    public List<CommunityResponseDTO> getRandom6Community() {
+//        return communityRepository.findRecent7DaysRandom6Community()
+//            .stream()
+//            .map(CommunityResponseDTO::fromEntity)
+//            .collect(Collectors.toList());
+//    }
+
 }
+

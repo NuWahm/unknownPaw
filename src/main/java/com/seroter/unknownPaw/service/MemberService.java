@@ -1,8 +1,11 @@
 package com.seroter.unknownPaw.service;
 
-import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.dto.EditProfile.MemberUpdateRequestDTO;
 import com.seroter.unknownPaw.dto.EditProfile.PasswordChangeRequestDTO;
+import com.seroter.unknownPaw.dto.MemberRequestDTO;
+import com.seroter.unknownPaw.dto.MemberResponseDTO;
+import com.seroter.unknownPaw.dto.PetDTO;
+import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.*;
 import com.seroter.unknownPaw.exception.CustomException;
 import com.seroter.unknownPaw.exception.ErrorCode;
