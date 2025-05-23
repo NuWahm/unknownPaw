@@ -21,6 +21,7 @@ public class Image {
   private String profileImg; // 프로필 사진
   private String uuid; // UUID
   private String path; // 파일 경로
+  private String thumbnailPath;
 
   @Column(nullable = false)
   public static final int TYPE_PROFILE = 1;

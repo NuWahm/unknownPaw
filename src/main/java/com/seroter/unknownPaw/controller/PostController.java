@@ -43,8 +43,8 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
-      Page<? extends Post> result = postService.searchPosts(
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage(), pageRequestDTO.getSize());
+      Page<PostDTO> result = postService.searchPosts(
               postType,     // enum → String
               keyword,
               location,
@@ -52,8 +52,7 @@ public class PostController {
               pageRequestDTO.getPageable()
 
       );
-      Page<PostDTO> dtoPage = result.map(PostDTO::fromEntity);
-      return ResponseEntity.ok(dtoPage);
+      return ResponseEntity.ok(result);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
     }
@@ -89,6 +88,8 @@ public class PostController {
           @RequestBody PostDTO postDTO,
           @RequestParam Long memberId
   ) {
+    log.info("받은 카테고리: {}", postDTO.getServiceCategory());
+
     PostType enumPostType;
     try {
       enumPostType = PostType.from(postType);      // <-- 여기

@@ -54,6 +54,7 @@ public class PostDTO implements Identifiable {
 
   private MemberResponseDTO member;         // 작성자 정보 DTO
 
+
   /**
    * 무한 스크롤 구현을 위한 ID 반환 메서드
    */
@@ -74,6 +75,7 @@ public class PostDTO implements Identifiable {
               .map(img -> ImageDTO.builder()
                       .imgId(img.getImgId())
                       .path(img.getPath())
+                      .thumbnailPath(img.getThumbnailPath())
                       .build())
               .collect(Collectors.toList());
     } else if (post instanceof PetSitter sitter && sitter.getImages() != null) {
@@ -81,6 +83,7 @@ public class PostDTO implements Identifiable {
               .map(img -> ImageDTO.builder()
                       .imgId(img.getImgId())
                       .path(img.getPath())
+                      .thumbnailPath(img.getThumbnailPath())
                       .build())
               .collect(Collectors.toList());
     }

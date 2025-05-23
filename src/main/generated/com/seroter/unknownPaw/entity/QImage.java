@@ -38,6 +38,8 @@ public class QImage extends EntityPathBase<Image> {
 
     public final StringPath profileImg = createString("profileImg");
 
+    public final StringPath thumbnailPath = createString("thumbnailPath");
+
     public final StringPath uuid = createString("uuid");
 
     public QImage(String variable) {

@@ -8,7 +8,6 @@ import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetOwnerRepository;
 import com.seroter.unknownPaw.repository.PetRepository;
 import com.seroter.unknownPaw.repository.PetSitterRepository;
-import com.seroter.unknownPaw.repository.PostRepository;
 import com.seroter.unknownPaw.repository.search.SearchPostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,7 +48,7 @@ public class PostService {
     public PostDTO get(String postType, Long postId) {
         PostType type = PostType.from(postType);
         return findPostbyPostType(type, postId)
-                .map(entity -> entityToDto(entity, type == PostType.PET_SITTER))
+                .map(PostDTO::fromEntity)
                 .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
     }
 
@@ -74,7 +72,7 @@ public class PostService {
 
     // 게시글 동적 검색
     @Transactional
-    public Page<? extends Post> searchPosts(String postType, String keyword, String location, String category, Pageable pageable) {
+    public Page<PostDTO> searchPosts(String postType, String keyword, String location, String category, Pageable pageable) {
         log.info("Searching posts with type: {}", postType);
         // Repository에서 LEFT JOIN FETCH로 멤버 정보까지 가져옴
         Page<? extends Post> result = searchPostRepository.searchDynamic(postType, keyword, location, category, pageable);
@@ -82,8 +80,7 @@ public class PostService {
         // Controller의 list 메서드는 이 결과를 받아서 result.map(PostDTO::fromEntity) 호출
         // 그러므로 PostDTO.fromEntity가 제대로 수정되어야 함
         log.info("Finished searching posts. Found {} elements.", result.getTotalElements());
-        return result;
-    }
+        return result.map(PostDTO::fromEntity);    }
 
 
     // 특정 멤버의 게시글 조회 메서드
@@ -92,12 +89,12 @@ public class PostService {
             case PET_OWNER:
                 return petOwnerRepository.findByMember_Mid(memberId)
                         .stream()
-                        .map(post -> entityToDto(post, false))
+                        .map(PostDTO::fromEntity)
                         .toList();
             case PET_SITTER:
                 return petSitterRepository.findByMember_Mid(memberId)
                         .stream()
-                        .map(post -> entityToDto(post, true))
+                        .map(PostDTO::fromEntity)
                         .toList();
             default:
                 throw new IllegalArgumentException("잘못된 PostType입니다.");
@@ -131,6 +128,8 @@ public class PostService {
         if (dto.getServiceDate() != null) {
             parsedServiceDate = dto.getServiceDate();
         }
+        log.info("💡 [createPetOwnerEntity] dto.getServiceCategory(): {}", dto.getServiceCategory());
+
         PetOwner.PetOwnerBuilder builder = PetOwner.builder()
                 .postId(dto.getPostId())
                 .title(dto.getTitle())
@@ -148,7 +147,10 @@ public class PostService {
                     .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
             builder.pet(pet);
         }
+        PetOwner entity = builder.build();
+        log.info("💡 [createPetOwnerEntity] entity.getServiceCategory(): {}", entity.getServiceCategory());
         return builder.build();
+
     }
 
     // 펫시터 게시글 엔티티 생성

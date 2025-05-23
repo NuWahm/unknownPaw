@@ -13,9 +13,9 @@ public class UploadPathProvider {
         String os = System.getProperty("os.name").toLowerCase();
         if (basePath.equals("default")) {
             if (os.contains("win")) {
-                return "C:\\upload"; // 윈도우 팀원들 경로
+                return "C:\\upload";
             } else {
-                return "/Users/hozi_studio/upload"; // 선생님 맥북 경로
+                return "/Users/hozi_studio/upload";
             }
         }
         return basePath;

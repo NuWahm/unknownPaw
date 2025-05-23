@@ -2,6 +2,7 @@ package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.PetOwner;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,6 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PetOwnerRepository extends PostRepository<PetOwner> {
+
+    @EntityGraph(attributePaths = "images")
+    Optional<PetOwner> findById(Long postId);
     // 펫오너가 작성한 게시글 조회
     List<PetOwner> findByMember_Mid(Long mid);
 

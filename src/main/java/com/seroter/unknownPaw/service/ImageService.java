@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import net.coobird.thumbnailator.Thumbnails;
 
 import java.io.File;
 import java.util.Optional;
@@ -51,6 +52,15 @@ public class ImageService {
     File saveFile = new File(dir, saveName);
     file.transferTo(saveFile);
 
+  // 썸네일 파일명 만들기
+    String thumbName = uuid + "_thumb_" + originalName;
+    File thumbnailFile = new File(dir, thumbName);
+
+    Thumbnails.of(saveFile)
+            .size(400, 600)
+            .toFile(thumbnailFile);
+
+
     // ⭐ imageType 변환 로직 추가!
     int imgType;
     try {
@@ -84,6 +94,7 @@ public class ImageService {
               .uuid(uuid)
               .profileImg(originalName)
               .path(imageType + "/" + saveName)
+              .thumbnailPath(imageType + "/" + thumbName)
               .imageType(imgType)
               .member(Member.builder().mid(targetId).build())
               .build();
@@ -92,6 +103,7 @@ public class ImageService {
               .uuid(uuid)
               .profileImg(originalName)
               .path(imageType + "/" + saveName)
+              .thumbnailPath(imageType + "/" + thumbName)
               .imageType(imgType)
               .pet(Pet.builder().petId(targetId).build())
               .build();
@@ -115,6 +127,7 @@ public class ImageService {
                 .uuid(uuid)
                 .profileImg(originalName)
                 .path(imageType + "/" + saveName)
+                .thumbnailPath(imageType + "/" + thumbName)
                 .imageType(imgType)
                 .post(post)
                 .member(member)
@@ -137,6 +150,7 @@ public class ImageService {
                 .uuid(uuid)
                 .profileImg(originalName)
                 .path(imageType + "/" + saveName)
+                .thumbnailPath(imageType + "/" + thumbName)
                 .imageType(imgType)
                 .post(post)
                 .member(member)
@@ -147,6 +161,7 @@ public class ImageService {
               .uuid(uuid)
               .profileImg(originalName)
               .path(imageType + "/" + saveName)
+              .thumbnailPath(imageType + "/" + thumbName)
               .imageType(imgType)
               .community(Community.builder().communityId(targetId).build())
               .build();
