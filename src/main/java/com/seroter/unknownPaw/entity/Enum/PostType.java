@@ -25,10 +25,10 @@ public enum PostType {
 
         switch (cleaned) {
             case "petowner":
-                System.out.println("✅ 매칭 성공 → PETOWNER");
+                System.out.println("✅ 매칭 성공 → PET_OWNER");
                 return PET_OWNER;
             case "petsitter":
-                System.out.println("✅ 매칭 성공 → PETSITTER");
+                System.out.println("✅ 매칭 성공 → PET_SITTER");
                 return PET_SITTER;
             default:
                 System.out.println("❌ PostType 매핑 실패: '" + cleaned + "'");
