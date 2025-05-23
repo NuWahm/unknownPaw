@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -145,6 +147,7 @@ public class MemberController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 정보 업데이트 중 오류 발생: " + e.getMessage());
     }
   }
+
   // ✅ 2-3. 회원의 비밀번호를 수정 - 유효성 검사 등 추가 사항 많아서 따로 뺌
   @PutMapping("/change-password") // 비밀번호 변경 전용 엔드포인트
   public ResponseEntity<?> changePassword(
@@ -215,7 +218,6 @@ public class MemberController {
   }
 
 
-
   // ✅ 4. 이메일로 회원 조회 (테스트용)
   @GetMapping("/email")
   public ResponseEntity<Member> findByEmail(@RequestParam String email) {
@@ -261,6 +263,18 @@ public class MemberController {
   @GetMapping("/dashboard/{mid}")
   public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
     return ResponseEntity.ok(memberService.getDashboardData(mid));
+  }
+
+  //  ✅ 11. 회원 탈퇴
+  @PutMapping("/withdraw") // PUT 매핑을 사용하여 상태 변경임을 명시
+  public ResponseEntity<?> withdrawMember(@AuthenticationPrincipal UserDetails userDetails,
+                                          @RequestBody(required = false) MemberRequestDTO requestDTO) {
+
+    String email = userDetails.getUsername();
+    Long membId = memberService.getMemberIdByEmail(email);
+
+    memberService.withdrawMember(membId, requestDTO);
+    return ResponseEntity.ok("회원 탈퇴가 성공적으로 처리되었습니다.");
   }
 
 }

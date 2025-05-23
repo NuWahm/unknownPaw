@@ -4,11 +4,14 @@ import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.dto.EditProfile.PetUpdateRequestDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.Pet;
+import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,26 +21,45 @@ import java.util.stream.Collectors;
 public class PetService {
 
   private final PetRepository petRepository;
+  private final MemberRepository memberRepository;
 
 
   // 펫 등록
+  @Transactional
   public Long registerPet(PetDTO petDTO) {
     Pet pet = dtoToEntity(petDTO);
     petRepository.save(pet);
     return pet.getPetId();
   }
 
-  // 펫 수정
-//  public Long updatePet(PetDTO petDTO) {
-//    Pet pet = dtoToEntity(petDTO);
-//    petRepository.save(pet); //
-//    return pet.getPetId();
-//  }
+  // 나중에 펫 등록  petDTO와 Member 엔티티를 받아 펫을 등록합니다.
+  public Long registerPetLater(PetDTO petDTO, Member member) {
+    Pet pet = Pet.builder()
+        .petName(petDTO.getPetName())
+        .breed(petDTO.getBreed())
+        .petBirth(petDTO.getPetBirth())
+        .petGender(petDTO.isPetGender())
+        .weight(petDTO.getWeight())
+        .petMbti(petDTO.getPetMbti())
+        .neutering(petDTO.isNeutering())
+        .petIntroduce(petDTO.getPetIntroduce())
+        .member(member) // 중요: 전달받은 Member 엔티티와 펫을 연결
+        .build();
 
-  //  펫 삭제
-//  public void removePet(Long petId) {
-//    petRepository.deleteById(petId);
-//  }
+    petRepository.save(pet);
+    return pet.getPetId();
+  }
+  // 펫 수정
+  public Long updatePet(PetDTO petDTO) {
+    Pet pet = dtoToEntity(petDTO);
+    petRepository.save(pet); //
+    return pet.getPetId();
+  }
+
+//    펫 삭제
+  public void removePet(Long petId) {
+    petRepository.deleteById(petId);
+  }
 
   //  펫 조회
   public PetDTO getPet(Long petId) {
@@ -135,36 +157,47 @@ public class PetService {
     return entityToDTO(updatedPet);
   }
 
-  /**
-   * 펫 삭제
-   * 특정 회원의 펫을 삭제합니다. (소유권 검증 포함)
-   *
-   * @param petId  삭제할 펫의 고유 ID
-   * @param member 해당 펫을 소유한 회원 엔티티 (보안 및 소유권 확인)
-   * @throws IllegalArgumentException 해당 ID의 펫을 찾을 수 없거나 해당 회원의 펫이 아닌 경우
-   */
-  @Transactional // 데이터 변경이 발생하므로 트랜잭션 설정
-  public void removePet(Long petId, Member member) {
-    // 해당 ID와 해당 Member에 속한 펫을 찾습니다. (소유권 검증 포함)
-    Optional<Pet> optionalPet = petRepository.findByPetIdAndMember(petId, member);
 
-    // 펫을 찾지 못했거나 해당 회원의 펫이 아닌 경우 예외 발생
-    Pet pet = optionalPet.orElseThrow(() ->
-        new IllegalArgumentException("해당 ID의 펫을 찾을 수 없거나 삭제 권한이 없습니다."));
+  // --- 펫 삭제 메서드 추가 ---
+  public void deletePet(Long petId, String userEmail) {
+    // 1. 펫을 찾습니다.
+    Pet pet = petRepository.findById(petId)
+        .orElseThrow(() -> new EntityNotFoundException("펫을 찾을 수 없습니다. ID: " + petId));
 
-    // 펫 삭제
-    petRepository.delete(pet); // 조회된 엔티티를 삭제
+    // 2. 펫의 소유주와 현재 로그인된 사용자가 일치하는지 확인 (매우 중요!)
+    Member owner = pet.getMember(); // 펫과 연관된 Member 엔티티 가져오기
+    Member loggedInMember = memberRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다. Email: " + userEmail));
+
+    if (!owner.getMid().equals(loggedInMember.getMid())) {
+      throw new EntityNotFoundException("이 펫을 삭제할 권한이 없습니다."); // 403 Forbidden 대신 사용자에게는 404처럼 보일 수 있도록
+    }
+
+    // 3. 펫 삭제
+    petRepository.delete(pet);
   }
+
+  // 소프트 삭제로 변경
+//  @Transactional
+//  public void softDeletePet(Long petId, String userEmail) {
+//    Pet pet = petRepository.findById(petId)
+//        .orElseThrow(()-> new EntityNotFoundException("펫을 찾을 수 없습니다. ID: " + petId));
+//    Member owner = pet.getMember();
+//    Member loggedInMember = memberRepository.findByEmail(userEmail)
+////        .or(memberRepository.findByEmailAndFromSocial(userEmail,false)) // 소셜 로그인 부분 추후에 추가
+//        .orElseThrow(()-> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다. Email: "+  userEmail));
+//    if (!owner.getMid().equals(loggedInMember.getMid())){
+//      throw new EntityNotFoundException("이 펫을 삭제할 권한이 없습니다");
+//    }
+//    pet.setDeleted(true);
+//    pet.setDeletedAt(LocalDateTime.now());
+//    petRepository.save(pet);
+//  }
 
 
   /**
    * 펫 조회
    * 특정 회원의 특정 펫을 조회합니다. (소유권 검증 포함)
-   *
-   * @param petId  조회할 펫의 고유 ID
-   * @param member 해당 펫을 소유한 회원 엔티티 (보안 및 소유권 확인)
-   * @return 조회된 펫 정보 (PetDTO 형태)
-   * @throws IllegalArgumentException 해당 ID의 펫을 찾을 수 없거나 해당 회원의 펫이 아닌 경우
    */
   @Transactional(readOnly = true) // 읽기 전용 트랜잭션 설정
   public PetDTO getPet(Long petId, Member member) {

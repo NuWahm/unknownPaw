@@ -4,15 +4,20 @@ package com.seroter.unknownPaw.controller;
 import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.dto.EditProfile.PetUpdateRequestDTO;
 import com.seroter.unknownPaw.entity.Member;
+import com.seroter.unknownPaw.exception.CustomException;
+import com.seroter.unknownPaw.exception.ErrorCode;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
 import com.seroter.unknownPaw.service.PetService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +37,24 @@ public class PetController {
   @PostMapping(value = "/register")
   public ResponseEntity<Long> register(@RequestBody PetDTO petDTO) {
     log.info("register.................");
+    log.info("40번 줄 실행 pet controller");
     return new ResponseEntity<>(petService.registerPet(petDTO), HttpStatus.OK);
+  }
+
+  // ✅ 추후에 펫 등록
+  @PostMapping("/register/later")
+  public ResponseEntity<Long> registerPet(
+      @RequestBody PetDTO petDTO,
+      @AuthenticationPrincipal UserDetails userDetails // 현재 로그인된 사용자 정보 주입
+  ) {
+    log.info("register pet for user: {}", userDetails.getUsername());
+
+    // userDetails에서 이메일을 가져와 해당 Member를 찾습니다.
+    String loggedInUserEmail = userDetails.getUsername();
+    Member member = memberService.findByEmail(loggedInUserEmail)
+        .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다: " + loggedInUserEmail)); // 적절한 예외 처리
+
+    return new ResponseEntity<>(petService.registerPetLater(petDTO, member), HttpStatus.OK);
   }
 
   // 조회
@@ -55,7 +77,7 @@ public class PetController {
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
-  // 개인 정보 수정 - pet 정보 조회하고
+  // ✅ 개인 정보 수정 - pet 정보 조회하고
   @GetMapping("/me")
   public ResponseEntity<?> getMyPets(HttpServletRequest request) {
     try {
@@ -89,17 +111,13 @@ public class PetController {
   }
 
 
-  /**
-   * 특정 펫 정보를 조회합니다. (현재 로그인된 회원의 펫만 조회 가능)
-   * GET /api/pets/{petId}
-   *
-   * @param request HttpServletRequest (토큰 추출용)
-   * @param petId   조회할 펫의 고유 ID
-   * @return 조회된 펫 정보 (PetDTO 형태) 또는 오류 응답
-   */
+//    ✅특정 펫 정보를 조회합니다. (현재 로그인된 회원의 펫만 조회 가능)
+//    GET /api/pets/{petId}
+
   @GetMapping("/{petId}")
   public ResponseEntity<?> getPet(@PathVariable("petId") Long petId, HttpServletRequest request) {
     try {
+      log.info("pet controller 119번 줄 실행되고 있어요");
       // 1. Authorization 헤더에서 토큰 추출 및 검증
       String authHeader = request.getHeader("Authorization");
       if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -132,17 +150,18 @@ public class PetController {
     }
   }
 
-  /**
-   * 새로운 펫을 등록합니다. (현재 로그인된 회원에게 등록)
-   * POST /api/pets
-   *
-   * @param request HttpServletRequest (토큰 추출용)
-   * @param petDTO  등록할 펫 정보 DTO (클라이언트로부터 받음)
-   * @return 등록된 펫의 고유 ID 또는 오류 응답
-   */
+
+//    새로운 펫을 등록합니다. (현재 로그인된 회원에게 등록)
+//    POST /api/pets
+//
+//    @param request HttpServletRequest (토큰 추출용)
+//    @param petDTO  등록할 펫 정보 DTO (클라이언트로부터 받음)
+//    @return 등록된 펫의 고유 ID 또는 오류 응답
+
   @PostMapping
   public ResponseEntity<?> registerPet(@RequestBody PetDTO petDTO, HttpServletRequest request) {
     log.info("register pet.................");
+    log.info("pet controller 163번줄 실행 중 ");
     try {
       // 1. Authorization 헤더에서 토큰 추출 및 검증
       String authHeader = request.getHeader("Authorization");
@@ -172,15 +191,10 @@ public class PetController {
     }
   }
 
-  /**
-   * 특정 펫 정보를 업데이트합니다. (현재 로그인된 회원의 펫만 수정 가능)
-   * PUT /api/pets/{petId}
-   *
-   * @param request          HttpServletRequest (토큰 추출용)
-   * @param petId            업데이트할 펫의 고유 ID
-   * @param updateRequestDTO 업데이트할 정보가 담긴 DTO (클라이언트로부터 받음)
-   * @return 업데이트된 펫 정보 (PetDTO 형태) 또는 오류 응답
-   */
+
+  // 특정 펫 정보를 업데이트합니다. (현재 로그인된 회원의 펫만 수정 가능)
+  // PUT /api/pets/{petId}
+
   @PutMapping("/{petId}")
   public ResponseEntity<?> updatePet(
       @PathVariable("petId") Long petId,
@@ -188,7 +202,7 @@ public class PetController {
       HttpServletRequest request) {
 
     log.info("update pet................. petId: {}", petId);
-    log.info("updateRequestDTO: {}", updateRequestDTO); // 업데이트 요청 DTO 로깅
+    log.info("204 줄 pet controller updateRequestDTO: {}", updateRequestDTO); // 업데이트 요청 DTO 로깅
 
     try {
       // 1. Authorization 헤더에서 토큰 추출 및 검증
@@ -223,48 +237,33 @@ public class PetController {
     }
   }
 
-  /**
-   * 특정 펫을 삭제합니다. (현재 로그인된 회원의 펫만 삭제 가능)
-   * DELETE /api/pets/{petId}
-   *
-   * @param request HttpServletRequest (토큰 추출용)
-   * @param petId   삭제할 펫의 고유 ID
-   * @return 성공 응답 또는 오류 응답
-   */
-  @DeleteMapping("/{petId}")
-  public ResponseEntity<?> removePet(@PathVariable("petId") Long petId, HttpServletRequest request) {
-    log.info("delete pet................. petId: {}", petId);
 
+  //   * 특정 펫을 삭제합니다. (현재 로그인된 회원의 펫만 삭제 가능)
+//   * DELETE /api/pets/{petId}
+  @DeleteMapping("/{petId}") // DELETE /api/pet/{petId}
+  public ResponseEntity<String> deletePet(
+      @PathVariable Long petId,
+      @AuthenticationPrincipal UserDetails userDetails // 현재 로그인된 사용자 정보 주입
+  ) {
+    if (userDetails == null) {
+      return new ResponseEntity<>("Unauthorized: User not logged in", HttpStatus.UNAUTHORIZED);
+    }
+
+    String loggedInUserEmail = userDetails.getUsername();
     try {
-      // 1. Authorization 헤더에서 토큰 추출 및 검증
-      String authHeader = request.getHeader("Authorization");
-      if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
-      }
-      String token = authHeader.substring(7); // "Bearer " 제거
-      String email = jwtUtil.getEmail(token); // JWT에서 이메일 추출
-
-      // 2. 이메일로 사용자(Member) 찾기
-      Member member = memberService.findByEmail(email)
-          .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-      // 3. PetService를 통해 펫 삭제 (서비스 내부에서 소유권 검증 및 삭제)
-      petService.removePet(petId, member);
-
-      // 4. 성공 응답 반환
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 No Content
-
-    } catch (UsernameNotFoundException e) {
-      log.error("사용자 찾기 오류: {}", e.getMessage());
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    } catch (IllegalArgumentException e) {
-      // PetService에서 발생시킨 예외 (펫을 찾을 수 없거나 소유권이 없는 경우)
-      log.error("펫 삭제 권한 오류 또는 펫 없음: {}", e.getMessage());
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage()); // 403 Forbidden
+      // 서비스 계층에서 삭제 로직 처리:
+      // 1. 해당 petId의 펫이 로그인된 사용자의 펫인지 확인 (보안 중요!)
+      // 2. 펫이 로그인된 사용자의 펫이라면 삭제 진행
+      // 3. 아니라면 접근 권한 없음 예외 발생
+      petService.deletePet(petId, loggedInUserEmail);
+      return new ResponseEntity<>("펫 정보가 성공적으로 삭제되었습니다.", HttpStatus.OK);
+    } catch (EntityNotFoundException e) { // 펫을 찾을 수 없거나 소유주가 아닐 경우
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // 404 또는 403
     } catch (Exception e) {
-      // 예상치 못한 오류
-      log.error("펫 삭제 중 오류 발생: {}", e.getMessage(), e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("펫 삭제 중 오류 발생: " + e.getMessage());
+      log.error("펫 삭제 중 오류 발생: {}", e.getMessage());
+      return new ResponseEntity<>("펫 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+
 }

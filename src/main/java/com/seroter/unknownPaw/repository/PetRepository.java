@@ -57,4 +57,5 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
    // 특정회원의 펫 정보 찾기
   Optional<Pet> findByPetIdAndMember(Long petId, Member member);
   List<Pet> findByMember(Member member);
+
 }

@@ -3,6 +3,9 @@ package com.seroter.unknownPaw.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,6 +30,7 @@ public class Pet extends BaseEntity {  // BaseEntity 상속
   private String petIntroduce; // 펫 소개
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id")
   private Member member; // 유저 정보 (펫 소유자 또는 시터)
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -45,8 +49,10 @@ public class Pet extends BaseEntity {  // BaseEntity 상속
       this.petOwnerId = null;  // 시터가 있으면 오너는 null
     }
   }
+
   public void setImgId(Image image) {
     this.imgId = image;
   }
+
 
 }
