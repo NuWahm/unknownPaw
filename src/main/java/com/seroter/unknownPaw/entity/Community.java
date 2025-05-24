@@ -83,4 +83,8 @@ public class Community {
     public void setLikes(int likes) {
         this.likes = likes;
     }
+
+    public void setComment(int comment) {
+        this.comment = comment;
+    }
 }
