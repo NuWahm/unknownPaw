@@ -102,10 +102,16 @@ public class PostController {
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
-      @PathVariable PostType postType,
-      @RequestBody ModifyRequestDTO modifyRequestDTO
+          @PathVariable String postType, // 👈 이렇게!
+          @RequestBody ModifyRequestDTO modifyRequestDTO
   ) {
-    postService.modify(postType.name(), modifyRequestDTO.getPostDTO());
+    PostType enumPostType;
+    try {
+      enumPostType = PostType.from(postType); // 기존 방식 재활용
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body("Invalid postType: " + postType);
+    }
+    postService.modify(enumPostType.name(), modifyRequestDTO.getPostDTO());
     return ResponseEntity.ok(Map.of(
             "msg", "수정 완료",
             "postId", modifyRequestDTO.getPostDTO().getPostId()
