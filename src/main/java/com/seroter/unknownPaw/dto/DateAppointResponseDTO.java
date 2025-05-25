@@ -20,8 +20,8 @@ public class DateAppointResponseDTO {
   private int decideHourRate;
   private Long mid;
   private Long petId;
-
-
+  private Long petOwnerPostId;
+  private Long petSitterPostId;
 
 
 }
