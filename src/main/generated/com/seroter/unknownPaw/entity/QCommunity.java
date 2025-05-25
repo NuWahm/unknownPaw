@@ -22,7 +22,7 @@ public class QCommunity extends EntityPathBase<Community> {
 
     public static final QCommunity community = new QCommunity("community");
 
-    public final NumberPath<Integer> commentCount = createNumber("commentCount", Integer.class);
+    public final NumberPath<Integer> comment = createNumber("comment", Integer.class);
 
     public final ListPath<Comment, QComment> comments = this.<Comment, QComment>createList("comments", Comment.class, QComment.class, PathInits.DIRECT2);
 

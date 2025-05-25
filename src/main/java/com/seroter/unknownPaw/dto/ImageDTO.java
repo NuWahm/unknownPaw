@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -19,6 +20,10 @@ public class ImageDTO {
 
     private int role; // 역할 (1- 멤버, 2- 펫, 3- 포스트)
 
+    @JsonProperty("imagePath")
+    public String getImagePath() {
+        return this.path;
+    }
 
     private Long memberId; // 회원 ID (1)
     private Long petId; // 반려동물 ID (2)

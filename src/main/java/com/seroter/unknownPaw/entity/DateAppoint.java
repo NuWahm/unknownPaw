@@ -30,10 +30,10 @@ public class DateAppoint extends BaseEntity {
 
 
   @Column(nullable = false)
-  private LocalDateTime confirmationDate; // 예약 확정 날짜
+  private LocalDateTime confirmationDate; // 서비스시작 날짜
 
   @Column(nullable = false)
-  private LocalDateTime futureDate; // 예약 실행 날짜
+  private LocalDateTime futureDate; // 서비스 종료 날짜
 
 
 
