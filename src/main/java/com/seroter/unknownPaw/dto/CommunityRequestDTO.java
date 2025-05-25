@@ -1,8 +1,8 @@
 package com.seroter.unknownPaw.dto;
 
 
-import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
 
+import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,7 +1,8 @@
 package com.seroter.unknownPaw.dto;
 
 import com.seroter.unknownPaw.entity.Member;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +14,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class MemberResponseDTO {
     private Long mid;
     private String email;
@@ -29,8 +29,6 @@ public class MemberResponseDTO {
     private String introduce;  // 소개
     private List<PetDTO> pets; // PetDTO 목록
 
-
-    // Member 엔티티를 기반으로 DTO 변환
     public MemberResponseDTO(Member member) {
         this.mid = member.getMid();
         this.email = member.getEmail();
@@ -42,16 +40,28 @@ public class MemberResponseDTO {
         this.status = member.getStatus().name();
         this.regDate = member.getRegDate();
         this.gender = member.getGender();
-        this.introduce = member.getIntroduce(); // 소개 처리
+        this.introduce = member.getIntroduce();
 
-        // 펫 목록 처리
-        this.pets = member.getPets() == null ? null : member.getPets().stream()
-                .map(pet -> new PetDTO(pet)) // PetDTO로 변환
-                .collect(Collectors.toList());
+        this.pets = member.getPets() == null ? null :
+                member.getPets().stream()
+                        .map(PetDTO::new)
+                        .collect(Collectors.toList());
     }
 
-    public MemberResponseDTO(Long mid, String email, String nickname, String profileImagePath, float pawRate,
-                             boolean emailVerified, String role, String status, LocalDateTime regDate) {
+    public MemberResponseDTO(
+            Long mid,
+            String email,
+            String nickname,
+            String profileImagePath,
+            float pawRate,
+            boolean emailVerified,
+            String role,
+            String status,
+            LocalDateTime regDate,
+            boolean gender,
+            String introduce,
+            List<PetDTO> pets
+    ) {
         this.mid = mid;
         this.email = email;
         this.nickname = nickname;
@@ -61,5 +71,18 @@ public class MemberResponseDTO {
         this.role = role;
         this.status = status;
         this.regDate = regDate;
+        this.gender = gender;
+        this.introduce = introduce;
+        this.pets = pets;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class Simple  {
+        private Long mid;
+        private String nickname;
+        private float pawRate;
+        private String profileImagePath;
     }
 }
+

@@ -1,12 +1,10 @@
 package com.seroter.unknownPaw.dto;
 
 import com.seroter.unknownPaw.entity.Pet;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,5 +35,6 @@ public class PetDTO {
     this.petIntroduce = pet.getPetIntroduce();
     this.mid = pet.getMember() != null ? pet.getMember().getMid() : null; // ← 이거 추가!!
   }
+
 
 }

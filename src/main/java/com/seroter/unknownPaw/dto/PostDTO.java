@@ -46,7 +46,7 @@ public class PostDTO implements Identifiable {
   private List<String> license;      // PetSitter: 자격증
   private Integer petExperience; // PetSitter: 경력(연차 등, null 허용)
 
-//  private String email; // 작성자 이메일 (Members 엔티티 참조) 더 가져올 정보 多
+  //  private String email; // 작성자 이메일 (Members 엔티티 참조) 더 가져올 정보 多
   @JsonProperty("images")
   private List<ImageDTO> images;            // 게시글에 첨부된 이미지 리스트
 
@@ -134,4 +134,3 @@ public class PostDTO implements Identifiable {
             .build();
   }
 }
-

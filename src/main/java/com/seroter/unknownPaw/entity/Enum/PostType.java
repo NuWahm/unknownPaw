@@ -31,3 +31,4 @@ public enum PostType {
         return this.name().toLowerCase().replace("_", "");
     }
 }
+

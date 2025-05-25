@@ -3,10 +3,7 @@ package com.seroter.unknownPaw.entity;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,73 +11,62 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "community")
 public class Community {
 
-    // ========== [기본키: 커뮤니티 ID] ==========
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long communityId; // 실제 컬럼명도 community_id로 생성됨
+    private Long communityId;
 
-    // ========== [게시글 정보] ==========
-    private String title;                // 제목
-    private String content;              // 내용
+    private String title;
+    private String content;
 
-    // ========== [통계 정보] ==========
-    private int likes;                   // 좋아요 수
-    private int comment;               // 댓글 수
+    private int likes;
 
-    // ========== [작성자 정보] ==========
+    // 댓글 수 변수 이름 'comment' → 'commentCount'로 변경 (가독성 및 중복 방지)
+    private int commentCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;               // 작성자 (회원 엔티티 참조)
+    private Member member;
 
-    // ========== [분류] ==========
     @Enumerated(EnumType.STRING)
-    private CommunityCategory communityCategory; // 커뮤니티 카테고리 (enum)
+    private CommunityCategory communityCategory;
 
-    // ========== [등록일] ==========
     private LocalDateTime regDate;
 
-    // ========== [등록일 자동 세팅] ==========
     @PrePersist
     public void prePersist() {
         this.regDate = LocalDateTime.now();
     }
 
-    // ========== [게시글 수정 메서드] ==========
     public void modify(CommunityRequestDTO communityRequestDTO) {
         this.title = communityRequestDTO.getTitle();
         this.content = communityRequestDTO.getContent();
-        this.communityCategory = communityRequestDTO.getCommunityCategory(); // ✅ 단순 대입
+        this.communityCategory = communityRequestDTO.getCommunityCategory();
     }
 
-
-    // ========== [커뮤니티 이미지 리스트] (양방향 매핑) ==========
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<CommunityImage> communityImages = new ArrayList<>();
 
-    // ========== [이미지 리스트 추가] ==========
     public void addImage(CommunityImage image) {
         communityImages.add(image);
-        image.setCommunity(this); // 양방향 관계 유지
+        image.setCommunity(this);
     }
 
-    // ========== [이미지 리스트 제거] ==========
     public void removeImage(CommunityImage image) {
         communityImages.remove(image);
-        image.setCommunity(null); // 양방향 관계 해제
+        image.setCommunity(null);
     }
+
+    // 댓글 리스트 (기존 commentCount와 이름 충돌 방지)
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    // @Setter 쓰지 않기 위해 추가
-    public void setLikes(int likes) {
-        this.likes = likes;
-    }
 }

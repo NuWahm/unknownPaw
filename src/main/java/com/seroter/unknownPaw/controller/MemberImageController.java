@@ -1,5 +1,6 @@
 package com.seroter.unknownPaw.controller;
 
+import com.seroter.unknownPaw.entity.Enum.ImageType;
 import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -26,6 +27,7 @@ public class MemberImageController {
                                   @RequestParam("targetId") Long memberId) {
     try {
       String fileName = imageService.saveImage(file, "member", "member", memberId, null);
+
       return ResponseEntity.ok(Map.of("fileName", fileName));
     } catch (Exception e) {
       log.error("회원 이미지 업로드 실패", e);
@@ -56,8 +58,8 @@ public class MemberImageController {
     try {
       boolean deleted = imageService.deleteImage("member", fileName);
       return deleted
-          ? ResponseEntity.ok("삭제 성공")
-          : ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일 없음");
+              ? ResponseEntity.ok("삭제 성공")
+              : ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일 없음");
     } catch (Exception e) {
       log.error("삭제 실패", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");

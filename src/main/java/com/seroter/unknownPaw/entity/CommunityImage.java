@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor  // ✅ This is required for Hibernate
+@AllArgsConstructor // Optional: helpful for testing or construction
 @Table(name = "community_image")
 public class CommunityImage {
 
@@ -34,5 +36,7 @@ public class CommunityImage {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     private Image image;
+
+
 
 }

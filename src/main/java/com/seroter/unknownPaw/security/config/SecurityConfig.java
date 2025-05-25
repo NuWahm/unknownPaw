@@ -35,6 +35,7 @@ public class SecurityConfig {
 
 
         //front main 작업과 매치되도록 수정 예정
+
         http.csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())

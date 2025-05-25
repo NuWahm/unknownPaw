@@ -57,8 +57,8 @@ public class PetImageController {
     try {
       boolean deleted = imageService.deleteImage("pet", fileName);
       return deleted
-          ? ResponseEntity.ok("삭제 성공")
-          : ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일 없음");
+              ? ResponseEntity.ok("삭제 성공")
+              : ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일 없음");
     } catch (Exception e) {
       log.error("삭제 실패", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");

@@ -43,11 +43,6 @@ public class PetService {
     return entityToDTO(pet);
   }
 
-  // 회원의 펫 목록 조회
-  public List<Pet> getPetsByOwnerId(Long mid) {
-    return petRepository.findPetsByMemberId(mid);
-  }
-
   // DTO → Entity 변환
   private Pet dtoToEntity(PetDTO dto) {
     Member member = memberRepository.findById(dto.getMid())

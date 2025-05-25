@@ -27,18 +27,8 @@ public class ImageService {
   private final PetOwnerRepository petOwnerRepository;
   private final PetSitterRepository petSitterRepository;
 
-  // ✅ 이미지 업로드 및 DB 저장
-
-  //  saveImage 매개변수로 있는 imageType= 이미지 연결하는 주체
-  //  ex(1=member, 2=pet, 3=post)
-
-  //  saveImage 매개변수로 있는 targetType= 이미지를 어떤 Entity 에 연결할지 지정
-  //  ex) "member" → Member 객체의 이미지
-  //  ex) "pet" → Pet 객체의 이미지
-  //  ex) "petOwner" → PetOwner 게시글 이미지
-  //  ex) "petSitter" → PetSitter 게시글 이미지
-
-
+  @Value("${com.seroter.upload.path}")
+  private String uploadPath;
 
   public String saveImage(MultipartFile file, String imageType, String targetType, Long targetId, Long petId) throws Exception {
     String uploadPath = uploadPathProvider.getUploadPath();
@@ -52,7 +42,6 @@ public class ImageService {
     File saveFile = new File(dir, saveName);
     file.transferTo(saveFile);
 
-  // 썸네일 파일명 만들기
     String thumbName = uuid + "_thumb_" + originalName;
     File thumbnailFile = new File(dir, thumbName);
 
@@ -60,36 +49,21 @@ public class ImageService {
             .size(400, 600)
             .toFile(thumbnailFile);
 
-
-    // ⭐ imageType 변환 로직 추가!
     int imgType;
     try {
       imgType = Integer.parseInt(imageType);
     } catch (NumberFormatException e) {
       switch (imageType.toLowerCase()) {
-        case "petowner":
-        case "pet_owner":
-        case "petsitter":
-        case "pet_sitter":
-          imgType = 3; // 게시글(post)
-          break;
-        case "community":
-          imgType = 4;
-          break;
-        case "member":
-          imgType = 1;
-          break;
-        case "pet":
-          imgType = 2;
-          break;
-        default:
-          imgType = 0;
+        case "petowner", "pet_owner", "petsitter", "pet_sitter" -> imgType = 3;
+        case "community" -> imgType = 4;
+        case "member" -> imgType = 1;
+        case "pet" -> imgType = 2;
+        default -> imgType = 0;
       }
     }
 
     String type = targetType.toLowerCase();
     Image image = switch (type) {
-
       case "member" -> Image.builder()
               .uuid(uuid)
               .profileImg(originalName)
@@ -108,14 +82,13 @@ public class ImageService {
               .pet(Pet.builder().petId(targetId).build())
               .build();
 
-
       case "petowner", "pet_owner" -> {
         Optional<PetOwner> postOpt = petOwnerRepository.findById(targetId);
         Member member = null;
         Pet pet = null;
         if (postOpt.isPresent()) {
           PetOwner owner = postOpt.get();
-          member = postOpt.get().getMember(); // 게시글의 작성자
+          member = owner.getMember();
           pet = owner.getPet();
         }
         PetOwner post = postOpt.orElseGet(() -> {
@@ -139,7 +112,7 @@ public class ImageService {
         Optional<PetSitter> postOpt = petSitterRepository.findById(targetId);
         Member member = null;
         if (postOpt.isPresent()) {
-          member = postOpt.get().getMember(); // 게시글의 작성자
+          member = postOpt.get().getMember();
         }
         PetSitter post = postOpt.orElseGet(() -> {
           PetSitter tmp = new PetSitter();
@@ -169,13 +142,10 @@ public class ImageService {
       default -> throw new IllegalArgumentException("잘못된 targetType 입니다: " + targetType);
     };
 
-
     imageRepository.save(image);
     return saveName;
   }
 
-  // ✅ 이미지 교체 (파일+DB)
-  // @Transactional 실패하면 모든 변경사항을 롤백할 수 있어 데이터 일관성을 지켜줌
   @Transactional
   public String replaceImage(MultipartFile newFile, String imageType, String oldFileName, String targetType, Long targetId, Long petId) throws Exception {
     String uploadPath = uploadPathProvider.getUploadPath();
@@ -188,7 +158,6 @@ public class ImageService {
     return saveImage(newFile, imageType, targetType, targetId, petId);
   }
 
-  // ✅ 이미지 삭제 (파일+DB)
   @Transactional
   public boolean deleteImage(String imageType, String fileName) {
     try {
@@ -205,5 +174,4 @@ public class ImageService {
     }
     return false;
   }
-
 }

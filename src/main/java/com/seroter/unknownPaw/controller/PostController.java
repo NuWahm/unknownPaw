@@ -171,8 +171,8 @@ public class PostController {
 
   @GetMapping("/{postType}/{mid}")
   public ResponseEntity<?> getPostsByMember(
-      @PathVariable String postType,
-      @PathVariable Long mid
+          @PathVariable String postType,
+          @PathVariable Long mid
   ) {
 
     try {
