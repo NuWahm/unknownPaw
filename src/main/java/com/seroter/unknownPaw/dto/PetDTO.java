@@ -23,7 +23,7 @@ public class PetDTO {
   private String petMbti; // 펫 성격
   private boolean neutering; // 중성화 여부
   private String petIntroduce; // 펫 소개
-
+  private String status;
 
   private LocalDateTime regDate;
   private LocalDateTime modDate;

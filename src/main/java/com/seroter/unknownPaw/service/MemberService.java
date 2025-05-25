@@ -39,6 +39,7 @@ public class MemberService {
   private final PetOwnerRepository petOwnerRepository;
   private final PetSitterRepository petSitterRepository;
   private final PasswordEncoder passwordEncoder;
+  private final PetService petService;
 
   public MemberResponseDTO register(MemberRequestDTO dto) {
     // 예시: 이메일 중복 확인
@@ -72,20 +73,7 @@ public class MemberService {
     memberRepository.save(member);
 
     if (dto.getPetInfo() != null) {
-      PetDTO petDTO = dto.getPetInfo();
-      Pet pet = Pet.builder()
-          .member(member) // member entity와 관계 설정
-          .petName(petDTO.getPetName())
-          .breed(petDTO.getBreed())
-          .petBirth(petDTO.getPetBirth())
-          .petGender(petDTO.isPetGender())
-          .weight(petDTO.getWeight())
-          .petMbti(petDTO.getPetMbti())
-          .neutering(petDTO.isNeutering())
-          .petIntroduce(petDTO.getPetIntroduce())
-          .member(member)
-          .build();
-      petRepository.save(pet);
+      petService.registerMyPet(member, dto.getPetInfo());
     }
 
     return MemberResponseDTO.builder()

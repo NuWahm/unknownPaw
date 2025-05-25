@@ -72,7 +72,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             backendJpqlPath = "regDate"; // Post 엔티티에 'regDate' 필드가 있다고 가정
           } else if ("likes".equals(frontendProperty)) {
           } else if ("hourlyRate".equals(frontendProperty)) {
-            backendJpqlPath = "desiredHourlyRate";
+            backendJpqlPath = "hourlyRate";
           } else if ("author".equals(frontendProperty)) {
             backendJpqlPath = "member.nickname"; // 'p.member.nickname' 경로
           }

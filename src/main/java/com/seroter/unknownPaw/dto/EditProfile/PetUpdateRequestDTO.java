@@ -5,6 +5,7 @@ import lombok.*;
 @Data // Lombok: Getter, Setter, EqualsAndHashCode, ToString 자동 생성
 @NoArgsConstructor // Lombok: 기본 생성자 자동 생성
 @AllArgsConstructor
+@Builder
 public class PetUpdateRequestDTO {
   // 업데이트 가능한 필드들
   private String petName;
@@ -19,5 +20,5 @@ public class PetUpdateRequestDTO {
   // 이미지 파일 업데이트를 위한 필드 (예시, 실제 파일 처리 방식에 따라 달라짐)
   // private MultipartFile imageFile;
 
-  // Getter, Setter는 @Data 어노테이션으로 자동 생성됩니다.
+  // 삭제 예정
 }

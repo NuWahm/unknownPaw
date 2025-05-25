@@ -54,6 +54,8 @@ public class QPet extends EntityPathBase<Pet> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate = _super.regDate;
 
+    public final EnumPath<Pet.PetStatus> status = createEnum("status", Pet.PetStatus.class);
+
     public final NumberPath<Double> weight = createNumber("weight", Double.class);
 
     public QPet(String variable) {

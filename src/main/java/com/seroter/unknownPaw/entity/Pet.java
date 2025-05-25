@@ -54,5 +54,13 @@ public class Pet extends BaseEntity {  // BaseEntity 상속
     this.imgId = image;
   }
 
+  // pet 삭제 고려
+  @Enumerated(EnumType.STRING) // Enum 타입을 DB에 String으로 저장
+  @Column(nullable = false) // null을 허용하지 않음
+  private PetStatus status;
 
+  // 펫 상태를 정의하는 Enum
+  public enum PetStatus {
+    ACTIVE, DELETED // 활성, 삭제됨
+  }
 }
