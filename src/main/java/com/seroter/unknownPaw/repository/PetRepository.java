@@ -1,4 +1,3 @@
-// src/main/java/com/seroter/unknownPaw/repository/PetRepository.java
 package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.Member;
@@ -47,11 +46,11 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
   // 📌 [7] 펫 + 이미지 ID 조회 - 회원(mid)의 펫 ID + 이름 + 이미지 ID 조회
   // status = 'ACTIVE' 조건 추가
   @Query("""
-              SELECT p.petId, p.petName, i.imgId
-              FROM Pet p
-              LEFT JOIN Image i ON i.pet = p AND i.imageType = 2
-              WHERE p.member.mid = :mid AND p.status = 'ACTIVE'
-          """)
+          SELECT p.petId, p.petName, i.imgId
+          FROM Pet p
+          LEFT JOIN Image i ON i.pet = p AND i.imageType = 2
+          WHERE p.member.mid = :mid AND p.status = 'ACTIVE'
+      """)
   List<Object[]> getPetAndImageByMemberId(@Param("mid") Long mid);
 
   // ✨ 8 특정 회원 페이징이 없는 전체 펫 목록 조회 메서드
@@ -65,13 +64,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
   // 특정회원의 펫 목록 찾기 (status = ACTIVE 조건 추가)
   List<Pet> findByMemberAndStatus(Member member, PetStatus status);
-  // => 사용 시: petRepository.findByMemberAndStatus(member, PetStatus.ACTIVE);
 
   // 모든 활성 펫 조회 (status = ACTIVE 조건 추가)
   List<Pet> findByStatus(PetStatus status);
-  // => 사용 시: petRepository.findByStatus(PetStatus.ACTIVE);
-
-  // 기존에 있던 물리적 삭제 메서드들은 사용하지 않도록 주의하거나 제거하는 것이 좋습니다.
-  // void deleteById(Long petId);
-  // int deletePetByOwner(@Param("petId") Long petId, @Param("mid") Long mid);
 }
