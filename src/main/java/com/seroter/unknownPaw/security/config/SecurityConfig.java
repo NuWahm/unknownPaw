@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/member/login", "/api/member/register","/api/maps/**").permitAll()
+
                         .requestMatchers("/api/posts/**", "/api/member/mypage", "/api/member/profile/simple/me").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
