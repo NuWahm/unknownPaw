@@ -31,4 +31,3 @@ public class ImageDTO {
     private Long petSitterId; // 펫시터 게시글 ID (3)
     private Long communityId; //  커뮤니티 게시글 ID (4)
 }
-

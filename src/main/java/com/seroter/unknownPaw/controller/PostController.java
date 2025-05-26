@@ -1,6 +1,8 @@
 package com.seroter.unknownPaw.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.seroter.unknownPaw.dto.ImageDTO;
 import com.seroter.unknownPaw.dto.ModifyRequestDTO;
 import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
@@ -19,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import jakarta.transaction.Transactional;
 
 @RestController
 @RequiredArgsConstructor
@@ -102,20 +106,93 @@ public class PostController {
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
-          @PathVariable String postType, // 👈 이렇게!
+          @PathVariable String postType,
           @RequestBody ModifyRequestDTO modifyRequestDTO
   ) {
-    PostType enumPostType;
     try {
-      enumPostType = PostType.from(postType); // 기존 방식 재활용
+      PostType enumPostType = PostType.from(postType);
+      postService.modify(enumPostType.name(), modifyRequestDTO.getPostDTO());
+      return ResponseEntity.ok(Map.of(
+              "msg", "수정 완료",
+              "postId", modifyRequestDTO.getPostDTO().getPostId()
+      ));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body("Invalid postType: " + postType);
+    } catch (Exception e) {
+      log.error("게시글 수정 실패", e);
+      return ResponseEntity.badRequest().body("수정 실패: " + e.getMessage());
     }
-    postService.modify(enumPostType.name(), modifyRequestDTO.getPostDTO());
-    return ResponseEntity.ok(Map.of(
-            "msg", "수정 완료",
-            "postId", modifyRequestDTO.getPostDTO().getPostId()
-    ));
+  }
+
+  @PutMapping("/{postType}/modifyWithImage")
+  @Transactional
+  public ResponseEntity<?> modifyWithImage(
+          @PathVariable String postType,
+          @RequestParam("post") String postJson,
+          @RequestParam(value = "file", required = false) MultipartFile file,
+          @RequestParam Long postId
+  ) {
+    try {
+        // 1. 날짜 형식 처리
+        if (postJson.contains("\"serviceDate\"")) {
+            int startIndex = postJson.indexOf("\"serviceDate\":\"") + 14;
+            int endIndex = postJson.indexOf("\"", startIndex);
+            if (endIndex - startIndex == 10) { // YYYY-MM-DD 형식인 경우
+                String date = postJson.substring(startIndex, endIndex);
+                postJson = postJson.substring(0, endIndex) + "T00:00:00" + postJson.substring(endIndex);
+            }
+        }
+
+        PostDTO postDTO = objectMapper.readValue(postJson, PostDTO.class);
+        PostType enumPostType = PostType.from(postType);
+
+        // 2. 게시글 수정
+        postService.modify(enumPostType.name(), postDTO);
+
+        // 3. 이미지가 있는 경우 이미지 처리
+        if (file != null && !file.isEmpty()) {
+            Long petId = null;
+            if (postType.equalsIgnoreCase("petowner") && postDTO.getPetId() != null) {
+                petId = postDTO.getPetId();
+            }
+            
+            // 기존 이미지 정보 조회
+            PostDTO existingPost = postService.get(postType, postId);
+            
+            // 기존 이미지가 있다면 삭제
+            if (existingPost.getImages() != null && !existingPost.getImages().isEmpty()) {
+                ImageDTO oldImage = existingPost.getImages().get(0);
+                String oldFileName = oldImage.getPath().split("/")[1];
+                imageService.deleteImage(postType, oldFileName);
+            }
+            
+            // 새 이미지 저장
+            String savedFileName = imageService.saveImage(file, postType, "post", postId, petId);
+            
+            // 이미지 정보를 PostDTO에 추가
+            ImageDTO newImage = ImageDTO.builder()
+                    .path(postType + "/" + savedFileName)
+                    .thumbnailPath(postType + "/thumb_" + savedFileName)
+                    .build();
+            
+            // PostDTO 업데이트
+            postDTO.setPostId(postId);  // postId 설정
+            postDTO.setImages(List.of(newImage));
+            
+            // 이미지 정보가 포함된 게시글 정보 업데이트
+            postService.modify(enumPostType.name(), postDTO);
+            
+            log.info("이미지 저장 완료: {}", savedFileName);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "msg", "수정 완료",
+                "postId", postId
+        ));
+    } catch (Exception e) {
+        log.error("글+이미지 수정 실패", e);
+        return ResponseEntity.badRequest().body("수정 실패: " + e.getMessage());
+    }
   }
 
   @PostMapping("/{postType}/registerWithImage")
@@ -126,17 +203,35 @@ public class PostController {
           @RequestParam Long memberId
   ) {
     try {
+      // postType 변환 (pet_owner -> petowner, pet_sitter -> petsitter)
+      String convertedPostType = postType.replace("_", "");
+      
       PostDTO postDTO = objectMapper.readValue(postJson, PostDTO.class);
 
       // 1. 게시글 저장
-      Long postId = postService.register(postType, postDTO, memberId);
+      Long postId = postService.register(convertedPostType, postDTO, memberId);
 
       // 2. 이미지 저장 (postId 연결)
       Long petId = null;
-      if (postType.equalsIgnoreCase("petowner") && postDTO.getPetId() != null) {
+      if (convertedPostType.equalsIgnoreCase("petowner") && postDTO.getPetId() != null) {
         petId = postDTO.getPetId();
       }
-      imageService.saveImage(file, postType, postType, postId, petId);
+      
+      // 이미지 저장
+      String savedFileName = imageService.saveImage(file, convertedPostType, "post", postId, petId);
+      
+      // 이미지 정보를 PostDTO에 추가
+      ImageDTO newImage = ImageDTO.builder()
+              .path(convertedPostType + "/" + savedFileName)
+              .thumbnailPath(convertedPostType + "/thumb_" + savedFileName)
+              .build();
+      
+      // PostDTO 업데이트
+      postDTO.setPostId(postId);
+      postDTO.setImages(List.of(newImage));
+      
+      // 이미지 정보가 포함된 게시글 정보 업데이트
+      postService.modify(convertedPostType, postDTO);
 
       return ResponseEntity.ok(Map.of("postId", postId));
     } catch (Exception e) {

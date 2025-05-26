@@ -1,6 +1,7 @@
 package com.seroter.unknownPaw.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.PetOwner;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDTO implements Identifiable {
 
   private static final Logger log = LogManager.getLogger(PostDTO.class);
@@ -32,13 +34,20 @@ public class PostDTO implements Identifiable {
   private String serviceCategory; // 서비스 카테고리 (산책 , 호텔링 , 돌봄)
   private int hourlyRate; // 시급 (PetOn = 시급, PetSi = 희망 시급)
   private int likes;
+  
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime serviceDate;
+  
   private int chatCount; // 채팅 수
   private String defaultLocation; // 기본 위치
   private String flexibleLocation; // 유동적인 위치
   private Double latitude;            // 위도
   private Double longitude;           // 경도
+  
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime regDate; //  등록일
+  
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime modDate; //  수정일
 
   private Long petId;           // PetOwner에 연결된 Pet ID

@@ -47,17 +47,19 @@ public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
     String email = member.getEmail();
 
     String role = authResult.getAuthorities().stream()
-            .findFirst()
-            .map(a -> a.getAuthority()
-                    .replace("ROLE_", ""))
-            .orElse("USER");
+        .findFirst()
+        .map(a -> a.getAuthority()
+            .replace("ROLE_", ""))
+        .orElse("USER");
 
-    String token = null;
+    String token = jwtUtil.generateToken(email, role);
     try {
       token = jwtUtil.generateToken(email, role);
       response.setContentType("text/plain");
       response.getOutputStream().write(token.getBytes()); // token 발행
       log.info("generated token: " + token);
-    } catch (Exception e) {e.printStackTrace();}
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 }

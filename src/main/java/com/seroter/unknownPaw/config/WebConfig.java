@@ -18,17 +18,20 @@ public class WebConfig implements WebMvcConfigurer {
         // OS마다 달라지는 업로드 루트
         String base = uploadPathProvider.getUploadPath().replace("\\", "/") + "/";
 
-        registry.addResourceHandler("/pet_owner/**")
-                .addResourceLocations("file:" + base + "pet_owner/");
+        registry.addResourceHandler("/petowner/**")
+                .addResourceLocations("file:" + base + "petowner/");
 
-        registry.addResourceHandler("/pet_sitter/**")
-                .addResourceLocations("file:" + base + "pet_sitter/");
+        registry.addResourceHandler("/petsitter/**")
+                .addResourceLocations("file:" + base + "petsitter/");
 
         registry.addResourceHandler("/member/**")
                 .addResourceLocations("file:" + base + "member/");
 
         registry.addResourceHandler("/pet/**")
                 .addResourceLocations("file:" + base + "pet/");
+
+        registry.addResourceHandler("/community/**")
+                .addResourceLocations("file:" + base + "community/");
 
         // 그 외 정적 자원
         registry.addResourceHandler("/**")

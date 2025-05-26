@@ -18,11 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 @Log4j2
 @Service
@@ -34,11 +32,12 @@ public class PostService {
     private final PetOwnerRepository petOwnerRepository;
     private final PetSitterRepository petSitterRepository;
     private final SearchPostRepository searchPostRepository;
-    // 게시글 등록
+
+    // 게시글 등록 (문자열/Enum postType 모두 지원)
     public Long register(String postType, PostDTO dto, Long memberId) {
+        PostType type = parsePostType(postType);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-        PostType type = PostType.from(postType); // Enum 변환
         Post entity = dtoToEntity(type, dto);
         entity.setMember(member);
         return savePostbyPostType(type, entity);
@@ -46,15 +45,15 @@ public class PostService {
 
     // 게시글 조회
     public PostDTO get(String postType, Long postId) {
-        PostType type = PostType.from(postType);
+        PostType type = parsePostType(postType);
         return findPostbyPostType(type, postId)
-                .map(PostDTO::fromEntity)
+                .map(entity -> entityToDto(entity, type == PostType.PET_SITTER))
                 .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
     }
 
     // 게시글 수정
     public void modify(String postType, PostDTO dto) {
-        PostType type = PostType.from(postType);
+        PostType type = parsePostType(postType);
         Post entity = findPostbyPostType(type, dto.getPostId())
                 .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
         updateCommonFields(entity, dto);
@@ -63,7 +62,7 @@ public class PostService {
 
     // 게시글 삭제
     public void remove(String postType, Long postId) {
-        PostType type = PostType.from(postType);
+        PostType type = parsePostType(postType);
         switch (type) {
             case PET_OWNER -> petOwnerRepository.deleteById(postId);
             case PET_SITTER -> petSitterRepository.deleteById(postId);
@@ -74,31 +73,21 @@ public class PostService {
     @Transactional
     public Page<PostDTO> searchPosts(String postType, String keyword, String location, String category, Pageable pageable) {
         log.info("Searching posts with type: {}", postType);
-        // Repository에서 LEFT JOIN FETCH로 멤버 정보까지 가져옴
         Page<? extends Post> result = searchPostRepository.searchDynamic(postType, keyword, location, category, pageable);
-
-        // Controller의 list 메서드는 이 결과를 받아서 result.map(PostDTO::fromEntity) 호출
-        // 그러므로 PostDTO.fromEntity가 제대로 수정되어야 함
         log.info("Finished searching posts. Found {} elements.", result.getTotalElements());
-        return result.map(PostDTO::fromEntity);    }
+        return result.map(post -> entityToDto(post, isSitter(postType)));
+    }
 
-
-    // 특정 멤버의 게시글 조회 메서드
+    // 특정 멤버의 게시글 조회
     public List<PostDTO> getPostsByMember(PostType postType, Long memberId) {
-        switch (postType) {
-            case PET_OWNER:
-                return petOwnerRepository.findByMember_Mid(memberId)
-                        .stream()
-                        .map(PostDTO::fromEntity)
-                        .toList();
-            case PET_SITTER:
-                return petSitterRepository.findByMember_Mid(memberId)
-                        .stream()
-                        .map(PostDTO::fromEntity)
-                        .toList();
-            default:
-                throw new IllegalArgumentException("잘못된 PostType입니다.");
-        }
+        return switch (postType) {
+            case PET_OWNER ->
+                    petOwnerRepository.findByMember_Mid(memberId).stream()
+                            .map(post -> entityToDto(post, false)).toList();
+            case PET_SITTER ->
+                    petSitterRepository.findByMember_Mid(memberId).stream()
+                            .map(post -> entityToDto(post, true)).toList();
+        };
     }
 
     // 특정 위치에 맞는 펫시터 게시글 조회
@@ -109,7 +98,7 @@ public class PostService {
                 .toList();
     }
 
-    // DTO를 엔티티로 변환하는 메서드
+    // DTO → Entity 변환
     private Post dtoToEntity(PostType type, PostDTO dto) {
         try {
             ServiceCategory.valueOf(dto.getServiceCategory());
@@ -124,12 +113,6 @@ public class PostService {
 
     // 펫오너 게시글 엔티티 생성
     private Post createPetOwnerEntity(PostDTO dto) {
-        LocalDateTime parsedServiceDate = null;
-        if (dto.getServiceDate() != null) {
-            parsedServiceDate = dto.getServiceDate();
-        }
-        log.info("💡 [createPetOwnerEntity] dto.getServiceCategory(): {}", dto.getServiceCategory());
-
         PetOwner.PetOwnerBuilder builder = PetOwner.builder()
                 .postId(dto.getPostId())
                 .title(dto.getTitle())
@@ -147,18 +130,11 @@ public class PostService {
                     .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
             builder.pet(pet);
         }
-        PetOwner entity = builder.build();
-        log.info("💡 [createPetOwnerEntity] entity.getServiceCategory(): {}", entity.getServiceCategory());
         return builder.build();
-
     }
 
     // 펫시터 게시글 엔티티 생성
     private Post createPetSitterEntity(PostDTO dto) {
-        LocalDateTime parsedServiceDate = null;
-        if (dto.getServiceDate() != null) {
-            parsedServiceDate = dto.getServiceDate();
-        }
         PetSitter.PetSitterBuilder builder = PetSitter.builder()
                 .postId(dto.getPostId())
                 .title(dto.getTitle())
@@ -171,15 +147,12 @@ public class PostService {
                 .defaultLocation(dto.getDefaultLocation())
                 .flexibleLocation(dto.getFlexibleLocation())
                 .member(null);
-        if (dto.getLicense() != null)
-            builder.license(dto.getLicense());
-        if (dto.getPetExperience() != null)
-            builder.petExperience(dto.getPetExperience());
-
+        if (dto.getLicense() != null) builder.license(dto.getLicense());
+        if (dto.getPetExperience() != null) builder.petExperience(dto.getPetExperience());
         return builder.build();
     }
 
-    // 엔티티를 DTO로 변환
+    // 엔티티 → DTO 변환
     private PostDTO entityToDto(Post entity, boolean isSitter) {
         PostDTO.PostDTOBuilder builder = PostDTO.builder()
                 .postId(entity.getPostId())
@@ -193,28 +166,29 @@ public class PostService {
                 .flexibleLocation(entity.getFlexibleLocation())
                 .regDate(entity.getRegDate())
                 .modDate(entity.getModDate())
-                .isPetSitterPost(isSitter);
-        if (entity.getMember() != null) {
-            Member memberEntity = entity.getMember();
-            log.debug("Mapping member for post ID {}", entity.getPostId());
-            MemberResponseDTO memberDTO = MemberResponseDTO.builder()
-                    .mid(memberEntity.getMid())
-                    .email(memberEntity.getEmail())
-                    .nickname(memberEntity.getNickname())
-                    .profileImagePath(memberEntity.getProfileImagePath())
-                    .pawRate(memberEntity.getPawRate())
-                    .build();
-            builder.member(memberDTO);
-        } else {
-            log.warn("Post entity with ID {} has a null member during entityToDto mapping.", entity.getPostId());
-        }
+                .isPetSitterPost(isSitter)
+                .images(entity.getImages().stream()
+                        .map(img -> ImageDTO.builder()
+                                .imgId(img.getImgId())
+                                .path(img.getPath())
+                                .thumbnailPath(img.getThumbnailPath())
+                                .build())
+                        .collect(Collectors.toList()));
 
-        PostDTO builtDto = builder.build();
-        log.debug("Finished building PostDTO for post ID: {}", builtDto.getPostId());
-        return builtDto;
+        if (entity.getMember() != null) {
+            Member m = entity.getMember();
+            builder.member(MemberResponseDTO.builder()
+                    .mid(m.getMid())
+                    .email(m.getEmail())
+                    .nickname(m.getNickname())
+                    .profileImagePath(m.getProfileImagePath())
+                    .pawRate(m.getPawRate())
+                    .build());
+        }
+        return builder.build();
     }
 
-    // 게시글의 공통 필드를 업데이트
+    // 게시글 공통 필드 업데이트
     private void updateCommonFields(Post entity, PostDTO dto) {
         entity.setTitle(dto.getTitle());
         entity.setContent(dto.getContent());
@@ -224,7 +198,7 @@ public class PostService {
         entity.setFlexibleLocation(dto.getFlexibleLocation());
     }
 
-    // 역할에 맞는 게시글을 조회
+    // 역할에 맞는 게시글 조회
     private Optional<Post> findPostbyPostType(PostType type, Long postId) {
         return switch (type) {
             case PET_OWNER -> petOwnerRepository.findById(postId).map(post -> (Post) post);
@@ -232,7 +206,7 @@ public class PostService {
         };
     }
 
-    // Owner, Sitter 게시글을 저장
+    // Owner, Sitter 게시글 저장
     private Long savePostbyPostType(PostType type, Post entity) {
         return switch (type) {
             case PET_OWNER -> petOwnerRepository.save((PetOwner) entity).getPostId();
@@ -240,35 +214,11 @@ public class PostService {
         };
     }
 
-    // 펫시터 여부 확인
-    private boolean isSitter(String postType) {
-        PostType type = PostType.from(postType);
-        return type == PostType.PET_SITTER;
-    }
+    // ============= 좋아요 기능 =============
 
-    // 최근 7일 이내 펫오너 게시글 랜덤 6개
-    public List<PostDTO> getRandom6PetOwnerPosts() {
-        return petOwnerRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
-                .stream()
-                .limit(6)
-                .map(post -> entityToDto(post, false))
-                .toList();
-    }
-
-    // 최근 7일 이내 펫시터 게시글 랜덤 6개
-    public List<PostDTO> getRandom6PetSitterPosts() {
-        return petSitterRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
-                .stream()
-                .limit(6)
-                .map(post -> entityToDto(post, true))
-                .toList();
-    }
-
-    // 펫오너,펫시터 좋아요 등록
     @org.springframework.transaction.annotation.Transactional
     public void likePost(Long memberId, Long postId, PostType postType) {
         Member member = memberRepository.findById(memberId).orElseThrow();
-
         switch (postType) {
             case PET_OWNER -> {
                 PetOwner post = petOwnerRepository.findById(postId).orElseThrow();
@@ -280,18 +230,13 @@ public class PostService {
                 member.getLikedPetSitter().add(post);
                 post.setLikes(post.getLikes() + 1);
             }
-            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
         }
-
         memberRepository.save(member);
     }
 
-
-    // 펫오너, 시터 좋아요 취소
     @org.springframework.transaction.annotation.Transactional
     public void unlikePost(Long memberId, Long postId, PostType postType) {
         Member member = memberRepository.findById(memberId).orElseThrow();
-
         switch (postType) {
             case PET_OWNER -> {
                 PetOwner post = petOwnerRepository.findById(postId).orElseThrow();
@@ -303,39 +248,91 @@ public class PostService {
                 member.getLikedPetSitter().remove(post);
                 post.setLikes(post.getLikes() - 1);
             }
-            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
         }
-
         memberRepository.save(member);
     }
 
-    // 펫 오너 시터 좋아요 한 글 목록 조회
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Set<? extends Post> getLikedPosts(Long memberId, PostType postType) {
         Member member = memberRepository.findById(memberId).orElseThrow();
-
         return switch (postType) {
             case PET_OWNER -> member.getLikedPetOwner();
             case PET_SITTER -> member.getLikedPetSitter();
-            default -> throw new IllegalArgumentException("지원하지 않는 PostType입니다.");
         };
     }
 
-    // entityToDto 가 private 선언이 되어있어 접근하기 위한 메서드 컨트롤러에서 좋아요 누른글 조회
     public Set<PostDTO> getLikedPostDTOs(Long memberId, PostType postType) {
         Set<? extends Post> likedPosts = getLikedPosts(memberId, postType);
-        Set<PetOwner> ownerPosts = (Set<PetOwner>) likedPosts;
-        Set<PetSitter> sitterPosts = (Set<PetSitter>) likedPosts;
         return likedPosts.stream()
                 .map(post -> entityToDto(post, postType == PostType.PET_SITTER))
                 .collect(Collectors.toSet());
     }
 
+    // ============= 최근 게시글 랜덤 6개 =============
 
+    public List<PostDTO> getRandom6PetOwnerPosts() {
+        return petOwnerRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
+                .stream().limit(6)
+                .map(post -> entityToDto(post, false)).toList();
+    }
 
-    // 🖱️ 무한 스크롤
-//    public CursorResultDTO<PostDTO> getPostList(CursorRequestDTO request) {
-//        List<Post> posts = postRepository.findNextPosts(request.getLastPostId(), request.getSize());
-//        return new CursorResultDTO<>(posts, request.getSize(), PostDTO::fromEntity);
-//    }
+    public List<PostDTO> getRandom6PetSitterPosts() {
+        return petSitterRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
+                .stream().limit(6)
+                .map(post -> entityToDto(post, true)).toList();
+    }
+
+    // ============= 유틸 =============
+
+    private boolean isSitter(String postType) {
+        return PostType.PET_SITTER.name().equalsIgnoreCase(postType) || "petSitter".equalsIgnoreCase(postType);
+    }
+
+    private PostType parsePostType(String postType) {
+        if (postType == null) throw new IllegalArgumentException("postType은 null일 수 없습니다.");
+        if ("petOwner".equalsIgnoreCase(postType)) return PostType.PET_OWNER;
+        if ("petSitter".equalsIgnoreCase(postType)) return PostType.PET_SITTER;
+        try {
+            return PostType.valueOf(postType.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("지원하지 않는 PostType: " + postType);
+        }
+    }
+
+    @Transactional
+    public PostDTO modifyPost(PostDTO postDTO, PostType postType) {
+        Post post = findPostbyPostType(postType, postDTO.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        // 기존 게시글 정보 업데이트
+        post.setTitle(postDTO.getTitle());
+        post.setContent(postDTO.getContent());
+        post.setServiceCategory(ServiceCategory.valueOf(postDTO.getServiceCategory()));
+        post.setHourlyRate(postDTO.getHourlyRate());
+        post.setServiceDate(postDTO.getServiceDate());
+        post.setDefaultLocation(postDTO.getDefaultLocation());
+        post.setFlexibleLocation(postDTO.getFlexibleLocation());
+        post.setLatitude(postDTO.getLatitude());
+        post.setLongitude(postDTO.getLongitude());
+        post.setModDate(LocalDateTime.now());
+
+        // 이미지 처리
+        if (postDTO.getImages() != null && !postDTO.getImages().isEmpty()) {
+            // 기존 이미지 삭제
+            post.getImages().clear();
+            
+            // 새 이미지 저장
+            List<Image> newImages = postDTO.getImages().stream()
+                .map(imgDTO -> Image.builder()
+                    .path(imgDTO.getPath())
+                    .thumbnailPath(imgDTO.getThumbnailPath())
+                    .post(post)
+                    .build())
+                .collect(Collectors.toList());
+            
+            post.getImages().addAll(newImages);
+        }
+
+        return entityToDto(post, postType == PostType.PET_SITTER);
+    }
 }

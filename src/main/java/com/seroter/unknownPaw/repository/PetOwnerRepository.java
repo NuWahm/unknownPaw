@@ -21,6 +21,8 @@ public interface PetOwnerRepository extends PostRepository<PetOwner> {
     @Query("SELECT s FROM PetOwner s WHERE s.regDate >= :date")
     List<PetOwner> findRecent7DaysPosts(@Param("date") LocalDateTime date);
 
+    @Query("SELECT DISTINCT p FROM PetOwner p LEFT JOIN FETCH p.images")
+    List<PetOwner> findAllWithImages();
 
     // 펫오너 최근 내가 쓴글 조회
     int countByMember_Mid(Long mid);

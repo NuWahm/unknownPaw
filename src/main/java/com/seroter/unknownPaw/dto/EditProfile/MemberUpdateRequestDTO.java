@@ -1,4 +1,3 @@
-
 package com.seroter.unknownPaw.dto.EditProfile;
 
 import lombok.Getter;
