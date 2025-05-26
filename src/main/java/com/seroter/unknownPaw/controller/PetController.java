@@ -6,11 +6,14 @@ import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
 import com.seroter.unknownPaw.service.PetService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -116,5 +119,29 @@ public class PetController {
     }
   }
 
-  // ... (나머지 메서드) ...
+  @PostMapping("/register/later")
+
+  public ResponseEntity<Long> registerPet(
+
+      @RequestBody PetDTO petDTO,
+
+      @AuthenticationPrincipal UserDetails userDetails // 현재 로그인된 사용자 정보 주입
+
+  ) {
+
+    log.info("register pet for user: {}", userDetails.getUsername());
+
+
+// userDetails에서 이메일을 가져와 해당 Member를 찾습니다.
+
+    String loggedInUserEmail = userDetails.getUsername();
+
+    Member member = memberService.findByEmail(loggedInUserEmail)
+
+        .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다: " + loggedInUserEmail)); // 적절한 예외 처리
+
+
+    return new ResponseEntity<>(petService.registerPetLater(petDTO, member), HttpStatus.OK);
+
+  }
 }
