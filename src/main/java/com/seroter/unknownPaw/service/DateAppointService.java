@@ -254,11 +254,14 @@ public class DateAppointService {
         .price(price)
         .rating("4.5")
         .decideHourRate(appoint.getDecideHourRate())
+        .confirmationDate(appoint.getConfirmationDate())
+        .futureDate(appoint.getFutureDate())
+        .defaultLocation(appoint.getDefaultLocation())
         .mid(appoint.getMid() != null ? appoint.getMid().getMid() : null)
         .petId(appoint.getPetId() != null ? appoint.getPetId().getPetId() : null)
         .petOwnerPostId(appoint.getPetOwnerPost() != null ? appoint.getPetOwnerPost().getPostId() : null)
         .petSitterPostId(appoint.getPetSitterPost() != null ? appoint.getPetSitterPost().getPostId() : null)
-
+        .flexibleLocation(appoint.getFlexibleLocation())
         .build();
 
   }
