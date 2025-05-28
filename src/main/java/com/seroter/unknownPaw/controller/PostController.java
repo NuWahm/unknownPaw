@@ -37,7 +37,7 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
+      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage(), pageRequestDTO.getSize());
       Page<? extends Post> result = postService.searchPosts(
           postType,     // enum → String
           keyword,
