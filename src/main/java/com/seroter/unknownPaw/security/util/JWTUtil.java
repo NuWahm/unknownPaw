@@ -46,4 +46,14 @@ public class JWTUtil {
             .parse(token)
             .getPayload();
   }
+
+  // email 파싱
+  public String getEmail(String token) {
+    try {
+      Claims claims = getClaims(token);
+      return claims.getSubject(); // 보통 email을 subject로 넣는 경우
+    } catch (Exception e) {
+      throw new RuntimeException("Invalid JWT token", e);
+    }
+  }
 }

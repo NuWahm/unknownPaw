@@ -17,11 +17,14 @@ public class DateAppointRequestDTO {
   private String chat;
   private String defaultLocation;
   private String flexibleLocation;
+  private Double latitude;            // 위도
+  private Double longitude;           // 경도
 
-  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
   private LocalDateTime confirmationDate;
 
-  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
   private LocalDateTime futureDate;
 
   private ServiceCategory serviceCategory;
@@ -31,4 +34,6 @@ public class DateAppointRequestDTO {
   private Long imgId;
   private Long petOwnerPostId;
   private Long petSitterPostId;
+  private Long postId; // 예약 대상 글 ID (오너글 or 시터글)
+
 }

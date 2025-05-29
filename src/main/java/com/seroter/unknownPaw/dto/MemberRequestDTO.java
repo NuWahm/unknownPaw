@@ -18,4 +18,5 @@ public class MemberRequestDTO {
   private boolean fromSocial;     // 소셜 여부
   private String socialId;        // 소셜 ID
   private String signupChannel;   // 가입 경로
+  private PetDTO petInfo;
 }

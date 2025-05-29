@@ -3,10 +3,8 @@ package com.seroter.unknownPaw.entity;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +26,13 @@ public class Community {
     private String title;                // 제목
     private String content;              // 내용
 
+    // ========== [좋아요 수 설정 메서드] ==========
     // ========== [통계 정보] ==========
+    @Setter
     private int likes;                   // 좋아요 수
-    private int comment;               // 댓글 수
+    // ========== [댓글 수 설정 메서드] ==========
+    @Setter
+    private int comment;                 // 댓글 수
 
     // ========== [작성자 정보] ==========
     @ManyToOne(fetch = FetchType.LAZY)
@@ -57,11 +59,15 @@ public class Community {
         this.communityCategory = communityRequestDTO.getCommunityCategory(); // ✅ 단순 대입
     }
 
-
     // ========== [커뮤니티 이미지 리스트] (양방향 매핑) ==========
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<CommunityImage> communityImages = new ArrayList<>();
+
+    // ========== [댓글 리스트] ==========
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
 
     // ========== [이미지 리스트 추가] ==========
     public void addImage(CommunityImage image) {
@@ -74,7 +80,5 @@ public class Community {
         communityImages.remove(image);
         image.setCommunity(null); // 양방향 관계 해제
     }
-    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Comment> comments = new ArrayList<>();
+
 }

@@ -82,10 +82,11 @@ public class Member extends BaseEntity {
     public enum MemberStatus {
         ACTIVE, INACTIVE, BANNED, DELETED
     }
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
-            name = "member_roles",
-            joinColumns = @JoinColumn(name = "member_id")
+        name = "member_roles",
+        joinColumns = @JoinColumn(name = "member_id")
     )
     @Column(name = "role")
     @Builder.Default
@@ -94,8 +95,39 @@ public class Member extends BaseEntity {
     public void addRole(Role role) {
         roleSet.add(role);
     }
+
     public void addMemberRole(Role role) {
         this.roleSet.add(role);
     }
+
+    // PetOwnerPost 좋아요
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_petowner_posts",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetOwner> likedPetOwner = new HashSet<>();
+
+    // PetSitterPost 좋아요
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_petsitter_posts",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetSitter> likedPetSitter = new HashSet<>();
+
+    // Community 좋아요
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_community_posts",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "community_id")
+    )
+    @Builder.Default
+    private Set<Community> likedCommunity = new HashSet<>();
 
 }

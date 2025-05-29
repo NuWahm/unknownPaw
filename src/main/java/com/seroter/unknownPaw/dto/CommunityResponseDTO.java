@@ -3,10 +3,8 @@ package com.seroter.unknownPaw.dto;
 import com.seroter.unknownPaw.entity.Community;
 import com.seroter.unknownPaw.entity.CommunityImage;
 import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +12,6 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class CommunityResponseDTO {
 
     private Long communityId;

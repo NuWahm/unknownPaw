@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Table(name = "community_image")
 public class CommunityImage {

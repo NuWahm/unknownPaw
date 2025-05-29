@@ -18,11 +18,13 @@ public class PageRequestDTO {
     private String keyword;
 
     public PageRequestDTO() {
-        this.page = 0;
+        this.page = 1;
         this.size = 10;
     }
 
     public Pageable getPageable() {
-        return PageRequest.of(page, size, Sort.by("postId").descending());
+        int safePage = page < 1 ? 0 : page - 1;
+        return PageRequest.of(safePage, size, Sort.by("postId").descending());
     }
+
 }

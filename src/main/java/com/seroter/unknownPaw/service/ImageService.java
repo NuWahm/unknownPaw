@@ -68,41 +68,61 @@ public class ImageService {
     //👉 Image 에 연결될 대상이 어떤 객체인지를 식별하는 데 필요합니다.
 
 
+    // 👇 switch 구문에 지도용 타입 추가
     Image image = switch (targetType) {
       case "member" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .member(Member.builder().mid(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(imageType + "/" + saveName)
+              .imageType(Integer.parseInt(imageType))
+              .member(Member.builder().mid(targetId).build())
+              .build();
 
       case "pet" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .pet(Pet.builder().petId(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(imageType + "/" + saveName)
+              .imageType(Integer.parseInt(imageType))
+              .pet(Pet.builder().petId(targetId).build())
+              .build();
 
       case "petOwner" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .petOwner(PetOwner.builder().postId(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(imageType + "/" + saveName)
+              .imageType(Integer.parseInt(imageType))
+              .petOwner(PetOwner.builder().postId(targetId).build())
+              .build();
 
       case "petSitter" -> Image.builder()
-          .uuid(uuid)
-          .profileImg(originalName)
-          .path(imageType + "/" + saveName)
-          .imageType(Integer.parseInt(imageType))
-          .petSitter(PetSitter.builder().postId(targetId).build())
-          .build();
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(imageType + "/" + saveName)
+              .imageType(Integer.parseInt(imageType))
+              .petSitter(PetSitter.builder().postId(targetId).build())
+              .build();
+
+      // ✅ 지도용 petOwner 게시글 이미지
+      case "petOwnerMap" -> Image.builder()
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(imageType + "/" + saveName)
+              .imageType(Integer.parseInt(imageType))
+              .petOwner(PetOwner.builder().postId(targetId).build())
+              .build();
+
+      // ✅ 지도용 petSitter 게시글 이미지
+      case "petSitterMap" -> Image.builder()
+              .uuid(uuid)
+              .profileImg(originalName)
+              .path(imageType + "/" + saveName)
+              .imageType(Integer.parseInt(imageType))
+              .petSitter(PetSitter.builder().postId(targetId).build())
+              .build();
 
       default -> throw new IllegalArgumentException("잘못된 targetType 입니다.");
     };
+
 
     imageRepository.save(image);
     return saveName;
@@ -139,4 +159,5 @@ public class ImageService {
     }
     return false;
   }
+
 }

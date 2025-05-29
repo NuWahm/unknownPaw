@@ -30,19 +30,14 @@ public abstract class Post {
   @Enumerated(EnumType.STRING)
   private ServiceCategory serviceCategory;
 
-  private int desiredHourlyRate;
-
+  private int hourlyRate;
   private int likes; // 관심(좋아요 수)
-
-
   private int chatCount; // 채팅 개수
-
   private String defaultLocation; // 기본 위치
-
   private String flexibleLocation; // 유동적인 위치
-
+  private Double latitude;            // 위도
+  private Double longitude;           // 경도
   private LocalDateTime regDate; // 등록일
-
   private LocalDateTime modDate; // 수정일
 
   @PrePersist

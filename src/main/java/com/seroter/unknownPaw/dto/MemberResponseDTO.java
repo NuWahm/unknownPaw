@@ -3,12 +3,15 @@ package com.seroter.unknownPaw.dto;
 import com.seroter.unknownPaw.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
+@Setter
 public class MemberResponseDTO {
+
     private Long mid;                   // 회원 ID
     private String email;             // 이메일
     private String nickname;          // 닉네임
@@ -18,6 +21,11 @@ public class MemberResponseDTO {
     private String role;              // 역할
     private String status;            // 상태
     private LocalDateTime regDate;    // 가입일
+    private LocalDateTime modDate;    // 가입일
+    private String phoneNumber;
+    private String address;
+
+
 
     public MemberResponseDTO(Member member) {
         this.mid = member.getMid();
@@ -26,10 +34,14 @@ public class MemberResponseDTO {
         this.profileImagePath = member.getProfileImagePath();
         this.pawRate = member.getPawRate();
         this.emailVerified = member.isEmailVerified();
-        this.role = member.getRole().name(); // enum → String
-        this.status = member.getStatus().name(); // enum → String
+        this.role = member.getRole().name();
+        this.status = member.getStatus().name();
         this.regDate = member.getRegDate();
+        this.regDate = member.getModDate();
+        this.phoneNumber = member.getPhoneNumber();
+        this.address = member.getAddress();
     }
+
 
     public MemberResponseDTO(
             Long mid,
@@ -40,8 +52,12 @@ public class MemberResponseDTO {
             boolean emailVerified,
             String role,
             String status,
-            LocalDateTime regDate
+            LocalDateTime regDate,
+            LocalDateTime modDate,
+            String phoneNumber,
+            String address
     ) {
+
         this.mid = mid;
         this.email = email;
         this.nickname = nickname;
@@ -51,6 +67,8 @@ public class MemberResponseDTO {
         this.role = role;
         this.status = status;
         this.regDate = regDate;
+        this.modDate = modDate;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
     }
 }
-

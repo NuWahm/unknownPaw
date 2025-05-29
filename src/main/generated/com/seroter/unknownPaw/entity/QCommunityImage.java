@@ -30,6 +30,8 @@ public class QCommunityImage extends EntityPathBase<CommunityImage> {
 
     public final BooleanPath communityIsThumbnail = createBoolean("communityIsThumbnail");
 
+    public final QImage image;
+
     public QCommunityImage(String variable) {
         this(CommunityImage.class, forVariable(variable), INITS);
     }
@@ -49,6 +51,7 @@ public class QCommunityImage extends EntityPathBase<CommunityImage> {
     public QCommunityImage(Class<? extends CommunityImage> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.community = inits.isInitialized("community") ? new QCommunity(forProperty("community"), inits.get("community")) : null;
+        this.image = inits.isInitialized("image") ? new QImage(forProperty("image"), inits.get("image")) : null;
     }
 
 }
