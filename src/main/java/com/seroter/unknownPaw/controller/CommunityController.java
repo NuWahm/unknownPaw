@@ -36,7 +36,7 @@ public class CommunityController {
         if (images != null && !images.isEmpty()) {
             List<String> imageUrls = new ArrayList<>();
             for (MultipartFile image : images) {
-                String imageUrl = imageService.saveImage(image, ImageType.COMMUNITY, "community", postId);
+                String imageUrl = imageService.saveImage(image, ImageType.COMMUNITY.name(), "community", postId, null);
                 imageUrls.add(imageUrl);
             }
             communityService.addImagesToCommunity(postId, imageUrls);
@@ -50,8 +50,6 @@ public class CommunityController {
         // 단건 게시글 조회 서비스 호출
         CommunityResponseDTO community = communityService.getCommunityPost(postId);
         return ResponseEntity.ok(community);  // 조회된 게시글 반환
-
-
     }
 
     // ========== [게시글 조회 (전체)] ==========

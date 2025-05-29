@@ -73,7 +73,7 @@ public class MembersOAuth2UserDetailsService extends DefaultOAuth2UserService {
         .password(passwordEncoder.encode("1"))
         .fromSocial(true)
         .build();
-    member.addMemberRole(Member.Role.USER);
+    member.addRole(Member.Role.USER);
     memberRepository.save(member);
     return member;
   }

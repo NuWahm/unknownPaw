@@ -51,7 +51,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private int birthday; // 출생 연도 (예: 1990)
 
-    @Column(nullable = false)
+    @Column()
     private Boolean gender; // 성별 true = 남성, false = 여성
 
     @Column(length = 255)
@@ -68,7 +68,7 @@ public class Member extends BaseEntity {
     @Column(length = 30)
     private String signupChannel; // 가입 경로 (kakao, google등)
 
-    // 🛡️ 권한 및 상태
+    // === Enum ===
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role; // 사용자 권한 (일반회원, 관리자)
@@ -84,6 +84,7 @@ public class Member extends BaseEntity {
     public enum MemberStatus {
         ACTIVE, INACTIVE, BANNED, DELETED
     }
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "member_roles",
@@ -96,9 +97,11 @@ public class Member extends BaseEntity {
     public void addRole(Role role) {
         roleSet.add(role);
     }
+
     public void addMemberRole(Role role) {
         this.roleSet.add(role);
     }
+
     // PetOwnerPost 좋아요
     @ManyToMany
     @JoinTable(
@@ -142,10 +145,7 @@ public class Member extends BaseEntity {
     public List<Pet> getPets() {
         return new ArrayList<>(pets);
     }
-
-    public String getIntroduce() {
-        return this.introduce;  // 소개 반환
-    }
-
+    public String getIntroduce() { return this.introduce; }
 }
+
 

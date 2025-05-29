@@ -12,11 +12,16 @@ public class DateAppointResponseDTO {
   private String type;
   private String date;
   private String owner;
+  private String sitter;
   private String petName;
   private String duration;
   private String price;
   private String rating;
   private int decideHourRate;
-  private Double latitude;            // 위도
-  private Double longitude;           // 경도
+  private Long mid;
+  private Long petId;
+  private Long petOwnerPostId;
+  private Long petSitterPostId;
+
+
 }

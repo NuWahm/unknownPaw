@@ -1,35 +1,38 @@
 package com.seroter.unknownPaw.dto;
 
-import com.seroter.unknownPaw.entity.Enum.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.seroter.unknownPaw.entity.Member;
-import com.seroter.unknownPaw.entity.Pet;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.NoArgsConstructor;
 
-@Builder
+
 @Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberResponseDTO {
-
-
-    private Long mid;                   // 회원 ID
-    private String email;             // 이메일
-    private String nickname;          // 닉네임
-    private String profileImagePath;  // 프로필 이미지
-    private float pawRate;            // 평점
-    private boolean emailVerified;    // 이메일 인증 여부
-    private String role;              // 역할
-    private String status;            // 상태
+    private Long mid;
+    private String email;
+    private String nickname;
+    private String profileImagePath;
+    private float pawRate;
+    private boolean emailVerified;
+    private String role;
+    private String status;
     private LocalDateTime regDate;    // 가입일
+    private LocalDateTime modDate;    // 수정일
+    private String phoneNumber;
+    private String address;
     private boolean gender;
-    private String introduce;  // 소개
-    private List<PetDTO> pets; // PetDTO 목록
+    private String introduce;         // 소개
+    private List<PetDTO> pets;        // PetDTO 목록
 
+    // **Member 엔티티로부터 변환 생성자**
     public MemberResponseDTO(Member member) {
         this.mid = member.getMid();
         this.email = member.getEmail();
@@ -40,14 +43,16 @@ public class MemberResponseDTO {
         this.role = member.getRole().name();
         this.status = member.getStatus().name();
         this.regDate = member.getRegDate();
+        this.modDate = member.getModDate();         // <-- 수정일은 modDate로 따로!
+        this.phoneNumber = member.getPhoneNumber();
+        this.address = member.getAddress();
         this.gender = member.getGender();
         this.introduce = member.getIntroduce();
-
-        this.pets = member.getPets() == null ? null :
-                member.getPets().stream()
-                        .map(PetDTO::new)
-                        .collect(Collectors.toList());
+        this.pets = (member.getPets() == null) ? null :
+                member.getPets().stream().map(PetDTO::new).collect(Collectors.toList());
     }
+
+    // **필드 기반 생성자**
     public MemberResponseDTO(
             Long mid,
             String email,
@@ -58,6 +63,9 @@ public class MemberResponseDTO {
             String role,
             String status,
             LocalDateTime regDate,
+            LocalDateTime modDate,
+            String phoneNumber,
+            String address,
             boolean gender,
             String introduce,
             List<PetDTO> pets
@@ -71,18 +79,22 @@ public class MemberResponseDTO {
         this.role = role;
         this.status = status;
         this.regDate = regDate;
+        this.modDate = modDate;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
         this.gender = gender;
         this.introduce = introduce;
         this.pets = pets;
     }
+
+    // **간단 요약 DTO**
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class Simple  {
+    public static class Simple {
         private Long mid;
         private String nickname;
         private float pawRate;
         private String profileImagePath;
     }
 }
-

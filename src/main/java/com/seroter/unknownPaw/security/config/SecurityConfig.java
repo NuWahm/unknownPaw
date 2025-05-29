@@ -10,11 +10,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,27 +30,85 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final ApiLoginFailHandler apiLoginFailHandler;
     private final ApplicationContext applicationContext;
-    private final CORSFilter corsFilter;  // 내가 만든 필터 주입
+    private final CORSFilter corsFilter; // 꼭 주입
 
+    // [1] AuthenticationManager 명시적 등록 (PasswordEncoder는 따로 주입)
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http,
+                                                       org.springframework.security.crypto.password.PasswordEncoder encoder) throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(userDetailsService).passwordEncoder(encoder);
+        return builder.build();
+    }
+
+    // [2] SecurityFilterChain
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 인증 필요한 API 패턴 넓게 설정
         ApiCheckFilter apiCheckFilter = new ApiCheckFilter(
-                new String[]{"/api/posts/**","/api/member/mypage"},jwtUtil);
-        http.csrf(csrf -> csrf.disable())
+                new String[]{
+                        "/api/posts/**",
+                        "/api/member/mypage",
+                        "/api/member/profile/simple/**",
+                        "/api/member/*/pets",
+                        "/api/member/*/posts",
+                        "/api/member/me",
+                        "/api/member/update",
+                        "/api/member/change-password",
+                        "/api/member/withdraw",
+                        "/api/pet/register/later",
+                        "/api/pet/{petId}"
+                }, jwtUtil);
+
+        http
+                .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/member/login", "/api/member/register",
-                                "/api/maps/**").permitAll()
-                        .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
-                        .anyRequest().permitAll())
+                        .requestMatchers(
+                                "/api/member/login",
+                                "/api/member/register",
+                                "/api/maps/**", // 지도 API는 인증 없이 접근 가능
+                                "/api/member/check-email",
+                                "/api/member/check-phone",
+                                "/api/member/check-nickname",
+                                "/api/list",
+
+                                "/api/oauth/kakao", // 정확한 콜백 경로
+                                "/api/oauth/kakao/**", // 혹시 하위 경로도 있다면
+                                "/api/member/kakao-login", // 카카오 로그인 시작 URL (만약 있다면)
+
+                                "/swagger-ui.html", // Swagger UI 접근 허용
+                                "/swagger-ui/**",   // Swagger UI 리소스 허용
+                                "/v3/api-docs/**",  // Swagger API 문서 허용
+                                "/api/" // 루트 페이지도 허용 (혹시 모를 초기 접근)
+
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/posts/**",
+                                "/api/member/mypage",
+                                "/api/member/profile/simple/**",
+                                "/api/member/*/pets",
+                                "/api/member/*/posts",
+                                "/api/member/me",
+                                "/api/member/update",
+                                "/api/member/change-password",
+                                "/api/member/withdraw",
+                                "/api/pet/register/later",
+                                "/api/pet/{petId}"
+                        ).authenticated()
+                        .anyRequest().authenticated() // 나머지 모든 요청은 인증 필요 (아니면 401 에러를 받게 됩니다.)
+                )
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);
 
-        if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {
-            http.oauth2Login(oauth -> oauth.userInfoEndpoint(info -> info.userService(oAuth2UserService)));
-        }
+//        if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {
+//            http.oauth2Login(oauth -> oauth
+//                            .userInfoEndpoint(info -> info.userService(oAuth2UserService))
+//
         return http.build();
     }
-
 }

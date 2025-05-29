@@ -34,11 +34,11 @@ public class QImage extends EntityPathBase<Image> {
 
     public final QPet pet;
 
-    public final QPetOwner petOwner;
-
-    public final QPetSitter petSitter;
+    public final QPost post;
 
     public final StringPath profileImg = createString("profileImg");
+
+    public final StringPath thumbnailPath = createString("thumbnailPath");
 
     public final StringPath uuid = createString("uuid");
 
@@ -63,8 +63,7 @@ public class QImage extends EntityPathBase<Image> {
         this.community = inits.isInitialized("community") ? new QCommunity(forProperty("community"), inits.get("community")) : null;
         this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
         this.pet = inits.isInitialized("pet") ? new QPet(forProperty("pet"), inits.get("pet")) : null;
-        this.petOwner = inits.isInitialized("petOwner") ? new QPetOwner(forProperty("petOwner"), inits.get("petOwner")) : null;
-        this.petSitter = inits.isInitialized("petSitter") ? new QPetSitter(forProperty("petSitter"), inits.get("petSitter")) : null;
+        this.post = inits.isInitialized("post") ? new QPost(forProperty("post"), inits.get("post")) : null;
     }
 
 }
