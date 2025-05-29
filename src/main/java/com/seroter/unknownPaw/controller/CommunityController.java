@@ -116,7 +116,18 @@ public class CommunityController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 삭제 완료 응답
 
     }
-
+    // community 좋아요 추가
+    @PostMapping("/community/{id}/like")
+    public ResponseEntity<Void> likeCommunity(@PathVariable Long id, @RequestParam Long memberId) {
+        communityService.likePost(id, memberId);
+        return ResponseEntity.ok().build();
+    }
+    // community 좋아요 취소
+    @DeleteMapping("/community/{id}/unlike")
+    public ResponseEntity<Void> unlikeCommunity(@PathVariable Long id, @RequestParam Long memberId) {
+        communityService.unlikePost(id, memberId);
+        return ResponseEntity.ok().build();
+    }
 
 
 

@@ -214,6 +214,19 @@ public class CommunityService {
             .map(CommunityResponseDTO::fromEntity)
             .collect(Collectors.toList());
     }
+    //
+    public void likePost(Long postId, Long memberId) {
+        Community community = communityRepository.findById(postId).orElseThrow();
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.getLikedCommunity().add(community);
+        memberRepository.save(member);
+    }
 
+    public void unlikePost(Long postId, Long memberId) {
+        Community community = communityRepository.findById(postId).orElseThrow();
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.getLikedCommunity().remove(community);
+        memberRepository.save(member);
+    }
 
 }
