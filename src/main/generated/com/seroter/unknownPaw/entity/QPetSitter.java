@@ -39,10 +39,13 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     //inherited
     public final NumberPath<Integer> hourlyRate;
 
-    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+    //inherited
+    public final ListPath<Image, QImage> images;
 
     //inherited
     public final NumberPath<Double> latitude;
+
+    public final ListPath<String, StringPath> license = this.<String, StringPath>createList("license", String.class, StringPath.class, PathInits.DIRECT2);
 
     //inherited
     public final NumberPath<Integer> likes;
@@ -56,17 +59,19 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modDate;
 
-    //inherited
-    public final NumberPath<Long> postId;
+    public final NumberPath<Integer> petExperience = createNumber("petExperience", Integer.class);
 
     //inherited
-    public final EnumPath<com.seroter.unknownPaw.entity.Enum.PostType> postType;
+    public final NumberPath<Long> postId;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
     public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> serviceDate;
 
     //inherited
     public final StringPath title;
@@ -95,15 +100,16 @@ public class QPetSitter extends EntityPathBase<PetSitter> {
         this.defaultLocation = _super.defaultLocation;
         this.flexibleLocation = _super.flexibleLocation;
         this.hourlyRate = _super.hourlyRate;
+        this.images = _super.images;
         this.latitude = _super.latitude;
         this.likes = _super.likes;
         this.longitude = _super.longitude;
         this.member = _super.member;
         this.modDate = _super.modDate;
         this.postId = _super.postId;
-        this.postType = _super.postType;
         this.regDate = _super.regDate;
         this.serviceCategory = _super.serviceCategory;
+        this.serviceDate = _super.serviceDate;
         this.title = _super.title;
     }
 

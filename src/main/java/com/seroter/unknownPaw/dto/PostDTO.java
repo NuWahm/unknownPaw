@@ -1,5 +1,7 @@
 package com.seroter.unknownPaw.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.PetOwner;
@@ -21,30 +23,46 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDTO implements Identifiable {
 
   private static final Logger log = LogManager.getLogger(PostDTO.class);
 
-  private Long postId;                      // 글번호 (고유 키)
-  private String title;                     // 글 제목
-  private String content;                   // 글 내용
-  private String serviceCategory;           // 서비스 카테고리 (산책, 호텔링, 돌봄)
-  private int hourlyRate;                   // 시급
-  private int likes;                        // 관심(좋아요 수)
-  private int chatCount;                    // 채팅 수
-  private String defaultLocation;           // 기본 위치
-  private String flexibleLocation;          // 유동적인 위치
+  private Long postId; // 글번호 (고유 키)
+  private String title; // 글제목
+  private String content; // 글내용
+  private String serviceCategory; // 서비스 카테고리 (산책 , 호텔링 , 돌봄)
+  private int hourlyRate; // 시급 (PetOn = 시급, PetSi = 희망 시급)
+  private int likes;
+  
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime serviceDate;
+  
+  private int chatCount; // 채팅 수
+  private String defaultLocation; // 기본 위치
+  private String flexibleLocation; // 유동적인 위치
   private Double latitude;            // 위도
   private Double longitude;           // 경도
-  private LocalDateTime regDate;            // 등록일
-  private LocalDateTime modDate;            // 수정일
+  
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime regDate; //  등록일
+  
+  @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private LocalDateTime modDate; //  수정일
 
+  private Long petId;           // PetOwner에 연결된 Pet ID
+
+  private List<String> license;      // PetSitter: 자격증
+  private Integer petExperience; // PetSitter: 경력(연차 등, null 허용)
+
+  //  private String email; // 작성자 이메일 (Members 엔티티 참조) 더 가져올 정보 多
   @JsonProperty("images")
   private List<ImageDTO> images;            // 게시글에 첨부된 이미지 리스트
 
   private boolean isPetSitterPost;          // true: 시터 글, false: 오너 글
 
   private MemberResponseDTO member;         // 작성자 정보 DTO
+
 
   /**
    * 무한 스크롤 구현을 위한 ID 반환 메서드
@@ -66,6 +84,7 @@ public class PostDTO implements Identifiable {
               .map(img -> ImageDTO.builder()
                       .imgId(img.getImgId())
                       .path(img.getPath())
+                      .thumbnailPath(img.getThumbnailPath())
                       .build())
               .collect(Collectors.toList());
     } else if (post instanceof PetSitter sitter && sitter.getImages() != null) {
@@ -73,6 +92,7 @@ public class PostDTO implements Identifiable {
               .map(img -> ImageDTO.builder()
                       .imgId(img.getImgId())
                       .path(img.getPath())
+                      .thumbnailPath(img.getThumbnailPath())
                       .build())
               .collect(Collectors.toList());
     }
@@ -92,8 +112,9 @@ public class PostDTO implements Identifiable {
             .longitude(post.getLongitude())
             .regDate(post.getRegDate())
             .modDate(post.getModDate())
-            .images(images)
-            .isPetSitterPost(post instanceof PetSitter); // 시터 게시글 여부 설정
+            .images(images)                     // ← 여기!
+            .isPetSitterPost(post instanceof PetSitter);
+
 
     // 작성자 정보 추가
     if (post.getMember() != null) {
@@ -122,4 +143,3 @@ public class PostDTO implements Identifiable {
             .build();
   }
 }
-

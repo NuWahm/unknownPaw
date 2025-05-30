@@ -3,7 +3,6 @@ package com.seroter.unknownPaw.service;
 import com.seroter.unknownPaw.dto.CommentDTO;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.dto.CommunityResponseDTO;
-import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Comment;
 import com.seroter.unknownPaw.entity.Community;
 import com.seroter.unknownPaw.entity.CommunityImage;
@@ -13,11 +12,12 @@ import com.seroter.unknownPaw.repository.CommentRepository;
 import com.seroter.unknownPaw.repository.CommunityImageRepository;
 import com.seroter.unknownPaw.repository.CommunityRepository;
 import com.seroter.unknownPaw.repository.MemberRepository;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,15 +30,15 @@ public class CommunityService {
 
     private final CommunityImageRepository communityImageRepository;
 
-  // ========== [게시글 등록] ==========
-  @Transactional
-  public Long createCommunityPost(Long memberId, CommunityRequestDTO communityRequestDTO) {
-    // 회원 ID로 회원 조회
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+    // ========== [게시글 등록] ==========
+    @Transactional
+    public Long createCommunityPost(Long memberId, CommunityRequestDTO communityRequestDTO) {
+        // 회원 ID로 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
 
-    // 게시글 카테고리 변환 (안전하게 변환)
-    CommunityCategory communityCategory = CommunityCategory.fromString(String.valueOf(communityRequestDTO.getCommunityCategory()));
+        // 게시글 카테고리 변환 (안전하게 변환)
+        CommunityCategory communityCategory = CommunityCategory.fromString(String.valueOf(communityRequestDTO.getCommunityCategory()));
 
         // 게시글 엔티티 생성
         Community community = Community.builder()
@@ -51,21 +51,21 @@ public class CommunityService {
 
                 .build();
 
-    // 게시글 저장
-    Community savedCommunity = communityRepository.save(community);
-    return savedCommunity.getCommunityId();
-  }
-
-  // ========== [게시글 단건 조회] ==========
-  public CommunityResponseDTO getCommunityPost(Long communityId) {
-    Community community = communityRepository.findByCommunityId(communityId);
-    if (community == null) {
-      throw new IllegalArgumentException("Post not found");
+        // 게시글 저장
+        Community savedCommunity = communityRepository.save(community);
+        return savedCommunity.getCommunityId();
     }
 
-    // CommunityResponseDTO 생성 시, fromEntity 사용
-    return CommunityResponseDTO.fromEntity(community);
-  }
+    // ========== [게시글 단건 조회] ==========
+    public CommunityResponseDTO getCommunityPost(Long communityId) {
+        Community community = communityRepository.findByCommunityId(communityId);
+        if (community == null) {
+            throw new IllegalArgumentException("Post not found");
+        }
+
+        // CommunityResponseDTO 생성 시, fromEntity 사용
+        return CommunityResponseDTO.fromEntity(community);
+    }
 
     // ========== [게시글 전체 조회] ==========
     public List<CommunityResponseDTO> getAllCommunityPosts() {
@@ -127,9 +127,9 @@ public class CommunityService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-    commentRepository.save(comment);
-    return comment.getCommentId();
-  }
+        commentRepository.save(comment);
+        return comment.getCommentId();
+    }
 
     // ========== [댓글 조회] ==========
 
@@ -154,106 +154,105 @@ public class CommunityService {
 
     }
 
-  // ========== [댓글 삭제] ==========
-  @Transactional
-  public void deleteComment(Long commentId, Long memberId) {
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+    // ========== [댓글 삭제] ==========
+    @Transactional
+    public void deleteComment(Long commentId, Long memberId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
 
-    if (!comment.getMember().getMid().equals(memberId)) {
-      throw new IllegalArgumentException("You can only delete your own comment");
-    }
-
+        if (!comment.getMember().getMid().equals(memberId)) {
+            throw new IllegalArgumentException("You can only delete your own comment");
+        }
 
 
         commentRepository.delete(comment);
     }
 
-  // 커뮤니티 게시글에 이미지를 추가하는 메서드
-  @Transactional
-  public void addImagesToCommunity(Long communityId, List<String> imageUrls) {
-    Community community = communityRepository.findByCommunityId(communityId);
-    if (community == null) {
-      throw new IllegalArgumentException("Community post not found");
+    // 커뮤니티 게시글에 이미지를 추가하는 메서드
+    @Transactional
+    public void addImagesToCommunity(Long communityId, List<String> imageUrls) {
+        Community community = communityRepository.findByCommunityId(communityId);
+        if (community == null) {
+            throw new IllegalArgumentException("Community post not found");
+        }
+
+        // 이미지 추가
+        for (String imageUrl : imageUrls) {
+            CommunityImage image = CommunityImage.builder()
+                    .communityImageUrl(imageUrl)
+                    .communityIsThumbnail(false)  // 기본적으로 썸네일은 아니라고 가정
+                    .community(community)  // 해당 커뮤니티 게시글과 연결
+                    .build();
+            communityImageRepository.save(image);  // 이미지 저장
+        }
     }
 
-    // 이미지 추가
-    for (String imageUrl : imageUrls) {
-      CommunityImage image = CommunityImage.builder()
-          .communityImageUrl(imageUrl)
-          .communityIsThumbnail(false)  // 기본적으로 썸네일은 아니라고 가정
-          .community(community)  // 해당 커뮤니티 게시글과 연결
-          .build();
-      communityImageRepository.save(image);  // 이미지 저장
+    // 특정 커뮤니티 게시글에 속한 이미지들 조회
+    public List<CommunityImage> getCommunityImages(Long communityId) {
+        return communityImageRepository.findByCommunity_CommunityId(communityId);
     }
-  }
 
-  // 특정 커뮤니티 게시글에 속한 이미지들 조회
-  public List<CommunityImage> getCommunityImages(Long communityId) {
-    return communityImageRepository.findByCommunity_CommunityId(communityId);
-  }
-
-  // 커뮤니티 게시글의 썸네일 이미지 조회
-  public CommunityImage getThumbnailImage(Long communityId) {
-    return communityImageRepository.findByCommunity_CommunityId(communityId)
-        .stream()
-        .filter(CommunityImage::isCommunityIsThumbnail)  // 썸네일 이미지 필터링
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Thumbnail image not found"));
-  }
-
-  // ========== [댓글 ID로 댓글 조회] ==========
-  public Comment getCommentById(Long commentId) {
-    return commentRepository.findByCommentId(commentId);
-  }
-
-
-
-  @Transactional
-  public void likeCommunityPost(Long memberId, Long communityId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
-    Community community = communityRepository.findById(communityId)
-        .orElseThrow(() -> new IllegalArgumentException("Community not found"));
-
-    if (!member.getLikedCommunity().contains(community)) {
-      member.getLikedCommunity().add(community);
-      community.setLikes(community.getLikes() + 1);
-      memberRepository.save(member);
+    // 커뮤니티 게시글의 썸네일 이미지 조회
+    public CommunityImage getThumbnailImage(Long communityId) {
+        return communityImageRepository.findByCommunity_CommunityId(communityId)
+                .stream()
+                .filter(CommunityImage::isCommunityIsThumbnail)  // 썸네일 이미지 필터링
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Thumbnail image not found"));
     }
-  }
 
-  @Transactional
-  public void unlikeCommunityPost(Long memberId, Long communityId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
-    Community community = communityRepository.findById(communityId)
-        .orElseThrow(() -> new IllegalArgumentException("Community not found"));
+    // ========== [댓글 ID로 댓글 조회] ==========
+    public Comment getCommentById(Long commentId) {
+        return commentRepository.findByCommentId(commentId);
 
-    if (member.getLikedCommunity().contains(community)) {
-      member.getLikedCommunity().remove(community);
-      community.setLikes(community.getLikes() - 1);
-      memberRepository.save(member);
     }
-  }
 
-  @Transactional(readOnly = true)
-  public List<CommunityResponseDTO> getLikedCommunityPosts(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
-    return member.getLikedCommunity()
-        .stream()
-        .map(CommunityResponseDTO::fromEntity)
-        .collect(Collectors.toList());
-  }
+    // 타입별로 조회
+    public List<CommunityResponseDTO> getPostsByType(String type) {
+        CommunityCategory category = CommunityCategory.valueOf(type);
+        List<Community> posts = communityRepository.findByCommunityCategory(category);
+        return posts.stream()
+            .map(CommunityResponseDTO::fromEntity)
+            .collect(Collectors.toList());
+    }
+    // 커뮤니티 좋아요 추가
+    public void likePost(Long postId, Long memberId) {
+        Community community = communityRepository.findById(postId).orElseThrow();
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.getLikedCommunity().add(community);
+        memberRepository.save(member);
+    }
+    // 커뮤니티 좋아요 취소
+    public void unlikePost(Long postId, Long memberId) {
+        Community community = communityRepository.findById(postId).orElseThrow();
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.getLikedCommunity().remove(community);
+        memberRepository.save(member);
+    }
+
+    // 좋아요 누른 커뮤니티 게시글 조회
+    public List<CommunityResponseDTO> getLikedCommunityPosts(Long memberId) {
+        List<Community> likedPosts = communityRepository.findByLikedMemberId(memberId);
+        return likedPosts.stream()
+            .map(CommunityResponseDTO::fromEntity)
+            .collect(Collectors.toList());
+    }
+
+    // 커뮤니티 좋아요 누른 사람 확인
+    public boolean isLikedByMember(Long postId, Long memberId) {
+        return communityRepository.existsByCommunityIdAndLikedMembers_Mid(postId, memberId);
+    }
+
+    // 커뮤니티 좋아요 누른 갯수
+    public int getLikeCount(Long postId) {
+        Optional<Community> optional = communityRepository.findById(postId);
+        if (optional.isPresent()) {
+            return optional.get().getLikedMembers().size();
+        } else {
+            throw new IllegalArgumentException("해당 ID의 커뮤니티 게시글이 없습니다: " + postId);
+        }
+    }
 
 
-  //   //  커뮤니티 최근 게시물 랜덤 6개 가져오기
-//    public List<CommunityResponseDTO> getRandom6Community() {
-//        return communityRepository.findRecent7DaysRandom6Community()
-//            .stream()
-//            .map(CommunityResponseDTO::fromEntity)
-//            .collect(Collectors.toList());
-//    }
 
 }

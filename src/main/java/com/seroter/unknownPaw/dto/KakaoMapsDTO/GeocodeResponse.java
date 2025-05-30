@@ -55,4 +55,4 @@ public class GeocodeResponse {
         private int pageable_count;
         private boolean is_end;
     }
-} 
+}

@@ -53,10 +53,10 @@ public class PostRepositoryImplTests {
     for (int i = 1; i <= 100; i++) {
       // 1. Member 생성 (Owner 및 Sitter 공통)
       Member owner = Member.builder()
-              .email("Odeng" + i + "@mogae.com")
+              .email("mung" + i + "@mogae.com")
               .password(passwordEncoder.encode("1")) // 필요 시 인코딩 주석 해제
               .name("Owner" + i)
-              .nickname("OwnerNick" + i+"test❤")
+              .nickname("OwnerNick" + i + "test")
               .phoneNumber("010-1234-567" + i)
               .pawRate(0.5f)
               .gender(random.nextBoolean())
@@ -68,6 +68,7 @@ public class PostRepositoryImplTests {
               .status(Member.MemberStatus.ACTIVE)
               .signupChannel("test")
               .build();
+
       memberRepository.save(owner);
 
       // 2. PetOwner 생성 (오너 게시글)
@@ -143,6 +144,7 @@ public class PostRepositoryImplTests {
               .petIntroduce("사람 좋아하고 순해요")
               .member(owner)
               .petOwnerId(petOwner)  // 펫 오너와 연결
+              .status(Pet.PetStatus.ACTIVE)
               .build();
       petRepository.save(pet);
 

@@ -1,12 +1,18 @@
 package com.seroter.unknownPaw.controller;
 
 import com.seroter.unknownPaw.dto.*;
+import com.seroter.unknownPaw.dto.EditProfile.MemberUpdateRequestDTO;
+import com.seroter.unknownPaw.dto.EditProfile.PasswordChangeRequestDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
 import com.seroter.unknownPaw.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,138 +28,197 @@ public class MemberController {
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
-    // ✅ 0. 회원가입
+    // 0. 회원가입
     @PostMapping("/register")
     public ResponseEntity<MemberResponseDTO> register(@RequestBody MemberRequestDTO memberRequestDTO) {
         log.info("register.....................");
         return ResponseEntity.ok(memberService.register(memberRequestDTO));
     }
 
-    // ✅ 1. 로그인
+    // 1. 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO dto) {
-
-        Member member = memberService.findByEmail(dto.getEmail())
-                .orElse(null);
+        Member member = memberService.findByEmail(dto.getEmail()).orElse(null);
         if (member == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("존재하지 않는 계정입니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("존재하지 않는 계정입니다.");
         }
-
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
-
         try {
-            /* ---------- ① role 읽어서 ---------- */
-            String role  = member.getRole().name();  // enum 이라면 .name()
-
-            /* ---------- ② 토큰 생성 시 전달 ---------- */
+            String role = member.getRole().name();
             String token = jwtUtil.generateToken(member.getEmail(), role);
-
             Map<String, Object> res = new HashMap<>();
-            res.put("token",   token);
-            res.put("member",  new MemberResponseDTO(member));
-
+            res.put("token", token);
+            res.put("member", new MemberResponseDTO(member));
             return ResponseEntity.ok(res);
-
         } catch (Exception ex) {
             log.error("토큰 생성 실패", ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("토큰 생성 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("토큰 생성 실패");
         }
-    }
-    // ✅ 2. 회원 기본 정보 조회 (mid)
-    @GetMapping("/id/{mid}")
-    public ResponseEntity<MemberResponseDTO> getMember(@PathVariable Long mid) {
-        return ResponseEntity.ok(memberService.getMember(mid));
     }
 
-    // ✅ 3. 회원 요약 정보 (프로필 등) 조회
-    @GetMapping("/profile/simple/{mid}")
-    public ResponseEntity<MemberResponseDTO> getSimpleProfileInfo(@PathVariable Long mid) {
-        log.info("회원 요약 정보 요청: mid = {}", mid); // 로깅 추가
+    // ----------- 내 프로필(마이페이지용) ----------
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentMemberInfo(HttpServletRequest request) {
         try {
-            MemberResponseDTO profile = memberService.getSimpleProfileInfo(mid);
-            return ResponseEntity.ok(profile);
-        } catch (IllegalArgumentException e) {
-            log.warn("회원 정보를 찾을 수 없습니다. mid = {}", mid);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 응답
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+            }
+            String token = authHeader.substring(7);
+            String email = jwtUtil.getEmail(token);
+            Member member = memberService.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
+            return ResponseEntity.ok(new MemberResponseDTO(member));
         } catch (Exception e) {
-            log.error("회원 요약 정보 조회 중 오류 발생: mid = {}", mid, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰");
         }
     }
-    // 3-1. 특정 회원의 펫 목록 조회
-    @GetMapping("/{mid}/pets") // ✨ 새로운 엔드포인트: /api/member/{mid}/pets
+
+    // ✅ 프론트에서 반드시 필요한 "간단 프로필 + 펫리스트" (예: 게시글 작성 등에서 활용)
+    @GetMapping("/profile/simple/me")
+    public ResponseEntity<MemberResponseDTO> getSimpleProfileMe(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getEmail(token);
+        Member member = memberService.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        MemberResponseDTO response = memberService.getSimpleProfile(member.getMid()); // mid는 PK
+        return ResponseEntity.ok(response);
+    }
+
+    // ----------- 타인 프로필/조회/기타 ----------
+    @GetMapping("/profile/simple/{mid}")
+    public ResponseEntity<MemberResponseDTO.Simple> getSimpleProfile(@PathVariable Long mid) {
+        return ResponseEntity.ok(memberService.getSimpleProfileInfo(mid));
+    }
+
+    @GetMapping("/{mid}/pets")
     public ResponseEntity<List<PetDTO>> getMemberPets(@PathVariable Long mid) {
         try {
             List<PetDTO> pets = memberService.getMemberPets(mid);
-            return ResponseEntity.ok(pets); // 펫이 없으면 빈 리스트 [] 반환
+            return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    // 3-2 특정 회원이 작성한 게시글 목록 조회
-    @GetMapping("/{mid}/posts") // ✨ 새로운 엔드포인트: /api/member/{mid}/posts
+    @GetMapping("/{mid}/posts")
     public ResponseEntity<List<PostDTO>> getMemberPosts(@PathVariable Long mid) {
-        log.info("getMemberPosts for mid: " + mid);
         try {
             List<PostDTO> posts = memberService.getMemberPosts(mid);
-            return ResponseEntity.ok(posts); // 작성한 글이 없으면 빈 리스트 [] 반환
+            return ResponseEntity.ok(posts);
         } catch (Exception e) {
             log.error("회원 게시글 정보 조회 중 오류 발생: " + mid, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-
-    // ✅ 4. 이메일로 회원 조회 (테스트용)
-    @GetMapping("/email")
-    public ResponseEntity<Member> findByEmail(@RequestParam String email) {
-        return ResponseEntity.of(memberService.findByEmail(email));
+    // ----------- 개인정보 수정/비밀번호/탈퇴 ----------
+    @PutMapping("/update")
+    public ResponseEntity<?> updateMemberInfo(
+            HttpServletRequest request,
+            @RequestBody MemberUpdateRequestDTO updateRequestDTO
+    ) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+            }
+            String token = authHeader.substring(7);
+            String email = jwtUtil.getEmail(token);
+            Member member = memberService.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
+            memberService.updateMember(member, updateRequestDTO);
+            Member updatedMember = memberService.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("업데이트된 사용자를 찾을 수 없습니다."));
+            return ResponseEntity.ok(new MemberResponseDTO(updatedMember));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 정보 업데이트 중 오류 발생: " + e.getMessage());
+        }
     }
 
-    // ✅ 5. 소셜 로그인 시 이메일+소셜 여부로 회원 조회
-    @GetMapping("/social")
-    public ResponseEntity<Member> findByEmailAndSocial(
-            @RequestParam String email,
-            @RequestParam boolean fromSocial) {
-        return ResponseEntity.of(memberService.findByEmailAndFromSocial(email, fromSocial));
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            HttpServletRequest request,
+            @RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+            }
+            String token = authHeader.substring(7);
+            String email = jwtUtil.getEmail(token);
+            Member member = memberService.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+            memberService.changePassword(member, passwordChangeRequestDTO);
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+        } catch (UsernameNotFoundException e) {
+            log.error("비밀번호 변경 - 사용자 없음: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("비밀번호 변경 - 유효성 오류: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("비밀번호 변경 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 변경 중 오류 발생: " + e.getMessage());
+        }
     }
 
-    // ✅ 6. 닉네임 수정
-    @PatchMapping("/nickname")
-    public ResponseEntity<String> updateNickname(
-            @RequestParam Long mid,
-            @RequestParam String newNickname) {
-        memberService.updateNickname(mid, newNickname);
-        return ResponseEntity.ok("닉네임이 성공적으로 변경되었습니다.");
+    @PutMapping("/withdraw")
+    public ResponseEntity<?> withdrawMember(@AuthenticationPrincipal UserDetails userDetails,
+                                            @RequestBody(required = false) MemberRequestDTO requestDTO) {
+        String email = userDetails.getUsername();
+        Long membId = memberService.getMemberIdByEmail(email);
+        memberService.withdrawMember(membId, requestDTO);
+        return ResponseEntity.ok("회원 탈퇴가 성공적으로 처리되었습니다.");
     }
 
-    // ✅ 7. 마이페이지 활동 통계
+    // ----------- 닉네임/이메일/전화번호 중복체크 ----------
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Map<String, Boolean>> checkNickname(@RequestParam String nickname) {
+        boolean isDuplicated = memberService.isNicknameDuplicated(nickname);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isAvailable", !isDuplicated);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam String email) {
+        boolean isDuplicate = memberService.checkEmailDuplication(email);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isDuplicate", isDuplicate);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-phone")
+    public ResponseEntity<Map<String, Boolean>> checkPhoneNumberExistence(@RequestParam String phoneNumber) {
+        boolean exists = memberService.isPhoneNumberExists(phoneNumber);
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
+    // ----------- 마이페이지 통계/평점/대시보드 ----------
     @GetMapping("/stats/{mid}")
     public ResponseEntity<Object[]> getMyActivityStats(@PathVariable Long mid) {
-        Object[] result = memberService.getMyActivityStats(mid);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(memberService.getMyActivityStats(mid));
     }
 
-
-    // ✅ 8. 평점 조회
     @GetMapping("/pawrate/{mid}")
     public ResponseEntity<Float> getPawRate(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getPawRate(mid));
     }
 
-    // ✅ 9. 관리자용 전체 회원 평점
     @GetMapping("/admin/pawrates")
     public ResponseEntity<List<Object[]>> getAllMemberPawRates() {
         return ResponseEntity.ok(memberService.getAllMemberPawRates());
     }
 
-    // ✅ 10. 게시물 통합 조회 (대시보드)
     @GetMapping("/dashboard/{mid}")
     public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getDashboardData(mid));

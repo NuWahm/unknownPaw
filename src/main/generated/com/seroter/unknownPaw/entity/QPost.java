@@ -13,7 +13,7 @@ import com.querydsl.core.types.dsl.PathInits;
 /**
  * QPost is a Querydsl query type for Post
  */
-@Generated("com.querydsl.codegen.DefaultSupertypeSerializer")
+@Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QPost extends EntityPathBase<Post> {
 
     private static final long serialVersionUID = 508505794L;
@@ -32,6 +32,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public final NumberPath<Integer> hourlyRate = createNumber("hourlyRate", Integer.class);
 
+    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+
     public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
 
     public final NumberPath<Integer> likes = createNumber("likes", Integer.class);
@@ -44,11 +46,11 @@ public class QPost extends EntityPathBase<Post> {
 
     public final NumberPath<Long> postId = createNumber("postId", Long.class);
 
-    public final EnumPath<com.seroter.unknownPaw.entity.Enum.PostType> postType = createEnum("postType", com.seroter.unknownPaw.entity.Enum.PostType.class);
-
     public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);
 
     public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory = createEnum("serviceCategory", com.seroter.unknownPaw.entity.Enum.ServiceCategory.class);
+
+    public final DateTimePath<java.time.LocalDateTime> serviceDate = createDateTime("serviceDate", java.time.LocalDateTime.class);
 
     public final StringPath title = createString("title");
 

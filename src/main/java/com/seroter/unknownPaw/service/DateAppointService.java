@@ -39,43 +39,43 @@ public class DateAppointService {
   @Transactional
   public DateAppointResponseDTO create(DateAppointRequestDTO dto) {
     Member member = memberRepository.findById(dto.getMid())
-            .orElseThrow(() -> new IllegalArgumentException("❌ 존재하지 않는 회원입니다."));
+        .orElseThrow(() -> new IllegalArgumentException("❌ 존재하지 않는 회원입니다."));
 
     DateAppoint.DateAppointBuilder builder = DateAppoint.builder()
-            .decideHourRate(dto.getDecideHourRate())
-            .readTheOriginalText(dto.isReadTheOriginalText())
-            .reservationStatus(true)
-            .chat(dto.getChat())
-            .defaultLocation(dto.getDefaultLocation())
-            .flexibleLocation(dto.getFlexibleLocation())
-            .confirmationDate(dto.getConfirmationDate())
-            .futureDate(dto.getFutureDate())
-            .serviceCategory(dto.getServiceCategory())
-            .mid(member);
+        .decideHourRate(dto.getDecideHourRate())
+        .readTheOriginalText(dto.isReadTheOriginalText())
+        .reservationStatus(true)
+        .chat(dto.getChat())
+        .defaultLocation(dto.getDefaultLocation())
+        .flexibleLocation(dto.getFlexibleLocation())
+        .confirmationDate(dto.getConfirmationDate())
+        .futureDate(dto.getFutureDate())
+        .serviceCategory(dto.getServiceCategory())
+        .mid(member);
 
     // 🎯 오너가 시터 글에 예약한 경우
     if (dto.getPetId() != null && dto.getPetSitterPostId() != null) {
       Pet pet = petRepository.findById(dto.getPetId())
-              .orElseThrow(() -> new IllegalArgumentException("❌ 해당 petId에 대한 펫이 존재하지 않습니다."));
+          .orElseThrow(() -> new IllegalArgumentException("❌ 해당 petId에 대한 펫이 존재하지 않습니다."));
 
       PetSitter petSitter = petSitterRepository.findById(dto.getPetSitterPostId())
-              .orElseThrow(() -> new IllegalArgumentException("❌ 해당 시터 게시글이 존재하지 않습니다."));
+          .orElseThrow(() -> new IllegalArgumentException("❌ 해당 시터 게시글이 존재하지 않습니다."));
 
       builder.petId(pet)
-              .petSitterPost(petSitter);
+          .petSitterPost(petSitter);
     }
 
     // 🎯 시터가 오너 글에 예약한 경우
     if (dto.getPetOwnerPostId() != null) {
       PetOwner petOwner = petOwnerRepository.findById(dto.getPetOwnerPostId())
-              .orElseThrow(() -> new IllegalArgumentException("❌ 해당 오너 게시글이 존재하지 않습니다."));
+          .orElseThrow(() -> new IllegalArgumentException("❌ 해당 오너 게시글이 존재하지 않습니다."));
 
       builder.petOwnerPost(petOwner);
     }
 
     if (dto.getImgId() != null) {
       imageRepository.findById(dto.getImgId())
-              .ifPresent(builder::imgId);
+          .ifPresent(builder::imgId);
     }
 
     DateAppoint saved = dateAppointRepository.save(builder.build());
@@ -110,7 +110,7 @@ public class DateAppointService {
           .orElseThrow(() -> new IllegalArgumentException("❌ 해당 펫이 존재하지 않습니다."));
 
       PetSitter petSitter = petSitterRepository.findById(dto.getPetSitterPostId())
-              .orElseThrow(() -> new IllegalArgumentException("❌ 해당 시터 게시글이 존재하지 않습니다."));
+          .orElseThrow(() -> new IllegalArgumentException("❌ 해당 시터 게시글이 존재하지 않습니다."));
 
       appoint.setPetId(pet);
       appoint.setPetSitterPost(petSitter);
@@ -254,19 +254,27 @@ public class DateAppointService {
         .price(price)
         .rating("4.5")
         .decideHourRate(appoint.getDecideHourRate())
+        .confirmationDate(appoint.getConfirmationDate())
+        .futureDate(appoint.getFutureDate())
+        .defaultLocation(appoint.getDefaultLocation())
         .mid(appoint.getMid() != null ? appoint.getMid().getMid() : null)
         .petId(appoint.getPetId() != null ? appoint.getPetId().getPetId() : null)
         .petOwnerPostId(appoint.getPetOwnerPost() != null ? appoint.getPetOwnerPost().getPostId() : null)
         .petSitterPostId(appoint.getPetSitterPost() != null ? appoint.getPetSitterPost().getPostId() : null)
-
+        .flexibleLocation(appoint.getFlexibleLocation())
         .build();
 
   }
   // "내가 맡긴 서비스" → 오너로서 예약한 내역
   @Transactional
   public List<DateAppointResponseDTO> getAppointsAsOwner(Long mid) {
-    return dateAppointRepository.findByPetOwnerPost_Member_Mid(mid)
-        .stream()
+    System.out.println("🚩 [Service] getAppointsAsOwner 호출됨. Member ID: " + mid);
+    List<DateAppoint> appoints = dateAppointRepository.findByPetOwnerPost_Member_Mid(mid);
+    System.out.println("🚩 [Service] findByPetOwnerPost_Member_Mid 결과 (엔티티 수): " + appoints.size());
+    if (appoints.isEmpty()) {
+      System.out.println("🚩 [Service] 오너로서의 예약 내역이 DB에 없습니다.");
+    }
+    return appoints.stream()
         .map(this::toDTO)
         .toList();
   }
@@ -274,8 +282,13 @@ public class DateAppointService {
   //"내가 맡긴 서비스" → 시터로서 예약한 내역
   @Transactional
   public List<DateAppointResponseDTO> getAppointsAsSitter(Long mid) {
-    return dateAppointRepository.findByPetSitterPost_Member_Mid(mid)
-        .stream()
+    System.out.println("🚩 [Service] getAppointsAsSitter 호출됨. Member ID: " + mid);
+    List<DateAppoint> appoints = dateAppointRepository.findByPetSitterPost_Member_Mid(mid);
+    System.out.println("🚩 [Service] findByPetSitterPost_Member_Mid 결과 (엔티티 수): " + appoints.size());
+    if (appoints.isEmpty()) {
+      System.out.println("🚩 [Service] 시터로서의 예약 내역이 DB에 없습니다.");
+    }
+    return appoints.stream()
         .map(this::toDTO)
         .toList();
   }
@@ -300,4 +313,3 @@ public class DateAppointService {
 
 
 }
-

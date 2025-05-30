@@ -34,6 +34,8 @@ public class QCommunity extends EntityPathBase<Community> {
 
     public final StringPath content = createString("content");
 
+    public final ListPath<Member, QMember> likedMembers = this.<Member, QMember>createList("likedMembers", Member.class, QMember.class, PathInits.DIRECT2);
+
     public final NumberPath<Integer> likes = createNumber("likes", Integer.class);
 
     public final QMember member;

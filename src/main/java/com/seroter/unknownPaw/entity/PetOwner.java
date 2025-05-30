@@ -12,18 +12,8 @@ import java.util.List;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
+@DiscriminatorValue("PET_OWNER")
 public class PetOwner extends Post {
-    @Builder.Default
-    @OneToMany(mappedBy = "petOwner",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    private List<Image> images = new ArrayList<>();
-//    public void changeTitle() {
-//        this.changeTitle = title;
-//    }
-//    public void changeContent() {
-//        this.changeContent = content;
-//    }
-
+    @ManyToOne
+    private Pet pet;
 }
