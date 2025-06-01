@@ -4,8 +4,10 @@ import com.seroter.unknownPaw.dto.PetDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.Pet;
 import com.seroter.unknownPaw.entity.Pet.PetStatus;
+import com.seroter.unknownPaw.entity.Image;
 import com.seroter.unknownPaw.repository.MemberRepository;
 import com.seroter.unknownPaw.repository.PetRepository;
+import com.seroter.unknownPaw.repository.ImageRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,29 +24,17 @@ public class PetService {
 
   private final PetRepository petRepository;
   private final MemberRepository memberRepository;
+  private final ImageRepository imageRepository;
 
   // ======================= [DTO ↔ Entity 변환] =======================
 
   private PetDTO entityToDto(Pet pet) {
     if (pet == null) return null;
-    return PetDTO.builder()
-            .petId(pet.getPetId())
-            .petName(pet.getPetName())
-            .breed(pet.getBreed())
-            .petBirth(pet.getPetBirth())
-            .petGender(pet.isPetGender())
-            .weight(pet.getWeight())
-            .petMbti(pet.getPetMbti())
-            .neutering(pet.isNeutering())
-            .petIntroduce(pet.getPetIntroduce())
-            .status(pet.getStatus() != null ? pet.getStatus().name() : null) // String
-            .regDate(pet.getRegDate())
-            .modDate(pet.getModDate())
-            .mid(pet.getMember() != null ? pet.getMember().getMid() : null)
-            .build();
+    return PetDTO.fromEntity(pet);
   }
 
-  private Pet dtoToEntity(PetDTO dto, Member member) {
+
+    private Pet dtoToEntity(PetDTO dto, Member member) {
     return Pet.builder()
             .petId(dto.getPetId())
             .petName(dto.getPetName())
@@ -68,6 +58,21 @@ public class PetService {
     Pet pet = dtoToEntity(petDTO, member);
     petRepository.save(pet);
     return pet.getPetId();
+  }
+  @Transactional
+  public PetDTO updatePetImagePath(Long petId, Image image) {
+    Pet pet = petRepository.findById(petId)
+            .orElseThrow(() -> new EntityNotFoundException("펫 없음: " + petId));
+    
+    // Pet 엔티티 업데이트
+    pet.setImagePath(image.getPath());
+    pet.setThumbnailPath(image.getThumbnailPath());
+    pet.setImgId(image);  // imgId 관계 설정
+    
+    // 변경사항 저장
+    Pet savedPet = petRepository.save(pet);
+    
+    return PetDTO.fromEntity(savedPet);
   }
 
   // 기존 펫 정보 수정 (소유자 본인만, ACTIVE 상태만)

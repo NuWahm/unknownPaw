@@ -1,10 +1,12 @@
 package com.seroter.unknownPaw.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.dto.EditProfile.MemberUpdateRequestDTO;
 import com.seroter.unknownPaw.dto.EditProfile.PasswordChangeRequestDTO;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.security.util.JWTUtil;
+import com.seroter.unknownPaw.service.ImageService;
 import com.seroter.unknownPaw.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -25,6 +28,7 @@ import java.util.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
@@ -35,6 +39,58 @@ public class MemberController {
         return ResponseEntity.ok(memberService.register(memberRequestDTO));
     }
 
+    @PostMapping(value = "/registerWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MemberResponseDTO> registerWithImage(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("name") String name,
+            @RequestParam("nickname") String nickname,
+            @RequestParam("birthday") int birthday,
+            @RequestParam("gender") boolean gender,
+            @RequestParam("address") String address,
+            @RequestParam(value = "petInfo", required = false) String petInfoJson) {
+        try {
+            PetDTO petInfo = null;
+            if (petInfoJson != null && !petInfoJson.isBlank()) {
+                petInfo = new ObjectMapper().readValue(petInfoJson, PetDTO.class);
+            }
+            // 1) 회원 생성
+            MemberRequestDTO dto = MemberRequestDTO.builder()
+                    .email(email)
+                    .password(password)
+                    .phoneNumber(phoneNumber)
+                    .name(name)
+                    .nickname(nickname)
+                    .birthday(birthday)
+                    .gender(gender)
+                    .address(address)
+                    .petInfo(petInfo)
+                    .build();
+
+            MemberResponseDTO saved = memberService.register(dto);
+            Long mid = saved.getMid();
+
+            // 2) 이미지 저장
+            String fileName = imageService.saveImage(
+                    file,
+                    "member",   // role
+                    "member",   // targetType
+                    mid,
+                    null
+            );
+            // 만들어진 파일명도 DTO에 담아주면 프론트가 즉시 보여줄 수 있습니다.
+            saved.setProfileImagePath("member/" + fileName);
+
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            log.error("회원가입+이미지 업로드 실패", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
     // 1. 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO dto) {

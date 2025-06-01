@@ -167,8 +167,7 @@ public class PostController {
             }
             
             // 새 이미지 저장
-            String savedFileName = imageService.saveImage(file, postType, "post", postId, petId);
-            
+            String savedFileName = imageService.saveImage(file, postType, postType, postId, petId);
             // 이미지 정보를 PostDTO에 추가
             ImageDTO newImage = ImageDTO.builder()
                     .path(postType + "/" + savedFileName)
@@ -218,12 +217,12 @@ public class PostController {
       }
       
       // 이미지 저장
-      String savedFileName = imageService.saveImage(file, convertedPostType, "post", postId, petId);
+      String savedFileName = imageService.saveImage(file, convertedPostType, convertedPostType, postId, petId);
       
       // 이미지 정보를 PostDTO에 추가
       ImageDTO newImage = ImageDTO.builder()
               .path(convertedPostType + "/" + savedFileName)
-              .thumbnailPath(convertedPostType + "/thumb_" + savedFileName)
+              .thumbnailPath(postType + "/" + "thumb_" + savedFileName)
               .build();
       
       // PostDTO 업데이트

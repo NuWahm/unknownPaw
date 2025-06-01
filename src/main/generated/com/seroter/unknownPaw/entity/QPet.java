@@ -26,6 +26,8 @@ public class QPet extends EntityPathBase<Pet> {
 
     public final StringPath breed = createString("breed");
 
+    public final StringPath imagePath = createString("imagePath");
+
     public final QImage imgId;
 
     public final QMember member;
@@ -55,6 +57,8 @@ public class QPet extends EntityPathBase<Pet> {
     public final DateTimePath<java.time.LocalDateTime> regDate = _super.regDate;
 
     public final EnumPath<Pet.PetStatus> status = createEnum("status", Pet.PetStatus.class);
+
+    public final StringPath thumbnailPath = createString("thumbnailPath");
 
     public final NumberPath<Double> weight = createNumber("weight", Double.class);
 
