@@ -60,3 +60,4 @@ out/
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
+${sys:LOG_PATH}*

@@ -35,7 +35,7 @@ public class ImageService {
   /**
    * application.yml ‑> com.seroter.upload.path
    */
-  @Value("${com.seroter.upload.path}")
+  @Value("${upload.base-path}")
   private String uploadRoot;
 
   /**
