@@ -144,8 +144,8 @@ public class CommunityController {
     // 좋아요 여부 확인 API
     @GetMapping("/posts/{id}/liked")
     public ResponseEntity<Map<String, Boolean>> isPostLiked(
-        @PathVariable Long id,
-        @RequestParam Long memberId) {
+            @PathVariable Long id,
+            @RequestParam Long memberId) {
         boolean liked = communityService.isLikedByMember(id, memberId);
         Map<String, Boolean> result = new HashMap<>();
         result.put("liked", liked);
@@ -157,11 +157,6 @@ public class CommunityController {
         int count = communityService.getLikeCount(id);
         return ResponseEntity.ok(count);
     }
-
-
-
-
-
 }
 
 

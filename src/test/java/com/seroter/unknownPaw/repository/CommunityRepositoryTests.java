@@ -1,71 +1,68 @@
-//package com.seroter.unknownPaw.repository;
-//
-//import com.seroter.unknownPaw.dto.CommunityRequestDTO;
-//import com.seroter.unknownPaw.entity.Community;
-//import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
-//import com.seroter.unknownPaw.entity.Member;
-//import com.seroter.unknownPaw.service.CommunityService;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//
-//import java.util.List;
-//import java.util.Random;
-//import java.util.stream.IntStream;
-//
-//@SpringBootTest
-//public class CommunityRepositoryTests {
-//
-//    @Autowired
-//    private MemberRepository memberRepository;        // 회원 정보 조회용
-//
-//    @Autowired
-//    private CommunityService communityService;        // 커뮤니티 생성 및 댓글 등록용
-//
-//    @Autowired
-//    private CommunityRepository communityRepository;  // 커뮤니티 엔티티 저장소
-//
-//    @Test
-//    public void insertCommunityPostsWithCommentsAndLikes() {
-//        // ===== [1. DB에서 전체 멤버 리스트 조회] =====
-//        List<Member> members = memberRepository.findAll();
-//        Random random = new Random();
-//
-//        // ===== [2. 더미 게시글 30개 생성] =====
-//        IntStream.rangeClosed(1, 30).forEach(i -> {
-//            // [2-1] 랜덤한 멤버 선택 (작성자)
-//            Member writer = members.get(random.nextInt(members.size()));
-//
-//            // [2-2] 랜덤한 카테고리 선택
-//            CommunityCategory category = CommunityCategory.values()[random.nextInt(CommunityCategory.values().length)];
-//
-//            // [2-3] 게시글 생성 요청 DTO 생성
-//            CommunityRequestDTO dto = CommunityRequestDTO.builder()
-//                    .title("테스트 게시글 제목 " + i)
-//                    .content("테스트 게시글 내용입니다. 게시글 번호: " + i)
-//                    .communityCategory(category)
-//                    .build();
-//
-//            // [2-4] 커뮤니티 게시글 생성 (서비스 계층 이용)
-//            Long communityId = communityService.createCommunityPost(writer.getMid(), dto);
-//
-//            // [2-5] 댓글 2개 생성 (각 게시글당)
-//            communityService.createComment(communityId, writer.getMid(), "첫 번째 댓글입니다. 게시글 번호: " + i);
-//            communityService.createComment(communityId, writer.getMid(), "두 번째 댓글입니다. 게시글 번호: " + i);
-//
-//            // [2-6] 게시글 다시 조회 후 좋아요 / 댓글 수 설정
-//            communityRepository.findById(communityId).ifPresent(community -> {
-//                int randomLikes = random.nextInt(101); // 0~100
-//                int commentCount = 2; // 위에서 생성한 댓글 수
-//
-//                community.setLikes(randomLikes);       // 좋아요 수 설정
-//                community.setCommentCount(commentCount);    // 댓글 수 설정
-//
-//                communityRepository.save(community);   // 변경사항 저장
-//            });
-//        });
-//
-//        // ===== [3. 완료 메시지 출력] =====
-//        System.out.println("✅ 커뮤니티 게시글 30개, 댓글 포함하여 생성 완료.");
-//    }
-//}
+package com.seroter.unknownPaw.repository;
+
+import com.seroter.unknownPaw.dto.CommunityRequestDTO;
+import com.seroter.unknownPaw.entity.Community;
+import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
+import com.seroter.unknownPaw.entity.Member;
+import com.seroter.unknownPaw.service.CommunityService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Random;
+
+@SpringBootTest
+@Transactional
+public class CommunityRepositoryTests {
+
+    @Autowired
+    private CommunityService communityService;
+
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Test
+    public void insertCommunityPostsWithCommentsAndLikes() {
+        // 모든 회원 조회
+        List<Member> members = memberRepository.findAll();
+        if (members.isEmpty()) {
+            throw new IllegalStateException("테스트를 위한 회원이 없습니다. 먼저 PostRepositoryImplTests를 실행해주세요.");
+        }
+
+        Random random = new Random();
+        CommunityCategory[] categories = CommunityCategory.values();
+
+        // 30개의 커뮤니티 게시글 생성
+        for (int i = 0; i < 30; i++) {
+            // 랜덤 회원 선택
+            Member writer = members.get(random.nextInt(members.size()));
+            Member commenter = members.get(random.nextInt(members.size()));
+            Member liker = members.get(random.nextInt(members.size()));
+
+            // 랜덤 카테고리 선택
+            CommunityCategory category = categories[random.nextInt(categories.length)];
+
+            // 커뮤니티 게시글 생성
+            CommunityRequestDTO dto = new CommunityRequestDTO();
+            dto.setTitle("테스트 게시글 " + (i + 1));
+            dto.setContent("테스트 내용 " + (i + 1));
+            dto.setCommunityCategory(category);
+
+            Long communityId = communityService.createCommunityPost(writer.getMid(), dto);
+
+            // 1-5개의 댓글 생성
+            int commentCount = random.nextInt(5) + 1;
+            for (int j = 0; j < commentCount; j++) {
+                communityService.createComment(communityId, commenter.getMid(), "테스트 댓글 " + j);
+            }
+
+            // 1-10개의 좋아요 생성
+            int likeCount = random.nextInt(10) + 1;
+            for (int j = 0; j < likeCount; j++) {
+                communityService.likePost(communityId, liker.getMid());
+            }
+        }
+    }
+}

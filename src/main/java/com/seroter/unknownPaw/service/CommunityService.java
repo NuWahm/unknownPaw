@@ -212,8 +212,8 @@ public class CommunityService {
         CommunityCategory category = CommunityCategory.valueOf(type);
         List<Community> posts = communityRepository.findByCommunityCategory(category);
         return posts.stream()
-            .map(CommunityResponseDTO::fromEntity)
-            .collect(Collectors.toList());
+                .map(CommunityResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
     // 커뮤니티 좋아요 추가
     public void likePost(Long postId, Long memberId) {
@@ -234,8 +234,8 @@ public class CommunityService {
     public List<CommunityResponseDTO> getLikedCommunityPosts(Long memberId) {
         List<Community> likedPosts = communityRepository.findByLikedMemberId(memberId);
         return likedPosts.stream()
-            .map(CommunityResponseDTO::fromEntity)
-            .collect(Collectors.toList());
+                .map(CommunityResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     // 커뮤니티 좋아요 누른 사람 확인
@@ -252,7 +252,4 @@ public class CommunityService {
             throw new IllegalArgumentException("해당 ID의 커뮤니티 게시글이 없습니다: " + postId);
         }
     }
-
-
-
 }

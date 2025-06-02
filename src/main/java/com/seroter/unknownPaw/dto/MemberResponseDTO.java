@@ -49,7 +49,7 @@ public class MemberResponseDTO {
         this.gender = member.getGender();
         this.introduce = member.getIntroduce();
         this.pets = (member.getPets() == null) ? null :
-                member.getPets().stream().map(PetDTO::new).collect(Collectors.toList());
+                member.getPets().stream().map(PetDTO::fromEntity).collect(Collectors.toList());
     }
 
     // **필드 기반 생성자**

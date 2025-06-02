@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
@@ -23,6 +24,9 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     @Query("SELECT i FROM Image i WHERE i.post.postId = :postId AND i.imageType = 3")
     List<Image> findPostImages(@Param("postId") Long postId);
+
+    // 경로로 이미지 조회
+    Optional<Image> findByPath(String path);
 
     @Modifying
     @Query("DELETE FROM Image i WHERE i.member.mid = :mid")
@@ -50,6 +54,15 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
                          @Param("fileName") String fileName,
                          @Param("path") String path);
 
+    List<Image> findByMemberMid(Long mid);
+
     @Query("SELECT i FROM Image i WHERE i.post.postId IN :postIds")
     List<Image> findByPostIdIn(@Param("postIds") List<Long> postIds);
+
+    @Query("SELECT i FROM Image i WHERE i.member.mid = :mid AND i.imageType = 1")
+    List<Image> findProfileImagesByMemberMid(@Param("mid") Long mid);
+
+    @Modifying
+    @Query("DELETE FROM Image i WHERE i.member.mid = :mid AND i.imageType = 1")
+    void deleteProfileImagesByMemberId(@Param("mid") Long mid);
 }

@@ -229,21 +229,7 @@ public class MemberService {
                 .introduce(member.getIntroduce())
                 .emailVerified(member.isEmailVerified())
                 .pets(member.getPets().stream()
-                        .map(pet -> new PetDTO(
-                                pet.getPetId(),
-                                pet.getPetName(),
-                                pet.getBreed(),
-                                pet.getPetBirth(),
-                                pet.isPetGender(),
-                                pet.getWeight(),
-                                pet.getPetMbti(),
-                                pet.isNeutering(),
-                                pet.getPetIntroduce(),
-                                pet.getStatus() != null ? pet.getStatus().name() : null,
-                                pet.getRegDate(),
-                                pet.getModDate(),
-                                pet.getMember().getMid()
-                        ))
+                        .map(PetDTO::fromEntity)
                         .collect(Collectors.toList()))
                 .build();
     }
