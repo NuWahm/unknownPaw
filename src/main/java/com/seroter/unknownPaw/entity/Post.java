@@ -65,4 +65,5 @@ public abstract class Post {
   @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<Image> images = new ArrayList<>();
+
 }
