@@ -4,6 +4,7 @@ import com.seroter.unknownPaw.dto.MemberResponseDTO;
 import com.seroter.unknownPaw.entity.Member;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,7 +14,8 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [0] 회원 ID로 조회
-  Optional<Member> findByMid(Long mid);
+  @Query("select distinct m from Member m left join fetch m.pets where m.mid = :mid")
+  Optional<Member> findByMid(@Param("mid") Long mid);
 
   // 📌 [1] 소셜 여부 + 이메일로 회원 조회 (로그인)
   @EntityGraph(attributePaths = {"role"}, type = EntityGraph.EntityGraphType.LOAD)
@@ -30,6 +32,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [4] 이메일/휴대폰 중복 검사
   boolean existsByEmail(String email);
+
   boolean existsByPhoneNumber(String phoneNumber);
 
   // 📌 [5] 회원 + PetOwner 연관 조회
@@ -44,28 +47,28 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 📌 [7] 회원 + PetOwner + PetSitter + DateAppoint 통합 조회 (대시보드 용)
   @Query("""
-        SELECT m, po, ps, da
-        FROM Member m
-        LEFT JOIN PetOwner po ON po.member = m
-        LEFT JOIN PetSitter ps ON ps.member = m
-        LEFT JOIN DateAppoint da ON da.petOwnerPost = po OR da.petSitterPost = ps
-        WHERE m.mid = :mid
-        """)
+            SELECT m, po, ps, da
+            FROM Member m
+            LEFT JOIN PetOwner po ON po.member = m
+            LEFT JOIN PetSitter ps ON ps.member = m
+            LEFT JOIN DateAppoint da ON da.petOwnerPost = po OR da.petSitterPost = ps
+            WHERE m.mid = :mid
+            """)
   List<Object[]> findMemberWithAllData(@Param("mid") Long mid);
 
   // 📌 [8] 마이페이지용 활동 내역 조회
   @Query("""
-        SELECT m.mid,
-               COUNT(DISTINCT po),
-               COUNT(DISTINCT ps),
-               COUNT(DISTINCT da.rno)
-        FROM Member m
-        LEFT JOIN PetOwner po ON po.member = m
-        LEFT JOIN PetSitter ps ON ps.member = m
-        LEFT JOIN DateAppoint da ON da.petOwnerPost = po OR da.petSitterPost = ps
-        WHERE m.mid = :mid
-        GROUP BY m.mid
-        """)
+            SELECT m.mid,
+                   COUNT(DISTINCT po),
+                   COUNT(DISTINCT ps),
+                   COUNT(DISTINCT da.rno)
+            FROM Member m
+            LEFT JOIN PetOwner po ON po.member = m
+            LEFT JOIN PetSitter ps ON ps.member = m
+            LEFT JOIN DateAppoint da ON da.petOwnerPost = po OR da.petSitterPost = ps
+            WHERE m.mid = :mid
+            GROUP BY m.mid
+            """)
   Object[] findMyActivityStats(@Param("mid") Long mid);
 
   // 📌 [9] 평점만 조회
@@ -77,26 +80,31 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   List<Object[]> findAllMemberPawRates();
 
   // 📌 [11] 상대방 프로필 요약 정보 조회 (간략)
-  @Query("SELECT new com.seroter.unknownPaw.dto.MemberResponseDTO$Simple(m.mid, m.nickname, m.pawRate, i.path) " +
-          "FROM Member m LEFT JOIN Image i ON i.member = m AND i.imageType = 1 WHERE m.mid = :mid")
+  @Query("""
+            SELECT DISTINCT new com.seroter.unknownPaw.dto.MemberResponseDTO$Simple(
+                   m.mid, m.nickname, m.pawRate, i.path)
+            FROM Member m
+            LEFT JOIN Image i ON i.member = m AND i.imageType = 1
+            WHERE m.mid = :mid
+            """)
   Optional<MemberResponseDTO.Simple> findSimpleProfileInfo(@Param("mid") Long mid);
 
   // 📌 [12] 상대방 프로필 요약 정보 조회 (DTO 사용 시)
   @Query("""
-        SELECT new com.seroter.unknownPaw.dto.MemberResponseDTO$Simple(
-            m.mid, m.nickname, m.pawRate, i.path
-        )
-        FROM Member m
-        LEFT JOIN Image i ON i.member = m AND i.imageType = 1
-        WHERE m.mid = :mid
-        """)
+            SELECT new com.seroter.unknownPaw.dto.MemberResponseDTO$Simple(
+                m.mid, m.nickname, m.pawRate, i.path
+            )
+            FROM Member m
+            LEFT JOIN Image i ON i.member = m AND i.imageType = 1
+            WHERE m.mid = :mid
+            """)
   Optional<MemberResponseDTO.Simple> findSimpleProfileInfoDto(@Param("mid") Long mid);
 
   // 📌 [13] 회원 + 좋아요 게시글 전체 fetch (PetOwner, PetSitter, Community)
   @Query("SELECT m FROM Member m LEFT JOIN FETCH m.likedPetOwner " +
-          "LEFT JOIN FETCH m.likedPetSitter " +
-          "LEFT JOIN FETCH m.likedCommunity " +
-          "WHERE m.mid = :mid")
+      "LEFT JOIN FETCH m.likedPetSitter " +
+      "LEFT JOIN FETCH m.likedCommunity " +
+      "WHERE m.mid = :mid")
   Optional<Member> fetchWithLikes(@Param("mid") Long mid);
 
   // 📌 [14] 상세 프로필 (펫 포함)
@@ -107,4 +115,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Query("SELECT m FROM Member m LEFT JOIN FETCH m.pets WHERE m.email = :email")
   Optional<Member> findByEmailWithPets(@Param("email") String email);
 
+  @Modifying
+  @Query("UPDATE Member m SET m.profileImagePath = :path WHERE m.mid = :mid")
+  void updateProfilePath(@Param("mid") Long mid, @Param("path") String path);
 }

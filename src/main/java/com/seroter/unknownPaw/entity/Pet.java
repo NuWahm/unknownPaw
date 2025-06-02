@@ -36,6 +36,20 @@ public class Pet extends BaseEntity {  // BaseEntity 상속
   @ManyToOne(fetch = FetchType.LAZY)
   private Image imgId; // 이미지
 
+  @Column(length = 300)
+  private String imagePath;
+
+  @Column(length = 300)
+  private String thumbnailPath;
+
+  public void setImagePath(String imagePath) {
+    this.imagePath = imagePath;
+  }
+
+  public void updateImage(String path, String thumbPath) {
+    this.imagePath     = path;
+    this.thumbnailPath = thumbPath;
+  }
   @ManyToOne(fetch = FetchType.LAZY)
   private PetOwner petOwnerId; // 펫 오너
 

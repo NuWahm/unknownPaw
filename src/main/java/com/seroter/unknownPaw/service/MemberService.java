@@ -45,23 +45,23 @@ public class MemberService {
         }
 
         Member member = Member.builder()
-                .mid(dto.getMid())
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .name(dto.getName())
-                .nickname(dto.getNickname())
-                .phoneNumber(dto.getPhoneNumber())
-                .birthday(dto.getBirthday())
-                .gender(dto.getGender())
-                .address(dto.getAddress())
-                .fromSocial(dto.isFromSocial())
-                .pawRate(0.0f)
-                .profileImagePath(null)
-                .emailVerified(false)
-                .signupChannel(dto.getSignupChannel())
-                .role(Member.Role.USER)
-                .status(Member.MemberStatus.ACTIVE)
-                .build();
+            .mid(dto.getMid())
+            .email(dto.getEmail())
+            .password(passwordEncoder.encode(dto.getPassword()))
+            .name(dto.getName())
+            .nickname(dto.getNickname())
+            .phoneNumber(dto.getPhoneNumber())
+            .birthday(dto.getBirthday())
+            .gender(dto.getGender())
+            .address(dto.getAddress())
+            .fromSocial(dto.isFromSocial())
+            .pawRate(0.0f)
+            .profileImagePath(null)
+            .emailVerified(false)
+            .signupChannel(dto.getSignupChannel())
+            .role(Member.Role.USER)
+            .status(Member.MemberStatus.ACTIVE)
+            .build();
         memberRepository.save(member);
 
         // Pet 등록
@@ -70,24 +70,24 @@ public class MemberService {
         }
 
         return MemberResponseDTO.builder()
-                .mid(member.getMid())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .profileImagePath(member.getProfileImagePath())
-                .pawRate(member.getPawRate())
-                .build();
+            .mid(member.getMid())
+            .email(member.getEmail())
+            .nickname(member.getNickname())
+            .profileImagePath(member.getProfileImagePath())
+            .pawRate(member.getPawRate())
+            .build();
     }
 
     // [2] 로그인 인증
     public Optional<Member> authenticate(LoginRequestDTO dto) {
         return memberRepository.findByEmail(dto.getEmail())
-                .filter(member -> passwordEncoder.matches(dto.getPassword(), member.getPassword()));
+            .filter(member -> passwordEncoder.matches(dto.getPassword(), member.getPassword()));
     }
 
     // [3] 회원 정보 단건 조회
     public MemberResponseDTO getMemberById(Long mid) {
         Member member = memberRepository.findById(mid)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다. mid = " + mid));
+            .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다. mid = " + mid));
         return new MemberResponseDTO(member);
     }
 
@@ -140,7 +140,7 @@ public class MemberService {
     @Transactional
     public void withdrawMember(Long memberId, MemberRequestDTO requestDTO) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         if (!member.isFromSocial() && requestDTO != null && requestDTO.getPassword() != null) {
             if (!passwordEncoder.matches(requestDTO.getPassword(), member.getPassword())) {
@@ -173,21 +173,21 @@ public class MemberService {
     // [10] 간단 프로필(DTO) 반환
     public MemberResponseDTO.Simple getSimpleProfileInfo(Long mid) {
         return memberRepository.findSimpleProfileInfo(mid)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 
     // [11] 나의 펫 포함 간단 프로필 (이메일 기준)
     public MemberResponseDTO getMySimpleProfileWithPets(String email) {
         Member member = memberRepository.findByEmailWithPets(email)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         return new MemberResponseDTO(member);
     }
 
     // [12] 이메일로 mid 찾기
     public Long getMemberIdByEmail(String email) {
         return memberRepository.findByEmail(email)
-                .map(Member::getMid)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+            .map(Member::getMid)
+            .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 
     // [13] 대시보드/통계/평점 관련
@@ -207,7 +207,7 @@ public class MemberService {
     // [14] 닉네임만 단독 업데이트
     public void updateNickname(Long memberId, String newNickname) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         member.setNickname(newNickname);
         memberRepository.save(member);
     }
@@ -215,37 +215,23 @@ public class MemberService {
     // [15] 상세 프로필 (펫 포함)
     public MemberResponseDTO getSimpleProfile(Long mid) {
         Member member = memberRepository.findSimpleProfile(mid)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 회원이 없습니다."));
         log.info("Found member: {}", member);
         log.info("Member's pets: {}", member.getPets());
 
         return MemberResponseDTO.builder()
-                .mid(member.getMid())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .profileImagePath(member.getProfileImagePath())
-                .pawRate(member.getPawRate())
-                .gender(member.getGender())
-                .introduce(member.getIntroduce())
-                .emailVerified(member.isEmailVerified())
-                .pets(member.getPets().stream()
-                        .map(pet -> new PetDTO(
-                                pet.getPetId(),
-                                pet.getPetName(),
-                                pet.getBreed(),
-                                pet.getPetBirth(),
-                                pet.isPetGender(),
-                                pet.getWeight(),
-                                pet.getPetMbti(),
-                                pet.isNeutering(),
-                                pet.getPetIntroduce(),
-                                pet.getStatus() != null ? pet.getStatus().name() : null,
-                                pet.getRegDate(),
-                                pet.getModDate(),
-                                pet.getMember().getMid()
-                        ))
-                        .collect(Collectors.toList()))
-                .build();
+            .mid(member.getMid())
+            .email(member.getEmail())
+            .nickname(member.getNickname())
+            .profileImagePath(member.getProfileImagePath())
+            .pawRate(member.getPawRate())
+            .gender(member.getGender())
+            .introduce(member.getIntroduce())
+            .emailVerified(member.isEmailVerified())
+            .pets(member.getPets().stream()
+                .map(PetDTO::fromEntity)
+                .collect(Collectors.toList()))
+            .build();
     }
 
     // 추가: 이메일 + 소셜로 회원 찾기
@@ -259,11 +245,11 @@ public class MemberService {
     // 추가: PetOwner/PetSitter 연관 데이터 조회
     public Member getMemberWithPetOwners(Long mid) {
         return memberRepository.findMemberWithPetOwners(mid)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
     }
     public Member getMemberWithPetSitters(Long mid) {
         return memberRepository.findMemberWithPetSitters(mid)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
     }
 
     // 추가: 전화번호 중복 체크 (개인정보 수정 시)

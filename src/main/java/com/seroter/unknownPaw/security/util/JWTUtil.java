@@ -20,14 +20,14 @@ public class JWTUtil {
   /* ---------- 토큰 발행 ---------- */
   public String generateToken(String email, String role) {
     return Jwts.builder()
-            .issuedAt(new Date())
-            .expiration(Date.from(
-                    ZonedDateTime.now().plusMinutes(expire).toInstant()))
-            .claim("sub", email)
-            .claim("role", role)
-            .signWith(Keys.hmacShaKeyFor(
-                    secretKey.getBytes(StandardCharsets.UTF_8)))
-            .compact();
+        .issuedAt(new Date())
+        .expiration(Date.from(
+            ZonedDateTime.now().plusMinutes(expire).toInstant()))
+        .claim("sub", email)
+        .claim("role", role)
+        .signWith(Keys.hmacShaKeyFor(
+            secretKey.getBytes(StandardCharsets.UTF_8)))
+        .compact();
   }
 
   // sub(email)만 추출
@@ -40,11 +40,11 @@ public class JWTUtil {
   // Claims 전부 얻기
   public Claims getClaims(String token) {                            // ★ 새 메서드
     return (Claims) Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(
-                    secretKey.getBytes(StandardCharsets.UTF_8)))
-            .build()
-            .parse(token)
-            .getPayload();
+        .verifyWith(Keys.hmacShaKeyFor(
+            secretKey.getBytes(StandardCharsets.UTF_8)))
+        .build()
+        .parse(token)
+        .getPayload();
   }
 
 

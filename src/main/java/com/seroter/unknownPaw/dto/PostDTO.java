@@ -34,19 +34,19 @@ public class PostDTO implements Identifiable {
   private String serviceCategory; // 서비스 카테고리 (산책 , 호텔링 , 돌봄)
   private int hourlyRate; // 시급 (PetOn = 시급, PetSi = 희망 시급)
   private int likes;
-  
+
   @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime serviceDate;
-  
+
   private int chatCount; // 채팅 수
   private String defaultLocation; // 기본 위치
   private String flexibleLocation; // 유동적인 위치
   private Double latitude;            // 위도
   private Double longitude;           // 경도
-  
+
   @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime regDate; //  등록일
-  
+
   @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime modDate; //  수정일
 
@@ -81,39 +81,39 @@ public class PostDTO implements Identifiable {
     // 시터 게시글 또는 오너 게시글일 경우에 따라 이미지 처리
     if (post instanceof PetOwner owner && owner.getImages() != null) {
       images = owner.getImages().stream()
-              .map(img -> ImageDTO.builder()
-                      .imgId(img.getImgId())
-                      .path(img.getPath())
-                      .thumbnailPath(img.getThumbnailPath())
-                      .build())
-              .collect(Collectors.toList());
+          .map(img -> ImageDTO.builder()
+              .imgId(img.getImgId())
+              .path(img.getPath())
+              .thumbnailPath(img.getThumbnailPath())
+              .build())
+          .collect(Collectors.toList());
     } else if (post instanceof PetSitter sitter && sitter.getImages() != null) {
       images = sitter.getImages().stream()
-              .map(img -> ImageDTO.builder()
-                      .imgId(img.getImgId())
-                      .path(img.getPath())
-                      .thumbnailPath(img.getThumbnailPath())
-                      .build())
-              .collect(Collectors.toList());
+          .map(img -> ImageDTO.builder()
+              .imgId(img.getImgId())
+              .path(img.getPath())
+              .thumbnailPath(img.getThumbnailPath())
+              .build())
+          .collect(Collectors.toList());
     }
 
     // DTO 빌더를 사용하여 객체 생성
     PostDTO.PostDTOBuilder builder = PostDTO.builder()
-            .postId(post.getPostId())
-            .title(post.getTitle())
-            .content(post.getContent())
-            .serviceCategory(post.getServiceCategory().name())
-            .hourlyRate(post.getHourlyRate())
-            .likes(post.getLikes())
-            .chatCount(post.getChatCount())
-            .defaultLocation(post.getDefaultLocation())
-            .flexibleLocation(post.getFlexibleLocation())
-            .latitude(post.getLatitude())
-            .longitude(post.getLongitude())
-            .regDate(post.getRegDate())
-            .modDate(post.getModDate())
-            .images(images)                     // ← 여기!
-            .isPetSitterPost(post instanceof PetSitter);
+        .postId(post.getPostId())
+        .title(post.getTitle())
+        .content(post.getContent())
+        .serviceCategory(post.getServiceCategory().name())
+        .hourlyRate(post.getHourlyRate())
+        .likes(post.getLikes())
+        .chatCount(post.getChatCount())
+        .defaultLocation(post.getDefaultLocation())
+        .flexibleLocation(post.getFlexibleLocation())
+        .latitude(post.getLatitude())
+        .longitude(post.getLongitude())
+        .regDate(post.getRegDate())
+        .modDate(post.getModDate())
+        .images(images)                     // ← 여기!
+        .isPetSitterPost(post instanceof PetSitter);
 
 
     // 작성자 정보 추가
@@ -135,11 +135,11 @@ public class PostDTO implements Identifiable {
     }
 
     return MemberResponseDTO.builder()
-            .mid(member.getMid())
-            .email(member.getEmail())
-            .nickname(member.getNickname())
-            .pawRate(member.getPawRate())
-            .profileImagePath(member.getProfileImagePath())
-            .build();
+        .mid(member.getMid())
+        .email(member.getEmail())
+        .nickname(member.getNickname())
+        .pawRate(member.getPawRate())
+        .profileImagePath(member.getProfileImagePath())
+        .build();
   }
 }

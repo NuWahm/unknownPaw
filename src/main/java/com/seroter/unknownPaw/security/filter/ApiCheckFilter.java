@@ -40,7 +40,7 @@ public class ApiCheckFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain filterChain)
-          throws ServletException, IOException {
+      throws ServletException, IOException {
 
     boolean needCheck = false;
     for (String p : pattern) {
@@ -73,14 +73,14 @@ public class ApiCheckFilter extends OncePerRequestFilter {
       // 여기서는 Spring Security의 기본 User 클래스를 사용하는 것이 안전합니다.
       // MemberAuthDTO가 Member 엔티티와 강하게 연결되어 있다면 더더욱.
       UserDetails userDetails = User.builder()
-              .username(email)
-              .password("") // 패스워드는 필요 없으므로 빈 문자열
-              .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + role))) // JWT의 역할로 권한 설정
-              .build();
+          .username(email)
+          .password("") // 패스워드는 필요 없으므로 빈 문자열
+          .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + role))) // JWT의 역할로 권한 설정
+          .build();
 
       // SecurityContext에 Authentication 주입
       UsernamePasswordAuthenticationToken authToken =
-              new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+          new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
       SecurityContextHolder.getContext().setAuthentication(authToken);
 
       filterChain.doFilter(request, response);

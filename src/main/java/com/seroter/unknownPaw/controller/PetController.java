@@ -33,12 +33,12 @@ public class PetController {
   // 펫 등록 (로그인 사용자)
   @PostMapping("/register/later")
   public ResponseEntity<Long> registerPet(
-          @RequestBody PetDTO petDTO,
-          @AuthenticationPrincipal UserDetails userDetails) {
+      @RequestBody PetDTO petDTO,
+      @AuthenticationPrincipal UserDetails userDetails) {
     log.info("🐾 register pet for user: {}", userDetails.getUsername());
     String email = userDetails.getUsername();
     Member member = memberService.findByEmail(email)
-            .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다: " + email));
+        .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다: " + email));
     return ResponseEntity.ok(petService.registerMyPet(member, petDTO));  }
 
   // 내 펫 목록 (JWT 인증)
@@ -52,7 +52,7 @@ public class PetController {
       String token = authHeader.substring(7);
       String email = jwtUtil.getEmail(token);
       Member member = memberService.findByEmail(email)
-              .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+          .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
       List<PetDTO> myPets = petService.getPetsByMember(member);
       return ResponseEntity.ok(myPets);
     } catch (UsernameNotFoundException e) {
@@ -73,9 +73,9 @@ public class PetController {
   // 펫 정보 수정 (JWT 인증, 펫 소유자만)
   @PutMapping("/{petId}")
   public ResponseEntity<?> updatePet(
-          @PathVariable("petId") Long petId,
-          @RequestBody PetUpdateRequestDTO updateRequestDTO,
-          HttpServletRequest request) {
+      @PathVariable("petId") Long petId,
+      @RequestBody PetUpdateRequestDTO updateRequestDTO,
+      HttpServletRequest request) {
 
     log.info("🛠️ update pet................. petId: {}", petId);
     try {
@@ -86,19 +86,19 @@ public class PetController {
       String token = authHeader.substring(7);
       String email = jwtUtil.getEmail(token);
       Member member = memberService.findByEmail(email)
-              .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+          .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
       PetDTO petDTOForUpdate = PetDTO.builder()
-              .petId(petId)
-              .petName(updateRequestDTO.getPetName())
-              .breed(updateRequestDTO.getBreed())
-              .petBirth(updateRequestDTO.getPetBirth())
-              .petGender(updateRequestDTO.isPetGender())
-              .weight(updateRequestDTO.getWeight())
-              .petMbti(updateRequestDTO.getPetMbti())
-              .neutering(updateRequestDTO.isNeutering())
-              .petIntroduce(updateRequestDTO.getPetIntroduce())
-              .build();
+          .petId(petId)
+          .petName(updateRequestDTO.getPetName())
+          .breed(updateRequestDTO.getBreed())
+          .petBirth(updateRequestDTO.getPetBirth())
+          .petGender(updateRequestDTO.isPetGender())
+          .weight(updateRequestDTO.getWeight())
+          .petMbti(updateRequestDTO.getPetMbti())
+          .neutering(updateRequestDTO.isNeutering())
+          .petIntroduce(updateRequestDTO.getPetIntroduce())
+          .build();
 
       PetDTO updatedPetDTO = petService.updatePet(petId, member, petDTOForUpdate);
       return ResponseEntity.ok(updatedPetDTO);
@@ -118,8 +118,8 @@ public class PetController {
   // 펫 삭제 (JWT 인증, 소유자만)
   @DeleteMapping("/{petId}")
   public ResponseEntity<?> deletePet(
-          @PathVariable("petId") Long petId,
-          HttpServletRequest request) {
+      @PathVariable("petId") Long petId,
+      HttpServletRequest request) {
 
     log.info("🗑️ DELETE 요청 수신: 펫 ID: {}", petId);
 

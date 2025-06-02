@@ -63,4 +63,3 @@ public class DateAppoint extends BaseEntity {
 
 
 }
-

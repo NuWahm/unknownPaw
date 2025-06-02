@@ -37,7 +37,7 @@ public class PostService {
     public Long register(String postType, PostDTO dto, Long memberId) {
         PostType type = parsePostType(postType);
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         Post entity = dtoToEntity(type, dto);
         entity.setMember(member);
         return savePostbyPostType(type, entity);
@@ -47,15 +47,15 @@ public class PostService {
     public PostDTO get(String postType, Long postId) {
         PostType type = parsePostType(postType);
         return findPostbyPostType(type, postId)
-                .map(entity -> entityToDto(entity, type == PostType.PET_SITTER))
-                .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
+            .map(entity -> entityToDto(entity, type == PostType.PET_SITTER))
+            .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
     }
 
     // 게시글 수정
     public void modify(String postType, PostDTO dto) {
         PostType type = parsePostType(postType);
         Post entity = findPostbyPostType(type, dto.getPostId())
-                .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException(type + " 게시글을 찾을 수 없습니다."));
         updateCommonFields(entity, dto);
         savePostbyPostType(type, entity);
     }
@@ -82,20 +82,20 @@ public class PostService {
     public List<PostDTO> getPostsByMember(PostType postType, Long memberId) {
         return switch (postType) {
             case PET_OWNER ->
-                    petOwnerRepository.findByMember_Mid(memberId).stream()
-                            .map(post -> entityToDto(post, false)).toList();
+                petOwnerRepository.findByMember_Mid(memberId).stream()
+                    .map(post -> entityToDto(post, false)).toList();
             case PET_SITTER ->
-                    petSitterRepository.findByMember_Mid(memberId).stream()
-                            .map(post -> entityToDto(post, true)).toList();
+                petSitterRepository.findByMember_Mid(memberId).stream()
+                    .map(post -> entityToDto(post, true)).toList();
         };
     }
 
     // 특정 위치에 맞는 펫시터 게시글 조회
     public List<PostDTO> findSittersByLocation(String location) {
         return petSitterRepository.findByDefaultLocation(location)
-                .stream()
-                .map(post -> entityToDto(post, true))
-                .toList();
+            .stream()
+            .map(post -> entityToDto(post, true))
+            .toList();
     }
 
     // DTO → Entity 변환
@@ -114,20 +114,20 @@ public class PostService {
     // 펫오너 게시글 엔티티 생성
     private Post createPetOwnerEntity(PostDTO dto) {
         PetOwner.PetOwnerBuilder builder = PetOwner.builder()
-                .postId(dto.getPostId())
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
-                .hourlyRate(dto.getHourlyRate())
-                .serviceDate(dto.getServiceDate())
-                .likes(dto.getLikes())
-                .chatCount(dto.getChatCount())
-                .defaultLocation(dto.getDefaultLocation())
-                .flexibleLocation(dto.getFlexibleLocation())
-                .member(null);
+            .postId(dto.getPostId())
+            .title(dto.getTitle())
+            .content(dto.getContent())
+            .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
+            .hourlyRate(dto.getHourlyRate())
+            .serviceDate(dto.getServiceDate())
+            .likes(dto.getLikes())
+            .chatCount(dto.getChatCount())
+            .defaultLocation(dto.getDefaultLocation())
+            .flexibleLocation(dto.getFlexibleLocation())
+            .member(null);
         if (dto.getPetId() != null) {
             Pet pet = petRepository.findById(dto.getPetId())
-                    .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
             builder.pet(pet);
         }
         return builder.build();
@@ -136,17 +136,17 @@ public class PostService {
     // 펫시터 게시글 엔티티 생성
     private Post createPetSitterEntity(PostDTO dto) {
         PetSitter.PetSitterBuilder builder = PetSitter.builder()
-                .postId(dto.getPostId())
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
-                .hourlyRate(dto.getHourlyRate())
-                .serviceDate(dto.getServiceDate())
-                .likes(dto.getLikes())
-                .chatCount(dto.getChatCount())
-                .defaultLocation(dto.getDefaultLocation())
-                .flexibleLocation(dto.getFlexibleLocation())
-                .member(null);
+            .postId(dto.getPostId())
+            .title(dto.getTitle())
+            .content(dto.getContent())
+            .serviceCategory(ServiceCategory.valueOf(dto.getServiceCategory()))
+            .hourlyRate(dto.getHourlyRate())
+            .serviceDate(dto.getServiceDate())
+            .likes(dto.getLikes())
+            .chatCount(dto.getChatCount())
+            .defaultLocation(dto.getDefaultLocation())
+            .flexibleLocation(dto.getFlexibleLocation())
+            .member(null);
         if (dto.getLicense() != null) builder.license(dto.getLicense());
         if (dto.getPetExperience() != null) builder.petExperience(dto.getPetExperience());
         return builder.build();
@@ -155,35 +155,35 @@ public class PostService {
     // 엔티티 → DTO 변환
     private PostDTO entityToDto(Post entity, boolean isSitter) {
         PostDTO.PostDTOBuilder builder = PostDTO.builder()
-                .postId(entity.getPostId())
-                .title(entity.getTitle())
-                .content(entity.getContent())
-                .serviceCategory(entity.getServiceCategory().name())
-                .hourlyRate(entity.getHourlyRate())
-                .likes(entity.getLikes())
-                .chatCount(entity.getChatCount())
-                .defaultLocation(entity.getDefaultLocation())
-                .flexibleLocation(entity.getFlexibleLocation())
-                .regDate(entity.getRegDate())
-                .modDate(entity.getModDate())
-                .isPetSitterPost(isSitter)
-                .images(entity.getImages().stream()
-                        .map(img -> ImageDTO.builder()
-                                .imgId(img.getImgId())
-                                .path(img.getPath())
-                                .thumbnailPath(img.getThumbnailPath())
-                                .build())
-                        .collect(Collectors.toList()));
+            .postId(entity.getPostId())
+            .title(entity.getTitle())
+            .content(entity.getContent())
+            .serviceCategory(entity.getServiceCategory().name())
+            .hourlyRate(entity.getHourlyRate())
+            .likes(entity.getLikes())
+            .chatCount(entity.getChatCount())
+            .defaultLocation(entity.getDefaultLocation())
+            .flexibleLocation(entity.getFlexibleLocation())
+            .regDate(entity.getRegDate())
+            .modDate(entity.getModDate())
+            .isPetSitterPost(isSitter)
+            .images(entity.getImages().stream()
+                .map(img -> ImageDTO.builder()
+                    .imgId(img.getImgId())
+                    .path(img.getPath())
+                    .thumbnailPath(img.getThumbnailPath())
+                    .build())
+                .collect(Collectors.toList()));
 
         if (entity.getMember() != null) {
             Member m = entity.getMember();
             builder.member(MemberResponseDTO.builder()
-                    .mid(m.getMid())
-                    .email(m.getEmail())
-                    .nickname(m.getNickname())
-                    .profileImagePath(m.getProfileImagePath())
-                    .pawRate(m.getPawRate())
-                    .build());
+                .mid(m.getMid())
+                .email(m.getEmail())
+                .nickname(m.getNickname())
+                .profileImagePath(m.getProfileImagePath())
+                .pawRate(m.getPawRate())
+                .build());
         }
         return builder.build();
     }
@@ -264,22 +264,22 @@ public class PostService {
     public Set<PostDTO> getLikedPostDTOs(Long memberId, PostType postType) {
         Set<? extends Post> likedPosts = getLikedPosts(memberId, postType);
         return likedPosts.stream()
-                .map(post -> entityToDto(post, postType == PostType.PET_SITTER))
-                .collect(Collectors.toSet());
+            .map(post -> entityToDto(post, postType == PostType.PET_SITTER))
+            .collect(Collectors.toSet());
     }
 
     // ============= 최근 게시글 랜덤 6개 =============
 
     public List<PostDTO> getRandom6PetOwnerPosts() {
         return petOwnerRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
-                .stream().limit(6)
-                .map(post -> entityToDto(post, false)).toList();
+            .stream().limit(6)
+            .map(post -> entityToDto(post, false)).toList();
     }
 
     public List<PostDTO> getRandom6PetSitterPosts() {
         return petSitterRepository.findRecent7DaysPosts(LocalDateTime.now().minusDays(7))
-                .stream().limit(6)
-                .map(post -> entityToDto(post, true)).toList();
+            .stream().limit(6)
+            .map(post -> entityToDto(post, true)).toList();
     }
 
     // ============= 유틸 =============
@@ -302,7 +302,7 @@ public class PostService {
     @Transactional
     public PostDTO modifyPost(PostDTO postDTO, PostType postType) {
         Post post = findPostbyPostType(postType, postDTO.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+            .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         // 기존 게시글 정보 업데이트
         post.setTitle(postDTO.getTitle());
@@ -320,7 +320,7 @@ public class PostService {
         if (postDTO.getImages() != null && !postDTO.getImages().isEmpty()) {
             // 기존 이미지 삭제
             post.getImages().clear();
-            
+
             // 새 이미지 저장
             List<Image> newImages = postDTO.getImages().stream()
                 .map(imgDTO -> Image.builder()
@@ -329,7 +329,7 @@ public class PostService {
                     .post(post)
                     .build())
                 .collect(Collectors.toList());
-            
+
             post.getImages().addAll(newImages);
         }
 
