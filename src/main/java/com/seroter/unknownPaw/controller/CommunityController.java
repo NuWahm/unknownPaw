@@ -3,7 +3,9 @@ package com.seroter.unknownPaw.controller;
 import com.seroter.unknownPaw.dto.CommentDTO;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.dto.CommunityResponseDTO;
+import com.seroter.unknownPaw.entity.Community;
 import com.seroter.unknownPaw.entity.Enum.ImageType;
+import com.seroter.unknownPaw.repository.CommunityRepository;
 import com.seroter.unknownPaw.service.CommunityService;
 import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -22,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityController {
 
+    private final CommunityRepository communityRepository;
     private final CommunityService communityService;
     private final ImageService imageService;
 
@@ -52,14 +57,20 @@ public class CommunityController {
         return ResponseEntity.ok(community);  // 조회된 게시글 반환
     }
 
-    // ========== [게시글 조회 (전체)] ==========
     @GetMapping("/posts")
-    public ResponseEntity<List<CommunityResponseDTO>> getAllCommunityPosts() {
+    public ResponseEntity<List<CommunityResponseDTO>> getPosts(@RequestParam(required = false) String type) {
+        List<CommunityResponseDTO> posts;
 
-        // 전체 게시글 조회 서비스 호출
-        List<CommunityResponseDTO> communityList = communityService.getAllCommunityPosts();
-        return ResponseEntity.ok(communityList);  // 전체 게시글 반환
+        if (type != null) {
+            posts = communityService.getPostsByType(type.toUpperCase());
+        } else {
+            posts = communityService.getAllCommunityPosts();  // 전체 조회
+        }
+
+        return ResponseEntity.ok(posts);
+
     }
+
 
     // ========== [게시글 수정] ==========
     @PutMapping("/posts/{postId}")
@@ -110,11 +121,42 @@ public class CommunityController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 삭제 완료 응답
 
     }
+    // community 좋아요 추가
+    @PostMapping("/posts/{id}/like")
+    public ResponseEntity<Void> likeCommunity(@PathVariable Long id, @RequestParam Long memberId) {
+        communityService.likePost(id, memberId);
+        return ResponseEntity.ok().build();
+    }
+    // community 좋아요 취소
+    @DeleteMapping("/posts/{id}/unlike")
+    public ResponseEntity<Void> unlikeCommunity(@PathVariable Long id, @RequestParam Long memberId) {
+        communityService.unlikePost(id, memberId);
+        return ResponseEntity.ok().build();
+    }
 
-
-
-
-
+    // 커뮤니티 좋아요 누른글 불려오기
+    @GetMapping("/posts/likes")
+    public ResponseEntity<List<CommunityResponseDTO>> getLikedCommunityPosts(@RequestParam Long memberId) {
+        List<Community> liked =communityRepository.findByLikedMemberId(memberId);
+        List<CommunityResponseDTO> result = liked.stream().map(CommunityResponseDTO::fromEntity).toList();
+        return ResponseEntity.ok(result);
+    }
+    // 좋아요 여부 확인 API
+    @GetMapping("/posts/{id}/liked")
+    public ResponseEntity<Map<String, Boolean>> isPostLiked(
+            @PathVariable Long id,
+            @RequestParam Long memberId) {
+        boolean liked = communityService.isLikedByMember(id, memberId);
+        Map<String, Boolean> result = new HashMap<>();
+        result.put("liked", liked);
+        return ResponseEntity.ok(result);
+    }
+    // 커뮤니티 좋아요 카운트 불러오기
+    @GetMapping("/posts/{id}/likeCount")
+    public ResponseEntity<Integer> getLikeCount(@PathVariable Long id) {
+        int count = communityService.getLikeCount(id);
+        return ResponseEntity.ok(count);
+    }
 }
 
 

@@ -79,6 +79,16 @@ public class Community {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
+
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_community_posts", // 중간 테이블 이름
+        joinColumns = @JoinColumn(name = "community_id"),
+        inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    @Builder.Default
+    private List<Member> likedMembers = new ArrayList<>();
+
     // @Setter 쓰지 않기 위해 추가
     public void setLikes(int likes) {
         this.likes = likes;
@@ -87,4 +97,6 @@ public class Community {
     public void setComment(int comment) {
         this.comment = comment;
     }
+
+
 }

@@ -7,6 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class ModifyRequestDTO {
   private PostDTO postDTO;
-    private MultipartFile image;
-    private Long postId;
+  private MultipartFile image;
+  private Long postId;
 }

@@ -40,14 +40,14 @@ public class PetImageController {
     try {
       // 1. 이미지 저장 (ImageService)
       String savedPath = imageService.saveImage(file, "pet", "pet", petId, petId);
-      
+
       // 2. 이미지 엔티티 조회
       Image savedImage = imageRepository.findByPath(savedPath)
               .orElseThrow(() -> new EntityNotFoundException("저장된 이미지를 찾을 수 없습니다: " + savedPath));
-      
+
       // 3. Pet 엔티티 업데이트 (이미지 경로 + imgId)
       PetDTO updatedPet = petService.updatePetImagePath(petId, savedImage);
-      
+
       return ResponseEntity.ok(updatedPet);
     } catch (Exception e) {
       log.error("🐾 펫 이미지 업로드 실패", e);

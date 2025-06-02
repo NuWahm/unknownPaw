@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -204,5 +205,51 @@ public class CommunityService {
     public Comment getCommentById(Long commentId) {
         return commentRepository.findByCommentId(commentId);
 
+    }
+
+    // 타입별로 조회
+    public List<CommunityResponseDTO> getPostsByType(String type) {
+        CommunityCategory category = CommunityCategory.valueOf(type);
+        List<Community> posts = communityRepository.findByCommunityCategory(category);
+        return posts.stream()
+                .map(CommunityResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+    // 커뮤니티 좋아요 추가
+    public void likePost(Long postId, Long memberId) {
+        Community community = communityRepository.findById(postId).orElseThrow();
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.getLikedCommunity().add(community);
+        memberRepository.save(member);
+    }
+    // 커뮤니티 좋아요 취소
+    public void unlikePost(Long postId, Long memberId) {
+        Community community = communityRepository.findById(postId).orElseThrow();
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        member.getLikedCommunity().remove(community);
+        memberRepository.save(member);
+    }
+
+    // 좋아요 누른 커뮤니티 게시글 조회
+    public List<CommunityResponseDTO> getLikedCommunityPosts(Long memberId) {
+        List<Community> likedPosts = communityRepository.findByLikedMemberId(memberId);
+        return likedPosts.stream()
+                .map(CommunityResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 커뮤니티 좋아요 누른 사람 확인
+    public boolean isLikedByMember(Long postId, Long memberId) {
+        return communityRepository.existsByCommunityIdAndLikedMembers_Mid(postId, memberId);
+    }
+
+    // 커뮤니티 좋아요 누른 갯수
+    public int getLikeCount(Long postId) {
+        Optional<Community> optional = communityRepository.findById(postId);
+        if (optional.isPresent()) {
+            return optional.get().getLikedMembers().size();
+        } else {
+            throw new IllegalArgumentException("해당 ID의 커뮤니티 게시글이 없습니다: " + postId);
+        }
     }
 }

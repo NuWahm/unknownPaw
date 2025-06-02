@@ -34,7 +34,7 @@ public class PetService {
   }
 
 
-    private Pet dtoToEntity(PetDTO dto, Member member) {
+  private Pet dtoToEntity(PetDTO dto, Member member) {
     return Pet.builder()
             .petId(dto.getPetId())
             .petName(dto.getPetName())
@@ -63,15 +63,15 @@ public class PetService {
   public PetDTO updatePetImagePath(Long petId, Image image) {
     Pet pet = petRepository.findById(petId)
             .orElseThrow(() -> new EntityNotFoundException("펫 없음: " + petId));
-    
+
     // Pet 엔티티 업데이트
     pet.setImagePath(image.getPath());
     pet.setThumbnailPath(image.getThumbnailPath());
     pet.setImgId(image);  // imgId 관계 설정
-    
+
     // 변경사항 저장
     Pet savedPet = petRepository.save(pet);
-    
+
     return PetDTO.fromEntity(savedPet);
   }
 
