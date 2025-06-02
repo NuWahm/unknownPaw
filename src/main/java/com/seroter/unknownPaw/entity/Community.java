@@ -97,6 +97,16 @@ public class Community {
     public void setComment(int comment) {
         this.comment = comment;
     }
+    // ========== [좋아요 수 증가 메서드 추가] ==========
+    public void increaseLikes() {
+        this.likes++;
+    }
 
+    // ========== [좋아요 수 감소 메서드 추가] ==========
+    public void decreaseLikes() {
+        if (this.likes > 0) { // 음수가 되지 않도록 방지
+            this.likes--;
+        }
+    }
 
 }

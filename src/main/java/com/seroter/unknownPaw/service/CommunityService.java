@@ -215,20 +215,51 @@ public class CommunityService {
             .map(CommunityResponseDTO::fromEntity)
             .collect(Collectors.toList());
     }
-    // 커뮤니티 좋아요 추가
+    // ========== [커뮤니티 좋아요 추가] ==========
+    @Transactional
     public void likePost(Long postId, Long memberId) {
-        Community community = communityRepository.findById(postId).orElseThrow();
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        member.getLikedCommunity().add(community);
-        memberRepository.save(member);
+        Community community = communityRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("Community post not found"));
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        // member_liked_community_posts 테이블에 추가 (ManyToMany 관계)
+        // 이미 좋아요를 누르지 않은 경우에만 추가
+        if (!community.getLikedMembers().contains(member)) { // Community 엔티티의 likedMembers 사용
+            community.getLikedMembers().add(member); // 중간 테이블에 관계 추가
+            community.increaseLikes(); // Community 엔티티의 likes 필드 증가
+            communityRepository.save(community); // Community 엔티티 저장 (likes 필드 업데이트)
+            // memberRepository.save(member); // Member 엔티티의 likedCommunity에 대한 매핑이 ManyToMany이므로 필요시 호출
+            // 하지만 @Transactional 안에서는 `community.getLikedMembers().add(member)` 만으로도
+            // 관계 테이블에 변경사항이 반영되고, flush 시점에 함께 저장됩니다.
+            // 명시적으로 `communityRepository.save(community)`를 호출하여 `likes` 필드 변경을 DB에 반영합니다.
+
+            System.out.println("DEBUG: likePost for member " + memberId + " on community " + postId + " committed to DB. Likes: " + community.getLikes());
+        } else {
+            System.out.println("DEBUG: member " + memberId + " already liked community " + postId);
+        }
     }
-    // 커뮤니티 좋아요 취소
+
+    // ========== [커뮤니티 좋아요 취소] ==========
+    @Transactional
     public void unlikePost(Long postId, Long memberId) {
-        Community community = communityRepository.findById(postId).orElseThrow();
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        member.getLikedCommunity().remove(community);
-        memberRepository.save(member);
+        Community community = communityRepository.findById(postId)
+            .orElseThrow(() -> new IllegalArgumentException("Community post not found"));
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        // member_liked_community_posts 테이블에서 제거 (ManyToMany 관계)
+        // 좋아요를 누른 상태인 경우에만 제거
+        if (community.getLikedMembers().remove(member)) { // Community 엔티티의 likedMembers 사용
+            community.decreaseLikes(); // Community 엔티티의 likes 필드 감소
+            communityRepository.save(community); // Community 엔티티 저장 (likes 필드 업데이트)
+            // memberRepository.save(member); // 위와 동일한 이유로 여기서는 필수는 아님
+            System.out.println("DEBUG: unlikePost for member " + memberId + " on community " + postId + " committed to DB. Likes: " + community.getLikes());
+        } else {
+            System.out.println("DEBUG: member " + memberId + " did not like community " + postId);
+        }
     }
+
 
     // 좋아요 누른 커뮤니티 게시글 조회
     public List<CommunityResponseDTO> getLikedCommunityPosts(Long memberId) {
