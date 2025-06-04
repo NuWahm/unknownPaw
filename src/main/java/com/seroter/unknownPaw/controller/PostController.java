@@ -56,14 +56,12 @@ public class PostController {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage(), pageRequestDTO.getSize());
       Page<PostDTO> result = postService.searchPosts(
-              postType,     // enum → String
+              postType,
               keyword,
               location,
               category,
               pageRequestDTO.getPageable()
-
       );
       return ResponseEntity.ok(result);
     } catch (IllegalArgumentException e) {

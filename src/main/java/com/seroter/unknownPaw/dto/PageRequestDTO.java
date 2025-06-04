@@ -16,15 +16,20 @@ public class PageRequestDTO {
     private int size; // 한페이지당 갯수
     private String type;
     private String keyword;
+    private String sortBy;
+    private String sortOrder;
 
     public PageRequestDTO() {
         this.page = 1;
         this.size = 10;
+        this.sortBy = "regDate";
+        this.sortOrder = "DESC";
     }
 
     public Pageable getPageable() {
         int safePage = page < 1 ? 0 : page - 1;
-        return PageRequest.of(safePage, size, Sort.by("postId").descending());
+        String sortColumn = (sortBy == null || sortBy.isBlank()) ? "regDate" : sortBy;
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return PageRequest.of(safePage, size, Sort.by(direction, sortColumn));
     }
-
 }
