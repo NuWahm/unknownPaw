@@ -7,8 +7,13 @@ import com.seroter.unknownPaw.dto.ModifyRequestDTO;
 import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
+import com.seroter.unknownPaw.entity.PetOwner;
+import com.seroter.unknownPaw.entity.PetSitter;
 import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.repository.PetOwnerRepository;
+import com.seroter.unknownPaw.repository.PetSitterRepository;
 import com.seroter.unknownPaw.service.ImageService;
+import com.seroter.unknownPaw.service.MemberService;
 import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 
 import jakarta.transaction.Transactional;
 
@@ -32,7 +38,10 @@ public class PostController {
 
   private final PostService postService;
   private final ImageService imageService;
+  private final MemberService memberService;
   private final ObjectMapper objectMapper;
+  private final PetOwnerRepository petOwnerRepository;
+  private final PetSitterRepository petSitterRepository;
 
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
@@ -307,5 +316,69 @@ public class PostController {
     return ResponseEntity.ok(dtoSet);
   }
 
+  @GetMapping("/favourites")
+  public ResponseEntity<?> getFavouritePosts(
+          @RequestParam Long memberId,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size
+  ) {
+    try {
+      Page<MemberService.FavouritePostDTO> result = memberService.findLikedPosts(memberId, page, size);
+      return ResponseEntity.ok(result);
+    } catch (Exception e) {
+      log.error("찜한 게시글 조회 실패", e);
+      return ResponseEntity.badRequest().body("찜한 게시글 조회 실패: " + e.getMessage());
+    }
+  }
+
+  // 찜하기 등록
+  @PostMapping("/{postId}/favourite")
+  public ResponseEntity<String> addFavourite(
+          @PathVariable Long postId,
+          @RequestParam Long memberId) {
+    try {
+      // 펫오너 게시글인지 펫시터 게시글인지 확인
+      Optional<PetOwner> petOwner = petOwnerRepository.findById(postId);
+      Optional<PetSitter> petSitter = petSitterRepository.findById(postId);
+      
+      if (petOwner.isPresent()) {
+        postService.likePost(memberId, postId, PostType.PET_OWNER);
+      } else if (petSitter.isPresent()) {
+        postService.likePost(memberId, postId, PostType.PET_SITTER);
+      } else {
+        return ResponseEntity.badRequest().body("존재하지 않는 게시글입니다.");
+      }
+      
+      return ResponseEntity.ok("찜하기 완료");
+    } catch (Exception e) {
+      log.error("찜하기 실패", e);
+      return ResponseEntity.badRequest().body("찜하기 실패: " + e.getMessage());
+    }
+  }
+
+  // 찜하기 취소
+  @DeleteMapping("/{postId}/favourite")
+  public ResponseEntity<String> removeFavourite(
+          @PathVariable Long postId,
+          @RequestParam Long memberId) {
+    try {
+      // 펫오너 게시글인지 펫시터 게시글인지 확인
+      Optional<PetOwner> petOwner = petOwnerRepository.findById(postId);
+      Optional<PetSitter> petSitter = petSitterRepository.findById(postId);
+      
+      if (petOwner.isPresent()) {
+        postService.unlikePost(memberId, postId, PostType.PET_OWNER);
+      } else if (petSitter.isPresent()) {
+        postService.unlikePost(memberId, postId, PostType.PET_SITTER);
+      } else {
+        return ResponseEntity.badRequest().body("존재하지 않는 게시글입니다.");
+      }
+      
+      return ResponseEntity.ok("찜하기 취소 완료");
+    } catch (Exception e) {
+      log.error("찜하기 취소 실패", e);
+      return ResponseEntity.badRequest().body("찜하기 취소 실패: " + e.getMessage());
+    }
+  }
 
 }

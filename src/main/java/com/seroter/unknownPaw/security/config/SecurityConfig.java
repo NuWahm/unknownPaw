@@ -50,12 +50,14 @@ public class SecurityConfig {
                         "/api/member/profile/simple/**",
                         "/api/member/*/pets",
                         "/api/member/*/posts",
+                        "/api/member/posts/favourites",
                         "/api/member/me",
                         "/api/member/update",
                         "/api/member/change-password",
                         "/api/member/withdraw",
                         "/api/pet/register/later",
-                        "/api/pet/{petId}"
+                        "/api/pet/{petId}",
+                        "/api/posts/*/favourite"
                 }, jwtUtil);
 
         http
@@ -77,12 +79,14 @@ public class SecurityConfig {
                                 "/api/member/profile/simple/**",
                                 "/api/member/*/pets",
                                 "/api/member/*/posts",
+                                "/api/member/posts/favourites",
                                 "/api/member/me",
                                 "/api/member/update",
                                 "/api/member/change-password",
                                 "/api/member/withdraw",
                                 "/api/pet/register/later",
-                                "/api/pet/{petId}"
+                                "/api/pet/{petId}",
+                                "/api/posts/*/favourite"
                         ).authenticated()
                         .anyRequest().permitAll()
                 )

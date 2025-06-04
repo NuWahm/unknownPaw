@@ -4,6 +4,7 @@ import com.seroter.unknownPaw.dto.*;
 import com.seroter.unknownPaw.dto.EditProfile.MemberUpdateRequestDTO;
 import com.seroter.unknownPaw.dto.EditProfile.PasswordChangeRequestDTO;
 import com.seroter.unknownPaw.entity.*;
+import com.seroter.unknownPaw.entity.Enum.ServiceCategory;
 import com.seroter.unknownPaw.exception.CustomException;
 import com.seroter.unknownPaw.exception.ErrorCode;
 import com.seroter.unknownPaw.repository.MemberRepository;
@@ -13,6 +14,7 @@ import com.seroter.unknownPaw.repository.PetSitterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*; // Page, Pageable, PageImpl 임포트
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,113 @@ public class MemberService {
     private final PetSitterRepository petSitterRepository;
     private final PasswordEncoder passwordEncoder;
     private final PetService petService;
+
+    // 찜한 게시글 정보를 담을 내부 DTO 정의
+    public record FavouritePostDTO(
+            Long postId,
+            String title,
+            ServiceCategory serviceCategory,
+            Integer hourlyRate,
+            String defaultLocation,
+            LocalDateTime regDate,
+            List<ImageDTO> images,
+            SimpleMemberDTO member
+    ) {
+        // 각 엔티티 타입에 따라 DTO 변환을 돕는 static 팩토리 메소드
+        public static FavouritePostDTO fromPetOwner(PetOwner post) {
+            List<ImageDTO> imageDTOs = post.getImages() != null ?
+                    post.getImages().stream().map(ImageDTO::fromEntity).collect(Collectors.toList()) :
+                    Collections.emptyList();
+            SimpleMemberDTO memberDTO = post.getMember() != null ? SimpleMemberDTO.fromEntity(post.getMember()) : null;
+
+            return new FavouritePostDTO(
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getServiceCategory(),
+                    post.getHourlyRate(),
+                    post.getDefaultLocation(),
+                    post.getRegDate(),
+                    imageDTOs,
+                    memberDTO
+            );
+        }
+
+        public static FavouritePostDTO fromPetSitter(PetSitter post) {
+            List<ImageDTO> imageDTOs = post.getImages() != null ?
+                    post.getImages().stream().map(ImageDTO::fromEntity).collect(Collectors.toList()) :
+                    Collections.emptyList();
+            SimpleMemberDTO memberDTO = post.getMember() != null ? SimpleMemberDTO.fromEntity(post.getMember()) : null;
+
+            return new FavouritePostDTO(
+                    post.getPostId(),
+                    post.getTitle(),
+                    post.getServiceCategory(),
+                    post.getHourlyRate(),
+                    post.getDefaultLocation(),
+                    post.getRegDate(),
+                    imageDTOs,
+                    memberDTO
+            );
+        }
+
+        public static FavouritePostDTO fromCommunity(Community post) {
+            List<ImageDTO> imageDTOs = post.getCommunityImages() != null ?
+                    post.getCommunityImages().stream()
+                            .map(communityImage -> ImageDTO.fromEntity(communityImage.getImage()))
+                            .collect(Collectors.toList()) :
+                    Collections.emptyList();
+            SimpleMemberDTO memberDTO = post.getMember() != null ? SimpleMemberDTO.fromEntity(post.getMember()) : null;
+
+            return new FavouritePostDTO(
+                    post.getCommunityId(),
+                    post.getTitle(),
+                    null, // Community는 ServiceCategory가 없음
+                    0, // Community는 hourlyRate가 없음
+                    null, // Community는 defaultLocation이 없음
+                    post.getRegDate(),
+                    imageDTOs,
+                    memberDTO
+            );
+        }
+    }
+
+    // ImageDTO 정의
+    public static class ImageDTO {
+        private Long imgId;
+        private String profileImg;
+        private String uuid;
+        private String path;
+        private String thumbnailPath;
+        private int imageType;
+
+        public static ImageDTO fromEntity(Image image) {
+            ImageDTO dto = new ImageDTO();
+            dto.imgId = image.getImgId();
+            dto.profileImg = image.getProfileImg();
+            dto.uuid = image.getUuid();
+            dto.path = image.getPath();
+            dto.thumbnailPath = image.getThumbnailPath();
+            dto.imageType = image.getImageType();
+            return dto;
+        }
+    }
+
+    // SimpleMemberDTO 정의
+    public static class SimpleMemberDTO {
+        private Long mid;
+        private String nickname;
+        private String profileImagePath;
+        private float pawRate;
+
+        public static SimpleMemberDTO fromEntity(Member member) {
+            SimpleMemberDTO dto = new SimpleMemberDTO();
+            dto.mid = member.getMid();
+            dto.nickname = member.getNickname();
+            dto.profileImagePath = member.getProfileImagePath();
+            dto.pawRate = member.getPawRate();
+            return dto;
+        }
+    }
 
     // [1] 회원가입
     public MemberResponseDTO register(MemberRequestDTO dto) {
@@ -255,5 +364,45 @@ public class MemberService {
     // 추가: 전화번호 중복 체크 (개인정보 수정 시)
     public boolean isPhoneNumberExists(String phoneNumber) {
         return memberRepository.existsByPhoneNumber(phoneNumber);
+    }
+    
+    // [16] 찜한 게시글 목록 조회 메소드
+    @Transactional(readOnly = true)
+    public Page<FavouritePostDTO> findLikedPosts(Long memberId, int page, int size) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+
+        Set<PetOwner> likedPetOwnerPosts = member.getLikedPetOwner();
+        Set<PetSitter> likedPetSitterPosts = member.getLikedPetSitter();
+        Set<Community> likedCommunityPosts = member.getLikedCommunity();
+
+        // 모든 찜한 게시글을 하나의 리스트로 합치기
+        List<FavouritePostDTO> allLikedPosts = new ArrayList<>();
+        if (likedPetOwnerPosts != null) {
+            allLikedPosts.addAll(likedPetOwnerPosts.stream()
+                    .map(FavouritePostDTO::fromPetOwner)
+                    .collect(Collectors.toList()));
+        }
+        if (likedPetSitterPosts != null) {
+            allLikedPosts.addAll(likedPetSitterPosts.stream()
+                    .map(FavouritePostDTO::fromPetSitter)
+                    .collect(Collectors.toList()));
+        }
+        if (likedCommunityPosts != null) {
+            allLikedPosts.addAll(likedCommunityPosts.stream()
+                    .map(FavouritePostDTO::fromCommunity)
+                    .collect(Collectors.toList()));
+        }
+
+        // 최신순으로 정렬
+        allLikedPosts.sort(Comparator.comparing(FavouritePostDTO::regDate).reversed());
+
+        // 수동 페이지네이션 적용
+        int start = page * size;
+        int end = Math.min(start + size, allLikedPosts.size());
+        List<FavouritePostDTO> paginatedPosts = allLikedPosts.subList(start, end);
+
+        // Page 객체 생성하여 반환
+        return new PageImpl<>(paginatedPosts, PageRequest.of(page, size), allLikedPosts.size());
     }
 }

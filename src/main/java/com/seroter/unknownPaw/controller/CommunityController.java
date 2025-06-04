@@ -9,6 +9,7 @@ import com.seroter.unknownPaw.repository.CommunityRepository;
 import com.seroter.unknownPaw.service.CommunityService;
 import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -96,6 +97,18 @@ public class CommunityController {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentId);  // 생성된 댓글 ID 반환
     }
 
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
+        try {
+            String imagePath = "community/" + imageName;
+            Resource resource = imageService.loadImageAsResource(imagePath);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
     // ========== [댓글 조회] ==========
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {

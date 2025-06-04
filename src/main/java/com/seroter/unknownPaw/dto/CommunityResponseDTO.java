@@ -25,6 +25,7 @@ public class CommunityResponseDTO {
     private CommunityCategory communityCategory;
     private LocalDateTime regDate;
     private List<String> communityImages; // 커뮤니티 이미지 URL 목록
+    private Long authorId;
 
     // Community -> CommunityResponseDTO 변환
     public static CommunityResponseDTO fromEntity(Community community) {
@@ -44,6 +45,7 @@ public class CommunityResponseDTO {
                 .communityCategory(community.getCommunityCategory())
                 .regDate(community.getRegDate())
                 .communityImages(images)
+                .authorId(community.getMember().getMid()) // 작성자 ID 설정
                 .build();
 
     }

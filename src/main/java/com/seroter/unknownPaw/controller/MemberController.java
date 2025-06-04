@@ -11,6 +11,7 @@ import com.seroter.unknownPaw.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +39,7 @@ public class MemberController {
         log.info("register.....................");
         return ResponseEntity.ok(memberService.register(memberRequestDTO));
     }
+
 
     @PostMapping(value = "/registerWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MemberResponseDTO> registerWithImage(
@@ -279,4 +281,24 @@ public class MemberController {
     public ResponseEntity<List<Object[]>> getDashboardData(@PathVariable Long mid) {
         return ResponseEntity.ok(memberService.getDashboardData(mid));
     }
+
+    // 찜한 게시글 목록 조회
+    @GetMapping("/posts/favourites")
+    public ResponseEntity<?> getLikedPosts(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        try {
+            String email = userDetails.getUsername();
+            Member member = memberService.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+            
+            Page<MemberService.FavouritePostDTO> result = memberService.findLikedPosts(member.getMid(), page, size);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("찜한 게시글 조회 실패", e);
+            return ResponseEntity.badRequest().body("찜한 게시글 조회 실패: " + e.getMessage());
+        }
+    }
+
 }
