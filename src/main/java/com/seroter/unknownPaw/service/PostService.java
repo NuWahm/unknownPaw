@@ -61,13 +61,29 @@ public class PostService {
     }
 
     // 게시글 삭제
+    @Transactional
     public void remove(String postType, Long postId) {
-        PostType type = parsePostType(postType);
-        switch (type) {
-            case PET_OWNER -> petOwnerRepository.deleteById(postId);
-            case PET_SITTER -> petSitterRepository.deleteById(postId);
+        if (postType.equalsIgnoreCase(PostType.PET_OWNER.name())) {
+            // 1. 게시글 조회
+            PetOwner post = petOwnerRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("해당 게시글이 존재하지 않습니다."));
+
+            // 2. 연결된 Pet 엔티티의 연관관계 끊기
+            List<Pet> pets = petRepository.findByPetOwnerId(post);
+            for (Pet pet : pets) {
+                pet.setPetOwnerId(null); // 관계 제거
+            }
+            petRepository.saveAll(pets); // 반영 저장
+
+            // 3. 게시글 삭제
+            petOwnerRepository.delete(post);
+        } else if (postType.equalsIgnoreCase(PostType.PET_SITTER.name())) {
+            petSitterRepository.deleteById(postId);
+        } else {
+            throw new IllegalArgumentException("알 수 없는 게시글 타입입니다: " + postType);
         }
     }
+
 
     // 게시글 동적 검색
     @Transactional

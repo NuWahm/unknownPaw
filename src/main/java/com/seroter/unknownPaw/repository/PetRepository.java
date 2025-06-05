@@ -3,6 +3,7 @@ package com.seroter.unknownPaw.repository;
 import com.seroter.unknownPaw.entity.Member;
 import com.seroter.unknownPaw.entity.Pet;
 import com.seroter.unknownPaw.entity.Pet.PetStatus;
+import com.seroter.unknownPaw.entity.PetOwner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -49,4 +50,8 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
   Optional<Pet> findByPetIdAndMemberAndStatus(Long petId, Member member, PetStatus status);
   List<Pet> findByMemberAndStatus(Member member, PetStatus status);
   List<Pet> findByStatus(PetStatus status);
+
+
+  // 오너글 삭제시 외래키 제약 때문에 삭제가 되지 않아 추가
+  List<Pet> findByPetOwnerId(PetOwner post);
 }
