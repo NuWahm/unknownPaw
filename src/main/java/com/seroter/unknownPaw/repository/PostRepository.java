@@ -3,6 +3,7 @@ package com.seroter.unknownPaw.repository;
 import com.seroter.unknownPaw.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @NoRepositoryBean
-public interface PostRepository<T extends Post> extends Repository<T, Long> {
+public interface PostRepository<T extends Post> extends JpaRepository<T, Long> {
 
     // 게시글 ID로 게시글을 조회하는 메서드
     Optional<T> findByPostId(Long postId);
@@ -33,7 +34,5 @@ public interface PostRepository<T extends Post> extends Repository<T, Long> {
             "where p.postId = :postId") // postId로 게시글 조회
     List<Object[]> getPostWithAll(@Param("postId") Long postId);
 
-    // 🖱️ 무한스크롤 메서드
-    List<Post> findNextPosts(Long lastPostId, int size);
 
 }

@@ -34,19 +34,30 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     public final StringPath defaultLocation;
 
     //inherited
-    public final NumberPath<Integer> desiredHourlyRate;
-
-    //inherited
     public final StringPath flexibleLocation;
 
     //inherited
+    public final NumberPath<Integer> hourlyRate;
+
+    //inherited
+    public final ListPath<Image, QImage> images;
+
+    //inherited
+    public final NumberPath<Double> latitude;
+
+    //inherited
     public final NumberPath<Integer> likes;
+
+    //inherited
+    public final NumberPath<Double> longitude;
 
     // inherited
     public final QMember member;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modDate;
+
+    public final QPet pet;
 
     //inherited
     public final NumberPath<Long> postId;
@@ -55,7 +66,10 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
     public final DateTimePath<java.time.LocalDateTime> regDate;
 
     //inherited
-    public final EnumPath<ServiceCategory> serviceCategory;
+    public final EnumPath<com.seroter.unknownPaw.entity.Enum.ServiceCategory> serviceCategory;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> serviceDate;
 
     //inherited
     public final StringPath title;
@@ -82,14 +96,19 @@ public class QPetOwner extends EntityPathBase<PetOwner> {
         this.chatCount = _super.chatCount;
         this.content = _super.content;
         this.defaultLocation = _super.defaultLocation;
-        this.desiredHourlyRate = _super.desiredHourlyRate;
         this.flexibleLocation = _super.flexibleLocation;
+        this.hourlyRate = _super.hourlyRate;
+        this.images = _super.images;
+        this.latitude = _super.latitude;
         this.likes = _super.likes;
+        this.longitude = _super.longitude;
         this.member = _super.member;
         this.modDate = _super.modDate;
+        this.pet = inits.isInitialized("pet") ? new QPet(forProperty("pet"), inits.get("pet")) : null;
         this.postId = _super.postId;
         this.regDate = _super.regDate;
         this.serviceCategory = _super.serviceCategory;
+        this.serviceDate = _super.serviceDate;
         this.title = _super.title;
     }
 

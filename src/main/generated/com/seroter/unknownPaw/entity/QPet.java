@@ -26,11 +26,14 @@ public class QPet extends EntityPathBase<Pet> {
 
     public final StringPath breed = createString("breed");
 
+    public final StringPath imagePath = createString("imagePath");
+
     public final QImage imgId;
 
     public final QMember member;
 
-    public final DateTimePath<java.time.LocalDateTime> modDate = createDateTime("modDate", java.time.LocalDateTime.class);
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> modDate = _super.modDate;
 
     public final BooleanPath neutering = createBoolean("neutering");
 
@@ -48,7 +51,14 @@ public class QPet extends EntityPathBase<Pet> {
 
     public final QPetOwner petOwnerId;
 
-    public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);
+    public final QPetSitter petSitterId;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> regDate = _super.regDate;
+
+    public final EnumPath<Pet.PetStatus> status = createEnum("status", Pet.PetStatus.class);
+
+    public final StringPath thumbnailPath = createString("thumbnailPath");
 
     public final NumberPath<Double> weight = createNumber("weight", Double.class);
 
@@ -73,6 +83,7 @@ public class QPet extends EntityPathBase<Pet> {
         this.imgId = inits.isInitialized("imgId") ? new QImage(forProperty("imgId"), inits.get("imgId")) : null;
         this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
         this.petOwnerId = inits.isInitialized("petOwnerId") ? new QPetOwner(forProperty("petOwnerId"), inits.get("petOwnerId")) : null;
+        this.petSitterId = inits.isInitialized("petSitterId") ? new QPetSitter(forProperty("petSitterId"), inits.get("petSitterId")) : null;
     }
 
 }

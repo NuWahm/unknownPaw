@@ -1,31 +1,56 @@
 package com.seroter.unknownPaw.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.seroter.unknownPaw.entity.Pet;
+import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetDTO {
-  private Long petId; // 펫 고유 번호(PK)
-  private String petName; // 펫 이름
-  private String breed; // 견종
-  private int petBirth; // 펫 출생 연도(예: 2025)
-  private boolean petGender; // 펫 성별
-  private double weight; // 무게
-  private String petMbti; // 펫 성격
-  private boolean neutering; // 중성화 여부
-  private String petIntroduce; // 펫 소개
 
-  @Builder.Default
-  private Set<String> roleSet = new HashSet<>();
+  private Long petId;
+  private String petName;
+  private String breed;
+  private int petBirth;
+  private boolean petGender;
+  private double weight;
+  private String petMbti;
+  private boolean neutering;
+  private String petIntroduce;
+  private String status;
   private LocalDateTime regDate;
   private LocalDateTime modDate;
+
+  private Long mid;         // 회원 ID (foreign key 역할)
+  private String imagePath; // 이미지 경로
+  private String thumbnailPath;
+
+
+  /**
+   * Entity → DTO 변환 팩토리 메서드
+   */
+  public static PetDTO fromEntity(Pet pet) {
+    if (pet == null) return null;
+    return PetDTO.builder()
+            .petId(pet.getPetId())
+            .petName(pet.getPetName())
+            .breed(pet.getBreed())
+            .petBirth(pet.getPetBirth())
+            .petGender(pet.isPetGender())
+            .weight(pet.getWeight())
+            .petMbti(pet.getPetMbti())
+            .neutering(pet.isNeutering())
+            .petIntroduce(pet.getPetIntroduce())
+            .status(pet.getStatus() != null ? pet.getStatus().name() : null)
+            .regDate(pet.getRegDate())
+            .modDate(pet.getModDate())
+            .mid(pet.getMember() != null ? pet.getMember().getMid() : null)
+            .imagePath(pet.getImagePath())
+            .thumbnailPath(pet.getThumbnailPath())
+            .build();
+  }
 }

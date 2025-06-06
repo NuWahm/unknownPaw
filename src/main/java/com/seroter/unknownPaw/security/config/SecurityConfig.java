@@ -10,12 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,42 +28,75 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final ApiLoginFailHandler apiLoginFailHandler;
     private final ApplicationContext applicationContext;
+    private final CORSFilter corsFilter; // 꼭 주입
 
-
-    // 인증 관리자 등록
+    // [1] AuthenticationManager 명시적 등록 (PasswordEncoder는 따로 주입)
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    public AuthenticationManager authenticationManager(HttpSecurity http,
+                                                       org.springframework.security.crypto.password.PasswordEncoder encoder) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(userDetailsService).passwordEncoder(encoder);
         return builder.build();
     }
 
-
-    // 시큐리티 필터 체인 설정 (최신 문법)
+    // [2] SecurityFilterChain
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 인증 필요한 API 패턴 넓게 설정
         ApiCheckFilter apiCheckFilter = new ApiCheckFilter(
-                new String[]{"/api/posts/**", "/api/member/mypage"}, jwtUtil
-        );
+                new String[]{
+                        "/api/posts/**",
+                        "/api/member/mypage",
+                        "/api/member/profile/simple/**",
+                        "/api/member/*/pets",
+                        "/api/member/*/posts",
+                        "/api/member/posts/favourites",
+                        "/api/member/me",
+                        "/api/member/update",
+                        "/api/member/change-password",
+                        "/api/member/withdraw",
+                        "/api/pet/register/later",
+                        "/api/pet/{petId}",
+                        "/api/posts/*/favourite"
+                }, jwtUtil);
 
         http
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
+                .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/member/login", "/api/member/register").permitAll()
-                        .requestMatchers("/api/posts/**", "/api/member/mypage").authenticated()
+                        .requestMatchers(
+                                "/api/member/login",
+                                "/api/member/register",
+                                "/api/maps/**", // 지도 API는 인증 없이 접근 가능
+                                "/api/member/check-email",
+                                "/api/member/check-phone",
+                                "/api/member/check-nickname"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/posts/**",
+                                "/api/member/mypage",
+                                "/api/member/profile/simple/**",
+                                "/api/member/*/pets",
+                                "/api/member/*/posts",
+                                "/api/member/posts/favourites",
+                                "/api/member/me",
+                                "/api/member/update",
+                                "/api/member/change-password",
+                                "/api/member/withdraw",
+                                "/api/pet/register/later",
+                                "/api/pet/{petId}",
+                                "/api/posts/*/favourite"
+                        ).authenticated()
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(new CORSFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(apiCheckFilter, UsernamePasswordAuthenticationFilter.class);
 
+        // OAuth2 로그인도 필요시만 활성화
         if (applicationContext.getBeanNamesForType(ClientRegistrationRepository.class).length > 0) {
-            http.oauth2Login(oauth -> oauth
-                    .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
-            );
+            http.oauth2Login(oauth -> oauth.userInfoEndpoint(info -> info.userService(oAuth2UserService)));
         }
-
         return http.build();
     }
-
 }

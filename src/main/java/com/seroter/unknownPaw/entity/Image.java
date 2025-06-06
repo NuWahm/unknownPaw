@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
-@ToString(exclude = {"member", "pet", "petOwner", "petSitter"})
+@ToString(exclude = {"member", "pet", "post"})
 @Table(name = "image")
 
 public class Image {
@@ -21,31 +21,32 @@ public class Image {
   private String profileImg; // 프로필 사진
   private String uuid; // UUID
   private String path; // 파일 경로
+  private String thumbnailPath;
 
   @Column(nullable = false)
-  private int role; // 1-멤버, 2-펫, 3-포스트
+  public static final int TYPE_PROFILE = 1;
+  public static final int TYPE_PET     = 2;
+  public static final int TYPE_POST    = 3;
+  public static final int TYPE_COMMUNITY    = 4;
+  private int imageType; // 1-멤버, 2-펫, 3-포스트, 4-커뮤니티
 
   // 회원정보 참조 (멤버)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-
   private Member member;
 
 
   // 반려동물 정보 참조
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "pet_id")
-
   private Pet pet;
 
-
-  // 펫오너 포스트 참조
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "pet_owner_id")
-  private PetOwner petOwner;
+  @JoinColumn(name = "post_id", nullable = true)
+  private Post post;
 
-  // 펫시터 포스트 참조
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "pet_sitter_id")
-  private PetSitter petSitter;
+
+  @JoinColumn(name = "community_id")
+  private Community community;
 }

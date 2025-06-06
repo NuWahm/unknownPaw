@@ -42,13 +42,24 @@ public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
     log.info("ApiLoginFilter:: successfulAuthentication : " + authResult);
     log.info(authResult.getPrincipal());
-    String email = ((MemberAuthDTO) authResult.getPrincipal()).getEmail();
-    String token = null;
+
+    MemberAuthDTO member = (MemberAuthDTO) authResult.getPrincipal();
+    String email = member.getEmail();
+
+    String role = authResult.getAuthorities().stream()
+        .findFirst()
+        .map(a -> a.getAuthority()
+            .replace("ROLE_", ""))
+        .orElse("USER");
+
+    String token = jwtUtil.generateToken(email, role);
     try {
-      token = jwtUtil.generateToken(email);
+      token = jwtUtil.generateToken(email, role);
       response.setContentType("text/plain");
       response.getOutputStream().write(token.getBytes()); // token 발행
       log.info("generated token: " + token);
-    } catch (Exception e) {e.printStackTrace();}
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 }

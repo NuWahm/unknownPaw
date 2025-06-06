@@ -5,7 +5,9 @@ import com.seroter.unknownPaw.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -66,7 +68,7 @@ public class Member extends BaseEntity {
     @Column(length = 30)
     private String signupChannel; // 가입 경로 (kakao, google등)
 
-    // 🛡️ 권한 및 상태
+    // === Enum ===
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role; // 사용자 권한 (일반회원, 관리자)
@@ -82,6 +84,7 @@ public class Member extends BaseEntity {
     public enum MemberStatus {
         ACTIVE, INACTIVE, BANNED, DELETED
     }
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "member_roles",
@@ -94,8 +97,53 @@ public class Member extends BaseEntity {
     public void addRole(Role role) {
         roleSet.add(role);
     }
+
     public void addMemberRole(Role role) {
         this.roleSet.add(role);
     }
 
+    // PetOwnerPost 좋아요
+    @ManyToMany
+    @JoinTable(
+            name = "member_liked_petowner_posts",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetOwner> likedPetOwner = new HashSet<>();
+
+    // PetSitterPost 좋아요
+    @ManyToMany
+    @JoinTable(
+            name = "member_liked_petsitter_posts",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    @Builder.Default
+    private Set<PetSitter> likedPetSitter = new HashSet<>();
+
+    // Community 좋아요
+    @ManyToMany
+    @JoinTable(
+            name = "member_liked_community_posts",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "community_id")
+    )
+    @Builder.Default
+    private Set<Community> likedCommunity = new HashSet<>();
+
+    // 회원이 소유한 펫들
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    @Builder.Default  // Builder 패턴 사용 시 기본값 설정
+    private Set<Pet> pets = new HashSet<>();
+
+    // 소개 추가
+    @Column(length = 500)
+    private String introduce; // 회원 소개
+
+    // pets 목록을 반환하는 메서드
+    public List<Pet> getPets() {
+        return new ArrayList<>(pets);
+    }
+    public String getIntroduce() { return this.introduce; }
 }
