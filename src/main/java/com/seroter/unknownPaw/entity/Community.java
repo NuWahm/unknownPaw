@@ -52,10 +52,11 @@ public class Community {
     }
 
     // ========== [게시글 수정 메서드] ==========
-    public void modify(CommunityRequestDTO communityRequestDTO) {
-        this.title = communityRequestDTO.getTitle();
-        this.content = communityRequestDTO.getContent();
-        this.communityCategory = communityRequestDTO.getCommunityCategory(); // ✅ 단순 대입
+    public void modify(String title, String content, CommunityCategory communityCategory) {
+        this.title = title;
+        this.content = content;
+        this.content = content;
+        this.communityCategory = communityCategory;
     }
 
 

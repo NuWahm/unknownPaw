@@ -4,6 +4,7 @@ import com.seroter.unknownPaw.entity.Enum.ImageType;
 import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -27,9 +28,7 @@ public class MemberImageController {
 
   private final ImageService imageService;
 
-
   // 회원 이미지 등록
-
   @PostMapping("/upload")
   public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,
                                   @RequestParam("targetId") Long memberId) {
@@ -86,6 +85,7 @@ public class MemberImageController {
       return ResponseEntity.notFound().build();
     }
   }
+
   private String uploadRoot;
 
   /**

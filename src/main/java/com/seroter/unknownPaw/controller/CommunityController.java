@@ -1,5 +1,7 @@
 package com.seroter.unknownPaw.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seroter.unknownPaw.dto.CommentDTO;
 import com.seroter.unknownPaw.dto.CommunityRequestDTO;
 import com.seroter.unknownPaw.dto.CommunityResponseDTO;
@@ -9,6 +11,7 @@ import com.seroter.unknownPaw.repository.CommunityRepository;
 import com.seroter.unknownPaw.service.CommunityService;
 import com.seroter.unknownPaw.service.ImageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/community")
 @RequiredArgsConstructor
+@Log4j2
 public class CommunityController {
 
     private final CommunityRepository communityRepository;
@@ -74,11 +78,57 @@ public class CommunityController {
 
 
     // ========== [게시글 수정] ==========
-    @PutMapping("/posts/{postId}")
-    public ResponseEntity<Void> updateCommunityPost(@PathVariable Long postId, @RequestBody CommunityRequestDTO dto) {
-        // 게시글 수정 서비스 호출
-        communityService.updateCommunityPost(postId, dto);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // 수정된 상태로 응답
+    @PutMapping(value = "/posts/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // consume 타입 변경
+    public ResponseEntity<CommunityResponseDTO> updateCommunityPost( // 반환 타입 변경
+                                                                     @PathVariable Long postId,
+                                                                     @RequestParam Long memberId, // 게시글 작성자 ID (권한 확인용)
+                                                                     @RequestParam String title,
+                                                                     @RequestParam String content,
+                                                                     @RequestParam String communityCategory, // Enum이 아닌 String으로 받음
+                                                                     @RequestParam("existingImageNamesJson") String existingImageNamesJson, // JSON 문자열로 받음
+                                                                     @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages // 새 이미지 파일 목록
+    ) {
+        log.info("게시글 수정 요청 수신: postId={}, memberId={}, title={}, content={}, category={}, existingImagesJson={}",
+            postId, memberId, title, content, communityCategory, existingImageNamesJson);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<String> existingImageNames = mapper.readValue(existingImageNamesJson, new TypeReference<List<String>>() {});
+            log.info("파싱된 기존 이미지 이름: {}", existingImageNames);
+
+            // 서비스 계층으로 업데이트 로직 위임 (새로운 updateCommunityPost 메서드를 호출)
+            CommunityResponseDTO updatedPost = communityService.updateCommunityPost(
+                postId, memberId, title, content, communityCategory, existingImageNames, newImages
+            );
+
+            return ResponseEntity.ok(updatedPost); // 업데이트된 게시글 정보를 반환
+        } catch (Exception e) {
+            log.error("게시글 수정 실패: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null); // 에러 응답
+        }
+    }
+
+    // 이미지 삭제 엔드포인트 수정
+    @DeleteMapping("/posts/{postId}/images/{imageName:.+}") // .+: 모든 문자 하나 이상, /를 포함한 경로 매칭 가능
+    public ResponseEntity<Void> deleteCommunityImage(
+        @PathVariable Long postId,
+        @PathVariable String imageName) { // imageName은 "community/uuid_filename.jpg" 형태의 전체 경로로 전달됨
+
+        log.info("이미지 삭제 요청 받음: postId={}, imageName={}", postId, imageName);
+
+        // 이제 여기서 imageName을 분리할 필요가 없습니다.
+        // CommunityService.removeCommunityImage가 이미 전체 경로를 받아 내부에서 처리합니다.
+        try {
+            communityService.removeCommunityImage(postId, imageName); // <-- 이 부분을 그대로 유지
+
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 요청: {}", e.getMessage());
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
+        } catch (Exception e) {
+            log.error("이미지 삭제 중 오류 발생: postId={}, imageName={}, 에러={}", postId, imageName, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
     }
 
     // ========== [게시글 삭제] ==========
