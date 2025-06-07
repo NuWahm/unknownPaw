@@ -7,8 +7,13 @@ import com.seroter.unknownPaw.dto.ModifyRequestDTO;
 import com.seroter.unknownPaw.dto.PageRequestDTO;
 import com.seroter.unknownPaw.dto.PostDTO;
 import com.seroter.unknownPaw.entity.Post;
+import com.seroter.unknownPaw.entity.PetOwner;
+import com.seroter.unknownPaw.entity.PetSitter;
 import com.seroter.unknownPaw.entity.Enum.PostType;
+import com.seroter.unknownPaw.repository.PetOwnerRepository;
+import com.seroter.unknownPaw.repository.PetSitterRepository;
 import com.seroter.unknownPaw.service.ImageService;
+import com.seroter.unknownPaw.service.MemberService;
 import com.seroter.unknownPaw.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 
 import jakarta.transaction.Transactional;
 
@@ -32,29 +38,30 @@ public class PostController {
 
   private final PostService postService;
   private final ImageService imageService;
+  private final MemberService memberService;
   private final ObjectMapper objectMapper;
+  private final PetOwnerRepository petOwnerRepository;
+  private final PetSitterRepository petSitterRepository;
 
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-      @PathVariable String postType,
-      PageRequestDTO pageRequestDTO,
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) String location,
-      @RequestParam(required = false) String category
+          @PathVariable String postType,
+          PageRequestDTO pageRequestDTO,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) String location,
+          @RequestParam(required = false) String category
 
   ) {
     try {
       PostType pType = PostType.from(postType);
       System.out.println("pType list:" + postType);
-      PageRequest pageRequest = PageRequest.of(pageRequestDTO.getPage(), pageRequestDTO.getSize());
       Page<PostDTO> result = postService.searchPosts(
-          postType,     // enum → String
-          keyword,
-          location,
-          category,
-          pageRequestDTO.getPageable()
-
+              postType,
+              keyword,
+              location,
+              category,
+              pageRequestDTO.getPageable()
       );
       return ResponseEntity.ok(result);
     } catch (IllegalArgumentException e) {
@@ -65,8 +72,8 @@ public class PostController {
   /* ---------------- 상세 ---------------- */
   @GetMapping("/{postType}/read/{postId}")
   public ResponseEntity<?> read(
-      @PathVariable String postType,
-      @PathVariable Long postId
+          @PathVariable String postType,
+          @PathVariable Long postId
 
   ) {
     // 콘솔로 받은 값 확인
@@ -88,9 +95,9 @@ public class PostController {
   /* ---------------- 등록 ---------------- */
   @PostMapping("/{postType}/register")
   public ResponseEntity<?> register(
-      @PathVariable String postType,
-      @RequestBody PostDTO postDTO,
-      @RequestParam Long memberId
+          @PathVariable String postType,
+          @RequestBody PostDTO postDTO,
+          @RequestParam Long memberId
   ) {
     log.info("받은 카테고리: {}", postDTO.getServiceCategory());
 
@@ -106,15 +113,15 @@ public class PostController {
   /* ---------------- 수정 ---------------- */
   @PutMapping("/{postType}/modify")
   public ResponseEntity<?> modify(
-      @PathVariable String postType,
-      @RequestBody ModifyRequestDTO modifyRequestDTO
+          @PathVariable String postType,
+          @RequestBody ModifyRequestDTO modifyRequestDTO
   ) {
     try {
       PostType enumPostType = PostType.from(postType);
       postService.modify(enumPostType.name(), modifyRequestDTO.getPostDTO());
       return ResponseEntity.ok(Map.of(
-          "msg", "수정 완료",
-          "postId", modifyRequestDTO.getPostDTO().getPostId()
+              "msg", "수정 완료",
+              "postId", modifyRequestDTO.getPostDTO().getPostId()
       ));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body("Invalid postType: " + postType);
@@ -127,10 +134,10 @@ public class PostController {
   @PutMapping("/{postType}/modifyWithImage")
   @Transactional
   public ResponseEntity<?> modifyWithImage(
-      @PathVariable String postType,
-      @RequestParam("post") String postJson,
-      @RequestParam(value = "file", required = false) MultipartFile file,
-      @RequestParam Long postId
+          @PathVariable String postType,
+          @RequestParam("post") String postJson,
+          @RequestParam(value = "file", required = false) MultipartFile file,
+          @RequestParam Long postId
   ) {
     try {
       // 1. 날짜 형식 처리
@@ -167,13 +174,12 @@ public class PostController {
         }
 
         // 새 이미지 저장
-        String savedFileName = imageService.saveImage(file, postType, "post", postId, petId);
-
+        String savedFileName = imageService.saveImage(file, postType, postType, postId, petId);
         // 이미지 정보를 PostDTO에 추가
         ImageDTO newImage = ImageDTO.builder()
-            .path(postType + "/" + savedFileName)
-            .thumbnailPath(postType + "/thumb_" + savedFileName)
-            .build();
+                .path(postType + "/" + savedFileName)
+                .thumbnailPath(postType + "/thumb_" + savedFileName)
+                .build();
 
         // PostDTO 업데이트
         postDTO.setPostId(postId);  // postId 설정
@@ -186,8 +192,8 @@ public class PostController {
       }
 
       return ResponseEntity.ok(Map.of(
-          "msg", "수정 완료",
-          "postId", postId
+              "msg", "수정 완료",
+              "postId", postId
       ));
     } catch (Exception e) {
       log.error("글+이미지 수정 실패", e);
@@ -197,10 +203,10 @@ public class PostController {
 
   @PostMapping("/{postType}/registerWithImage")
   public ResponseEntity<?> registerWithImage(
-      @PathVariable String postType,
-      @RequestParam("post") String postJson,
-      @RequestParam("file") MultipartFile file,
-      @RequestParam Long memberId
+          @PathVariable String postType,
+          @RequestParam("post") String postJson,
+          @RequestParam("file") MultipartFile file,
+          @RequestParam Long memberId
   ) {
     try {
       // postType 변환 (pet_owner -> petowner, pet_sitter -> petsitter)
@@ -218,13 +224,13 @@ public class PostController {
       }
 
       // 이미지 저장
-      String savedFileName = imageService.saveImage(file, convertedPostType, "post", postId, petId);
+      String savedFileName = imageService.saveImage(file, convertedPostType, convertedPostType, postId, petId);
 
       // 이미지 정보를 PostDTO에 추가
       ImageDTO newImage = ImageDTO.builder()
-          .path(convertedPostType + "/" + savedFileName)
-          .thumbnailPath(convertedPostType + "/thumb_" + savedFileName)
-          .build();
+              .path(convertedPostType + "/" + savedFileName)
+              .thumbnailPath(postType + "/" + "thumb_" + savedFileName)
+              .build();
 
       // PostDTO 업데이트
       postDTO.setPostId(postId);
@@ -242,13 +248,13 @@ public class PostController {
   /* ---------------- 삭제 ---------------- */
   @DeleteMapping("/{postType}/delete/{postId}")
   public ResponseEntity<?> delete(
-      @PathVariable PostType postType,
-      @PathVariable Long postId
+          @PathVariable PostType postType,
+          @PathVariable Long postId
   ) {
     postService.remove(postType.name(), postId);
     return ResponseEntity.ok(Map.of(
-        "msg", "삭제 완료",
-        "postId", postId
+            "msg", "삭제 완료",
+            "postId", postId
     ));
   }
   // 최근 7일 이내 펫오너 게시글 랜덤 6개
@@ -266,8 +272,8 @@ public class PostController {
 
   @GetMapping("/{postType}/{mid}")
   public ResponseEntity<?> getPostsByMember(
-      @PathVariable String postType,
-      @PathVariable Long mid
+          @PathVariable String postType,
+          @PathVariable Long mid
   ) {
 
     try {
@@ -308,5 +314,69 @@ public class PostController {
     return ResponseEntity.ok(dtoSet);
   }
 
+  @GetMapping("/favourites")
+  public ResponseEntity<?> getFavouritePosts(
+          @RequestParam Long memberId,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size
+  ) {
+    try {
+      Page<MemberService.FavouritePostDTO> result = memberService.findLikedPosts(memberId, page, size);
+      return ResponseEntity.ok(result);
+    } catch (Exception e) {
+      log.error("찜한 게시글 조회 실패", e);
+      return ResponseEntity.badRequest().body("찜한 게시글 조회 실패: " + e.getMessage());
+    }
+  }
+
+  // 찜하기 등록
+  @PostMapping("/{postId}/favourite")
+  public ResponseEntity<String> addFavourite(
+          @PathVariable Long postId,
+          @RequestParam Long memberId) {
+    try {
+      // 펫오너 게시글인지 펫시터 게시글인지 확인
+      Optional<PetOwner> petOwner = petOwnerRepository.findById(postId);
+      Optional<PetSitter> petSitter = petSitterRepository.findById(postId);
+      
+      if (petOwner.isPresent()) {
+        postService.likePost(memberId, postId, PostType.PET_OWNER);
+      } else if (petSitter.isPresent()) {
+        postService.likePost(memberId, postId, PostType.PET_SITTER);
+      } else {
+        return ResponseEntity.badRequest().body("존재하지 않는 게시글입니다.");
+      }
+      
+      return ResponseEntity.ok("찜하기 완료");
+    } catch (Exception e) {
+      log.error("찜하기 실패", e);
+      return ResponseEntity.badRequest().body("찜하기 실패: " + e.getMessage());
+    }
+  }
+
+  // 찜하기 취소
+  @DeleteMapping("/{postId}/favourite")
+  public ResponseEntity<String> removeFavourite(
+          @PathVariable Long postId,
+          @RequestParam Long memberId) {
+    try {
+      // 펫오너 게시글인지 펫시터 게시글인지 확인
+      Optional<PetOwner> petOwner = petOwnerRepository.findById(postId);
+      Optional<PetSitter> petSitter = petSitterRepository.findById(postId);
+      
+      if (petOwner.isPresent()) {
+        postService.unlikePost(memberId, postId, PostType.PET_OWNER);
+      } else if (petSitter.isPresent()) {
+        postService.unlikePost(memberId, postId, PostType.PET_SITTER);
+      } else {
+        return ResponseEntity.badRequest().body("존재하지 않는 게시글입니다.");
+      }
+      
+      return ResponseEntity.ok("찜하기 취소 완료");
+    } catch (Exception e) {
+      log.error("찜하기 취소 실패", e);
+      return ResponseEntity.badRequest().body("찜하기 취소 실패: " + e.getMessage());
+    }
+  }
 
 }

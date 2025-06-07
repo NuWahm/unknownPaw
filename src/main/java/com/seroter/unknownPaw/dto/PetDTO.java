@@ -36,21 +36,21 @@ public class PetDTO {
   public static PetDTO fromEntity(Pet pet) {
     if (pet == null) return null;
     return PetDTO.builder()
-        .petId(pet.getPetId())
-        .petName(pet.getPetName())
-        .breed(pet.getBreed())
-        .petBirth(pet.getPetBirth())
-        .petGender(pet.isPetGender())
-        .weight(pet.getWeight())
-        .petMbti(pet.getPetMbti())
-        .neutering(pet.isNeutering())
-        .petIntroduce(pet.getPetIntroduce())
-        .status(pet.getStatus() != null ? pet.getStatus().name() : null)
-        .regDate(pet.getRegDate())
-        .modDate(pet.getModDate())
-        .mid(pet.getMember() != null ? pet.getMember().getMid() : null)
-        .imagePath(pet.getImagePath())
-        .thumbnailPath(pet.getThumbnailPath())
-        .build();
+            .petId(pet.getPetId())
+            .petName(pet.getPetName())
+            .breed(pet.getBreed())
+            .petBirth(pet.getPetBirth())
+            .petGender(pet.isPetGender())
+            .weight(pet.getWeight())
+            .petMbti(pet.getPetMbti())
+            .neutering(pet.isNeutering())
+            .petIntroduce(pet.getPetIntroduce())
+            .status(pet.getStatus() != null ? pet.getStatus().name() : null)
+            .regDate(pet.getRegDate())
+            .modDate(pet.getModDate())
+            .mid(pet.getMember() != null ? pet.getMember().getMid() : null)
+            .imagePath(pet.getImagePath())
+            .thumbnailPath(pet.getThumbnailPath())
+            .build();
   }
 }

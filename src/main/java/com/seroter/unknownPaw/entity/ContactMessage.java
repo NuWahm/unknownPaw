@@ -32,7 +32,7 @@ public class ContactMessage {
 
     // 답변 리스트 (1:N)
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ContactAnswer> answers = new ArrayList<>();
+    private List<ContactAnswer>answers = new ArrayList<>();
 
     @PrePersist
     public void setCreatedAt() {

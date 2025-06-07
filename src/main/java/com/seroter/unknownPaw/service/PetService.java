@@ -36,18 +36,18 @@ public class PetService {
 
   private Pet dtoToEntity(PetDTO dto, Member member) {
     return Pet.builder()
-        .petId(dto.getPetId())
-        .petName(dto.getPetName())
-        .breed(dto.getBreed())
-        .petBirth(dto.getPetBirth())
-        .petGender(dto.isPetGender())
-        .weight(dto.getWeight())
-        .petMbti(dto.getPetMbti())
-        .neutering(dto.isNeutering())
-        .petIntroduce(dto.getPetIntroduce())
-        .member(member)
-        .status(PetStatus.ACTIVE)
-        .build();
+            .petId(dto.getPetId())
+            .petName(dto.getPetName())
+            .breed(dto.getBreed())
+            .petBirth(dto.getPetBirth())
+            .petGender(dto.isPetGender())
+            .weight(dto.getWeight())
+            .petMbti(dto.getPetMbti())
+            .neutering(dto.isNeutering())
+            .petIntroduce(dto.getPetIntroduce())
+            .member(member)
+            .status(PetStatus.ACTIVE)
+            .build();
   }
 
   // ======================= [등록/수정] =======================
@@ -62,7 +62,7 @@ public class PetService {
   @Transactional
   public PetDTO updatePetImagePath(Long petId, Image image) {
     Pet pet = petRepository.findById(petId)
-        .orElseThrow(() -> new EntityNotFoundException("펫 없음: " + petId));
+            .orElseThrow(() -> new EntityNotFoundException("펫 없음: " + petId));
 
     // Pet 엔티티 업데이트
     pet.setImagePath(image.getPath());
@@ -79,7 +79,7 @@ public class PetService {
   @Transactional
   public PetDTO updatePet(Long petId, Member member, PetDTO petDTO) {
     Pet pet = petRepository.findByPetIdAndMemberAndStatus(petId, member, PetStatus.ACTIVE)
-        .orElseThrow(() -> new EntityNotFoundException("업데이트할 펫을 찾을 수 없거나, 소유권이 없거나, 비활성 상태입니다."));
+            .orElseThrow(() -> new EntityNotFoundException("업데이트할 펫을 찾을 수 없거나, 소유권이 없거나, 비활성 상태입니다."));
     pet.setPetName(petDTO.getPetName());
     pet.setBreed(petDTO.getBreed());
     pet.setPetBirth(petDTO.getPetBirth());
@@ -98,29 +98,29 @@ public class PetService {
   // 단일 펫 조회 (petId 기준, ACTIVE만)
   public PetDTO getPet(Long petId) {
     Pet pet = petRepository.getActivePetDetail(petId)
-        .orElseThrow(() -> new EntityNotFoundException("펫을 찾을 수 없거나 비활성 상태입니다. ID: " + petId));
+            .orElseThrow(() -> new EntityNotFoundException("펫을 찾을 수 없거나 비활성 상태입니다. ID: " + petId));
     return entityToDto(pet);
   }
 
   // 내 펫 목록 (member 기준, ACTIVE만)
   public List<PetDTO> getPetsByMember(Member member) {
     return petRepository.findByMemberAndStatus(member, PetStatus.ACTIVE)
-        .stream()
-        .map(this::entityToDto)
-        .collect(Collectors.toList());
+            .stream()
+            .map(this::entityToDto)
+            .collect(Collectors.toList());
   }
 
   // 내 펫 목록 (mid 기준, ACTIVE만)
   public List<PetDTO> getPetsByMemberId(Long mid) {
     Member member = memberRepository.findById(mid)
-        .orElseThrow(() -> new EntityNotFoundException("해당 회원이 존재하지 않습니다. ID: " + mid));
+            .orElseThrow(() -> new EntityNotFoundException("해당 회원이 존재하지 않습니다. ID: " + mid));
     return getPetsByMember(member);
   }
 
   // 특정 펫 상세조회 (소유권, ACTIVE 체크)
   public PetDTO getPet(Long petId, Member member) {
     Pet pet = petRepository.findByPetIdAndMemberAndStatus(petId, member, PetStatus.ACTIVE)
-        .orElseThrow(() -> new EntityNotFoundException("해당 펫을 찾을 수 없거나, 소유권이 없거나, 비활성 상태입니다."));
+            .orElseThrow(() -> new EntityNotFoundException("해당 펫을 찾을 수 없거나, 소유권이 없거나, 비활성 상태입니다."));
     return entityToDto(pet);
   }
 
@@ -130,7 +130,7 @@ public class PetService {
   @Transactional
   public void deletePet(Long petId, String email) {
     Member member = memberRepository.findByEmail(email)
-        .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다: " + email));
+            .orElseThrow(() -> new EntityNotFoundException("로그인된 회원을 찾을 수 없습니다: " + email));
     int updatedRows = petRepository.deactivatePetByOwner(petId, member.getMid());
     if (updatedRows == 0) {
       throw new EntityNotFoundException("삭제할 펫을 찾을 수 없거나, 소유권이 없거나, 이미 삭제된 펫입니다. ID: " + petId);
