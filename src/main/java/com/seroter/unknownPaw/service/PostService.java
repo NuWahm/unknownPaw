@@ -95,9 +95,10 @@ public class PostService {
 
     // 게시글 동적 검색
     @Transactional
-    public Page<PostDTO> searchPosts(String postType, String keyword, String location, String category, Pageable pageable) {
-        log.info("Searching posts with type: {}", postType);
-        Page<? extends Post> result = searchPostRepository.searchDynamic(postType, keyword, location, category, pageable);
+    public Page<PostDTO> searchPosts(String postType, String searchType, String keyword, String location, String category, Pageable pageable) {
+        log.info("Searching posts with type: {}, searchType: {}", postType, searchType);
+        // searchPostRepository.searchDynamic 메서드 호출 시 searchType 파라미터 추가
+        Page<? extends Post> result = searchPostRepository.searchDynamic(postType, searchType, keyword, location, category, pageable);
         log.info("Finished searching posts. Found {} elements.", result.getTotalElements());
         return result.map(post -> entityToDto(post, isSitter(postType)));
     }

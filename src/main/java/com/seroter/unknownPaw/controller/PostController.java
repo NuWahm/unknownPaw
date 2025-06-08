@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,27 +47,27 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-          @PathVariable String postType,
-          PageRequestDTO pageRequestDTO,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) String location,
-          @RequestParam(required = false) String category
+      @RequestParam(defaultValue = "petOwner") String role, // PostType으로 변환될 "petOwner" 또는 "petSitter"
+      @RequestParam(required = false) String type, // <-- 프론트에서 넘어오는 searchType (title, content, author)
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) String defaultLocation, // "location"으로 사용되었으니 그대로
+      @RequestParam(required = false) String category,
+      Pageable pageable) {
 
-  ) {
-    try {
-      PostType pType = PostType.from(postType);
-      System.out.println("pType list:" + postType);
-      Page<PostDTO> result = postService.searchPosts(
-              postType,
-              keyword,
-              location,
-              category,
-              pageRequestDTO.getPageable()
-      );
-      return ResponseEntity.ok(result);
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
-    }
+    log.info("Request received: role={}, type={}, keyword={}, defaultLocation={}, category={}, pageable={}",
+        role, type, keyword, defaultLocation, category, pageable);
+
+    // PostService의 searchPosts 메서드 호출 시, type 파라미터도 함께 전달
+    Page<PostDTO> posts = postService.searchPosts(
+        role,      // 첫 번째 인자: postType (role로 사용)
+        type,      // 두 번째 인자: searchType (새로 추가)
+        keyword,   // 세 번째 인자: keyword
+        defaultLocation, // 네 번째 인자: location
+        category,  // 다섯 번째 인자: category
+        pageable   // 여섯 번째 인자: pageable
+    );
+
+    return ResponseEntity.ok(posts);
   }
 
   /* ---------------- 상세 ---------------- */
