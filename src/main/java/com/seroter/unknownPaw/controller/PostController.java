@@ -47,29 +47,36 @@ public class PostController {
   /* ---------------- 목록 ---------------- */
   @GetMapping("/{postType}/list")
   public ResponseEntity<?> list(
-      @RequestParam(defaultValue = "petOwner") String role, // PostType으로 변환될 "petOwner" 또는 "petSitter"
-      @RequestParam(required = false) String type, // <-- 프론트에서 넘어오는 searchType (title, content, author)
+      @PathVariable String postType,
+      @RequestParam(required = false) String type,
       @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) String defaultLocation, // "location"으로 사용되었으니 그대로
+      @RequestParam(required = false) String defaultLocation,
       @RequestParam(required = false) String category,
       Pageable pageable) {
 
-    log.info("Request received: role={}, type={}, keyword={}, defaultLocation={}, category={}, pageable={}",
-        role, type, keyword, defaultLocation, category, pageable);
+    log.info("Request received: postType={}, type={}, keyword={}, defaultLocation={}, category={}, pageable={}",
+        postType, type, keyword, defaultLocation, category, pageable);
 
-    // PostService의 searchPosts 메서드 호출 시, type 파라미터도 함께 전달
+    PostType enumPostType;
+    try {
+      enumPostType = PostType.from(postType);
+    } catch (IllegalArgumentException e) {
+      log.error("Invalid post type received: {}", postType, e);
+      return ResponseEntity.badRequest().body("유효하지 않은 게시글 타입입니다.");
+    }
+
+    // ⭐ 핵심 변경: enumPostType.name() 대신 enumPostType.toValue() 사용
     Page<PostDTO> posts = postService.searchPosts(
-        role,      // 첫 번째 인자: postType (role로 사용)
-        type,      // 두 번째 인자: searchType (새로 추가)
-        keyword,   // 세 번째 인자: keyword
-        defaultLocation, // 네 번째 인자: location
-        category,  // 다섯 번째 인자: category
-        pageable   // 여섯 번째 인자: pageable
+        enumPostType.toValue(), // 첫 번째 인자: PostType (String으로 변환하여 전달)
+        type,
+        keyword,
+        defaultLocation,
+        category,
+        pageable
     );
 
     return ResponseEntity.ok(posts);
   }
-
   /* ---------------- 상세 ---------------- */
   @GetMapping("/{postType}/read/{postId}")
   public ResponseEntity<?> read(
