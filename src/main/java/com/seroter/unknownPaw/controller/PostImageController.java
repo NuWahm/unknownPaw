@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,16 +24,23 @@ public class PostImageController {
   // 게시판 이미지 등록
 
   @PostMapping("/upload/{postType}")
-  public ResponseEntity<?> upload(@PathVariable String postType,
-                                  @RequestParam("file") MultipartFile file,
-                                  @RequestParam("targetId") Long targetId) {
+  public ResponseEntity<?> uploadImages(
+          @PathVariable String postType,
+          @RequestParam("files") List<MultipartFile> files,
+          @RequestParam("targetId") Long targetId
+  ) {
     try {
       if (!postType.equals("petOwner") && !postType.equals("petSitter")) {
         return ResponseEntity.badRequest().body("올바르지 않은 역할입니다.");
       }
 
-      String fileName = imageService.saveImage(file, postType, postType, targetId, null);
-      return ResponseEntity.ok(Map.of("fileName", fileName, "role", postType));
+      List<String> fileNames = new ArrayList<>();
+      for (MultipartFile file : files) {
+        String fileName = imageService.saveImage(file, postType, postType, targetId, null);
+        fileNames.add(fileName);
+      }
+
+      return ResponseEntity.ok(Map.of("fileNames", fileNames, "role", postType));
     } catch (Exception e) {
       log.error("이미지 업로드 실패", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패");
