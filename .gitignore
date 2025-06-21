@@ -60,3 +60,11 @@ out/
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
+
+application.properties
+application.yml
+application-local.*
+application-*.yml
+
+/test-output/
+
