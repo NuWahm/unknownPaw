@@ -3,10 +3,8 @@ package com.seroter.unknownPaw.dto;
 import com.seroter.unknownPaw.entity.Community;
 import com.seroter.unknownPaw.entity.CommunityImage;
 import com.seroter.unknownPaw.entity.Enum.CommunityCategory;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +12,6 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class CommunityResponseDTO {
 
     private Long communityId;
@@ -29,6 +25,7 @@ public class CommunityResponseDTO {
     private CommunityCategory communityCategory;
     private LocalDateTime regDate;
     private List<String> communityImages; // 커뮤니티 이미지 URL 목록
+    private Long authorId;
 
     // Community -> CommunityResponseDTO 변환
     public static CommunityResponseDTO fromEntity(Community community) {
@@ -48,6 +45,7 @@ public class CommunityResponseDTO {
                 .communityCategory(community.getCommunityCategory())
                 .regDate(community.getRegDate())
                 .communityImages(images)
+                .authorId(community.getMember().getMid()) // 작성자 ID 설정
                 .build();
 
     }

@@ -1,28 +1,22 @@
 package com.seroter.unknownPaw.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-
+@DiscriminatorValue("PET_SITTER")
 public class PetSitter extends Post {
-    @Builder.Default
-    @OneToMany(mappedBy = "petSitter",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    private List<Image> images = new ArrayList<>();
-
+    private List<String> license;
+    private int petExperience;
 }
+
 

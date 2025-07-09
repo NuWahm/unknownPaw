@@ -7,49 +7,45 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "post_type")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @ToString(exclude = "member")
-
 public abstract class Post {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long postId;
 
-  private String title; // 글제목
-
+  private String title;
   @Column(columnDefinition = "TEXT")
-  private String content;  // 글내용
+  private String content;
 
   @Enumerated(EnumType.STRING)
   private ServiceCategory serviceCategory;
 
-  private int desiredHourlyRate;
-
-  private int likes; // 관심(좋아요 수)
-
-
-  private int chatCount; // 채팅 개수
-
-  private String defaultLocation; // 기본 위치
-
-  private String flexibleLocation; // 유동적인 위치
-
-  private LocalDateTime regDate; // 등록일
-
-  private LocalDateTime modDate; // 수정일
+  private int likes;
+  private int chatCount;
+  private LocalDateTime serviceDate;
+  private String defaultLocation;
+  private String flexibleLocation;
+  private Double latitude;
+  private Double longitude;
+  private LocalDateTime regDate;
+  private LocalDateTime modDate;
 
   @PrePersist
   protected void onCreate() {
     this.regDate = LocalDateTime.now();
     this.modDate = LocalDateTime.now();
-
   }
 
   @PreUpdate
@@ -57,12 +53,16 @@ public abstract class Post {
     this.modDate = LocalDateTime.now();
   }
 
-  // 관계 설정
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mid")
-  private Member member; // 회원번호(참조 키) (펫오너)
+  private Member member;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private PostType postType;
+
+  @Column(name = "hourly_rate", nullable = false)
+  @Builder.Default
+  private Integer hourlyRate = 5000;
+
+  @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Image> images = new ArrayList<>();
 }

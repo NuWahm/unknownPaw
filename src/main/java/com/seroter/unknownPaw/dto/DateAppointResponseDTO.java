@@ -2,6 +2,8 @@ package com.seroter.unknownPaw.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -9,11 +11,27 @@ import lombok.*;
 @Builder
 public class DateAppointResponseDTO {
   private Long rno;
-  private String type;       // 산책 / 돌봄 / 호텔
-  private String date;       // 예약 날짜 (futureDate)
-  private String owner;      // 예약자 닉네임
-  private String petName;    // 반려동물 이름
-  private String duration;   // 예: "1시간"
-  private String price;      // 예: "15000원"
-  private String rating;     // 예: "4.5" (현재는 더미 데이터)
+  private String type;
+  private String date;
+  private String owner;
+  private String sitter;
+  private String petName;
+  private String duration;
+  private String price;
+  private String rating;
+  private int decideHourRate;
+  private Long mid;
+  private Long petId;
+  private Long petOwnerPostId;
+  private Long petSitterPostId;
+
+  private String defaultLocation; // ⭐ 위치 정보 (이전 답변에서 추가 요청)
+  private String flexibleLocation; // 유동적인 위치
+
+  // ⭐⭐⭐ 이 두 필드를 추가해야 합니다! ⭐⭐⭐
+  private LocalDateTime confirmationDate; // 서비스 시작 날짜 (Backend LocalDateTime 타입)
+  private LocalDateTime futureDate;       // 서비스 종료 날짜 (Backend LocalDateTime 타입)
+
+
+
 }

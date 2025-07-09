@@ -15,19 +15,19 @@ import java.util.Date;
 public class JWTUtil {
 
   private final String secretKey = "1234567890abcdefghijklmnopqrstuvwxyz";
-  private final long   expire    = 60 * 24 * 30;          // minutes
+  private final long expire = 60 * 24 * 30;          // minutes
 
   /* ---------- 토큰 발행 ---------- */
   public String generateToken(String email, String role) {
     return Jwts.builder()
-            .issuedAt(new Date())
-            .expiration(Date.from(
-                    ZonedDateTime.now().plusMinutes(expire).toInstant()))
-            .claim("sub",  email)
-            .claim("role", role)
-            .signWith(Keys.hmacShaKeyFor(
-                    secretKey.getBytes(StandardCharsets.UTF_8)))
-            .compact();
+        .issuedAt(new Date())
+        .expiration(Date.from(
+            ZonedDateTime.now().plusMinutes(expire).toInstant()))
+        .claim("sub", email)
+        .claim("role", role)
+        .signWith(Keys.hmacShaKeyFor(
+            secretKey.getBytes(StandardCharsets.UTF_8)))
+        .compact();
   }
 
   // sub(email)만 추출
@@ -37,13 +37,23 @@ public class JWTUtil {
     return claims.get("sub", String.class);
   }
 
-// Claims 전부 얻기
+  // Claims 전부 얻기
   public Claims getClaims(String token) {                            // ★ 새 메서드
     return (Claims) Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(
-                    secretKey.getBytes(StandardCharsets.UTF_8)))
-            .build()
-            .parse(token)
-            .getPayload();
+        .verifyWith(Keys.hmacShaKeyFor(
+            secretKey.getBytes(StandardCharsets.UTF_8)))
+        .build()
+        .parse(token)
+        .getPayload();
+  }
+
+
+  public String getEmail(String token) {
+    try {
+      Claims claims = getClaims(token);
+      return claims.getSubject(); // 보통 email을 subject로 넣는 경우
+    } catch (Exception e) {
+      throw new RuntimeException("Invalid JWT token", e);
+    }
   }
 }

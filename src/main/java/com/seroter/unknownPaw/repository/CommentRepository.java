@@ -1,6 +1,7 @@
 package com.seroter.unknownPaw.repository;
 
 import com.seroter.unknownPaw.entity.Comment;
+import com.seroter.unknownPaw.entity.Community;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -13,4 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 댓글 ID로 댓글 조회
     Comment findByCommentId(Long commentId);
+
+    void deleteByCommunity(Community community);
 }

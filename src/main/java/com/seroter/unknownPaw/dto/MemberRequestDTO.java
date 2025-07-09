@@ -1,10 +1,16 @@
 package com.seroter.unknownPaw.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+@Data
+@Builder
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberRequestDTO {
   private Long mid;                   // 회원 ID
   private String email;           // 이메일
@@ -18,4 +24,6 @@ public class MemberRequestDTO {
   private boolean fromSocial;     // 소셜 여부
   private String socialId;        // 소셜 ID
   private String signupChannel;   // 가입 경로
+  private PetDTO petInfo;
+
 }

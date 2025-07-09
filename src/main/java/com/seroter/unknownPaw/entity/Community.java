@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +52,11 @@ public class Community {
     }
 
     // ========== [게시글 수정 메서드] ==========
-    public void modify(CommunityRequestDTO communityRequestDTO) {
-        this.title = communityRequestDTO.getTitle();
-        this.content = communityRequestDTO.getContent();
-        this.communityCategory = communityRequestDTO.getCommunityCategory(); // ✅ 단순 대입
+    public void modify(String title, String content, CommunityCategory communityCategory) {
+        this.title = title;
+        this.content = content;
+        this.content = content;
+        this.communityCategory = communityCategory;
     }
 
 
@@ -77,4 +79,35 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
+
+
+    @ManyToMany
+    @JoinTable(
+        name = "member_liked_community_posts", // 중간 테이블 이름
+        joinColumns = @JoinColumn(name = "community_id"),
+        inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    @Builder.Default
+    private List<Member> likedMembers = new ArrayList<>();
+
+    // @Setter 쓰지 않기 위해 추가
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public void setComment(int comment) {
+        this.comment = comment;
+    }
+    // ========== [좋아요 수 증가 메서드 추가] ==========
+    public void increaseLikes() {
+        this.likes++;
+    }
+
+    // ========== [좋아요 수 감소 메서드 추가] ==========
+    public void decreaseLikes() {
+        if (this.likes > 0) { // 음수가 되지 않도록 방지
+            this.likes--;
+        }
+    }
+
 }
